@@ -168,7 +168,7 @@ export default function Hero() {
             </div>
           </div>
 
-          <div className="anim-float absolute -left-4 top-24 hidden rounded-2xl border border-line bg-[#0a1016]/90 p-3.5 shadow-2xl backdrop-blur-xl sm:block">
+          <div className="anim-float absolute right-4 top-24 hidden rounded-2xl border border-line bg-[#0a1016]/90 p-3.5 shadow-2xl backdrop-blur-xl sm:block">
             <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Hashrate online</div>
             <div className="mt-1 text-xl font-bold text-ink">1.24 EH/s</div>
             <div className="mt-2 h-1.5 w-28 overflow-hidden rounded-full bg-white/10">
@@ -176,7 +176,7 @@ export default function Hero() {
             </div>
           </div>
 
-          <div className="anim-float absolute -bottom-5 right-4 hidden rounded-2xl border border-aqua/25 bg-[#081116]/90 p-3.5 shadow-2xl backdrop-blur-xl sm:block [animation-delay:1.4s]">
+          <div className="anim-float absolute -bottom-5 left-4 hidden rounded-2xl border border-aqua/25 bg-[#081116]/90 p-3.5 shadow-2xl backdrop-blur-xl sm:block [animation-delay:1.4s]">
             <div className="flex items-center gap-2">
               <span className="grid h-7 w-7 place-items-center rounded-lg bg-aqua/10">
                 <Zap className="h-3.5 w-3.5 text-aqua" />
