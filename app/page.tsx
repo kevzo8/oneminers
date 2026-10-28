@@ -5,6 +5,7 @@ import HowItWorks from "@/components/HowItWorks";
 import Insights from "@/components/Insights";
 import LeadForm from "@/components/LeadForm";
 import Listings from "@/components/Listings";
+import LiveNetwork from "@/components/LiveNetwork";
 import MinersTable from "@/components/MinersTable";
 import ProfitCalculator from "@/components/ProfitCalculator";
 import SiteFooter from "@/components/SiteFooter";
@@ -17,6 +18,7 @@ export default function HomePage() {
       <SiteHeader />
       <main>
         <Hero />
+        <LiveNetwork />
         <Ticker />
         <Listings />
         <MinersTable />

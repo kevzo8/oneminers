@@ -19,10 +19,10 @@ function CoinRow({ symbol, price, change }: { symbol: string; price: number; cha
 
 export default function Ticker() {
   return (
-    <section className="border-y border-line bg-white/[0.015]" aria-label="Sample market prices">
+    <section className="border-y border-line bg-white/[0.015]" aria-label="Market prices">
       <div className="mx-auto flex max-w-7xl items-center gap-4 overflow-hidden px-5 sm:px-8">
         <span className="hidden shrink-0 border-r border-line pr-4 text-[10px] font-bold uppercase tracking-[0.14em] text-muted sm:block">
-          Sample market
+          Market prices
         </span>
         <div className="marquee-track">
           <div className="flex">

@@ -1,6 +1,5 @@
 import { ArrowRight, BadgeCheck, Gauge, Globe2, MapPin, ShieldCheck, Zap } from "lucide-react";
 import { stats } from "@/lib/data";
-import NetworkStats from "./NetworkStats";
 
 function Sparkline() {
   return (
@@ -167,18 +166,16 @@ export default function Hero() {
               </div>
               <Sparkline />
             </div>
-          </div>
 
-          <NetworkStats />
-
-          <div className="anim-float absolute -bottom-5 left-4 hidden rounded-2xl border border-aqua/25 bg-[#081116]/90 p-3.5 shadow-2xl backdrop-blur-xl sm:block [animation-delay:1.4s]">
-            <div className="flex items-center gap-2">
-              <span className="grid h-7 w-7 place-items-center rounded-lg bg-aqua/10">
-                <Zap className="h-3.5 w-3.5 text-aqua" />
-              </span>
-              <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Lowest power</div>
-                <div className="text-sm font-bold text-ink">2.1¢/kWh</div>
+            <div className="anim-float absolute -bottom-5 left-4 hidden rounded-2xl border border-aqua/25 bg-[#081116]/90 p-3.5 shadow-2xl backdrop-blur-xl sm:block [animation-delay:1.4s]">
+              <div className="flex items-center gap-2">
+                <span className="grid h-7 w-7 place-items-center rounded-lg bg-aqua/10">
+                  <Zap className="h-3.5 w-3.5 text-aqua" />
+                </span>
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Lowest power</div>
+                  <div className="text-sm font-bold text-ink">2.1¢/kWh</div>
+                </div>
               </div>
             </div>
           </div>

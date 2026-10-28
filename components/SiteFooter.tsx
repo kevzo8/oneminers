@@ -1,4 +1,4 @@
-import { ArrowUpRight, Globe2 } from "lucide-react";
+import { ArrowUpRight, Globe2, Send, MessageSquare, Linkedin, Github } from "lucide-react";
 
 const columns = [
   {
@@ -13,6 +13,23 @@ const columns = [
     title: "Company",
     links: ["About OneMiners", "Contact the desk", "Insights", "Privacy"],
   },
+];
+
+const socials = [
+  { name: "Telegram", href: "https://t.me/cryptositesio", icon: Send, label: "@cryptositesio" },
+  { name: "Facebook", href: "https://facebook.com/cryptositesio", icon: MessageSquare, label: "@cryptositesio" },
+  { name: "Threads", href: "https://threads.net/@cryptosites_io", icon: Send, label: "@cryptosites_io" },
+  { name: "LinkedIn", href: "https://linkedin.com/company/cryptositesio", icon: Linkedin, label: "cryptositesio" },
+  { name: "Reddit", href: "https://reddit.com/r/cryptositesio", icon: MessageSquare, label: "r/cryptositesio" },
+  { name: "GitHub", href: "https://github.com/kevzo8/oneminers", icon: Github, label: "kevzo8/oneminers" },
+];
+
+const footnotes = [
+  "Live network data sourced from <a href=\"https://mempool.space\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">mempool.space</a> (public API).",
+  "BTC price via <a href=\"https://www.coingecko.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">CoinGecko</a> public API.",
+  "Market prices are illustrative samples; replace with <a href=\"https://www.coingecko.com/en/api\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">CoinGecko</a> or <a href=\"https://coinmarketcap.com/api/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">CoinMarketCap</a> for production.",
+  "Inspired by <a href=\"https://cryptosites.io\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">cryptosites.io</a> and <a href=\"https://miningnow.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">miningnow.com</a> — design references only.",
+  "This is a demo. All listings, figures, and economics are illustrative. Not investment advice.",
 ];
 
 export default function SiteFooter() {
@@ -39,6 +56,22 @@ export default function SiteFooter() {
             <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-line bg-white/[0.03] px-3 py-1.5 text-[11px] text-muted">
               <Globe2 className="h-3.5 w-3.5 text-aqua" />
               Cebu, Philippines · Global inventory
+            </div>
+
+            <div className="mt-8 flex flex-wrap gap-2">
+              {socials.map((s) => (
+                <a
+                  key={s.name}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-line bg-white/[0.03] px-3 py-1.5 text-[11px] text-muted transition-colors hover:border-accent/40 hover:text-accent"
+                  aria-label={s.name}
+                >
+                  <s.icon className="h-3.5 w-3.5" />
+                  <span className="text-[10px] font-medium">{s.label}</span>
+                </a>
+              ))}
             </div>
           </div>
 
@@ -67,6 +100,15 @@ export default function SiteFooter() {
         <div className="mt-12 flex flex-col gap-3 border-t border-line pt-6 text-[10px] leading-relaxed text-muted/70 sm:flex-row sm:items-center sm:justify-between">
           <p>© 2026 OneMiners. Demo site. All listings and figures are illustrative.</p>
           <p>Nothing on this site is investment advice. Confirm all terms in diligence.</p>
+        </div>
+
+        <div className="mt-8 border-t border-line pt-6 space-y-2">
+          <h4 className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Data sources &amp; attribution</h4>
+          <ul className="space-y-1 text-[10px] leading-relaxed text-muted/80">
+            {footnotes.map((note, i) => (
+              <li key={i} dangerouslySetInnerHTML={{ __html: `• ${note}` }} />
+            ))}
+          </ul>
         </div>
       </div>
     </footer>
