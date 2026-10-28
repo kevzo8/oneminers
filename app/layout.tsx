@@ -37,10 +37,7 @@ export const metadata: Metadata = {
     description: "Energized mining sites, hosting capacity, and live miner economics.",
   },
   icons: {
-    icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "32x32" },
-    ],
+    icon: "/icon.svg",
     apple: "/apple-touch-icon.svg",
   },
 };

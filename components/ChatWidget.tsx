@@ -68,8 +68,8 @@ export default function ChatWidget() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className={`fixed bottom-6 right-6 z-50 grid h-14 w-14 place-items-center rounded-full shadow-2xl transition-transform hover:scale-105 ${
-          open ? "bg-white text-[#05070a]" : "relative bg-accent text-[#08120a] pulse-ring"
+        className={`fixed bottom-6 right-6 z-[100] grid h-14 w-14 place-items-center rounded-full shadow-2xl transition-transform hover:scale-105 ${
+          open ? "bg-white text-[#05070a]" : "bg-accent text-[#08120a] pulse-ring"
         }`}
         aria-label={open ? "Close assistant" : "Open assistant"}
         aria-expanded={open}
