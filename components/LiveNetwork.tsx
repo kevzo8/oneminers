@@ -113,8 +113,8 @@ export default function LiveNetwork() {
   const priceUp = price24h !== null ? price24h >= 0 : undefined;
 
   return (
-    <div className="surface card-lift rounded-2xl p-3 max-w-xl">
-      <div className="flex items-center justify-between mb-2">
+
+  <div className="surface card-lift rounded-2xl p-4 sm:p-5 w-full max-w-5xl mx-auto">      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-1.5">
           <span className="h-3 w-3 rounded-full bg-accent/20 animate-pulse" />
           <span className="text-xs font-semibold uppercase tracking-[0.06em] text-muted">Live Network</span>
@@ -123,15 +123,13 @@ export default function LiveNetwork() {
           <span>mempool.space · CoinGecko · Alternative.me</span>
         </div>
       </div>
-
-      <div className="grid grid-cols-2 gap-1.5 mb-2">
+<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
         <StatRow icon={<span className="h-4 w-4 text-accent animate-pulse">⚡</span>} label="Hashrate" value={data.hashrateEh ? `${data.hashrateEh.toFixed(1)} EH/s` : "—"} />
         <StatRow icon={<Blocks className="h-3 w-3 text-aqua" />} label="Height" value={data.blockHeight ? data.blockHeight.toLocaleString() : "—"} />
         <StatRow icon={<TrendingUp className="h-3 w-3 text-aqua" />} label="Difficulty" value={data.difficulty ? `${(data.difficulty / 1e12).toFixed(1)} T` : "—"} />
         <StatRow icon={<span className="h-3 w-3 text-violet-400">💰</span>} label="BTC" value={data.btcPriceUsd ? `$${data.btcPriceUsd.toLocaleString()}` : "—"} trend={data.btc24hChange !== null ? (data.btc24hChange >= 0 ? "+" : "") + data.btc24hChange.toFixed(1) + "%" : "—"} trendUp={data.btc24hChange !== null ? data.btc24hChange >= 0 : undefined} />
       </div>
-
-      <div className="grid grid-cols-2 gap-1.5 mb-2">
+<div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-3">
         <StatRow icon={<span className="h-3 w-3 text-amber">🌐</span>} label="Dominance" value={data.btcDominance ? `${data.btcDominance.toFixed(1)}%` : "—"} />
         <StatRow icon={<span className="h-3 w-3 text-accent">💼</span>} label="Market Cap" value={data.marketCapUsd ? (data.marketCapUsd >= 1e12 ? `$${(data.marketCapUsd / 1e12).toFixed(2)}T` : data.marketCapUsd >= 1e9 ? `$${(data.marketCapUsd / 1e9).toFixed(2)}B` : `$${(data.marketCapUsd / 1e6).toFixed(2)}M`) : "—"} />
         <StatRow icon={<span className="h-3 w-3 text-orange-400">📊</span>} label="24h Vol" value={data.volume24hUsd ? formatCompact(data.volume24hUsd) : "—"} />
@@ -164,5 +162,6 @@ export default function LiveNetwork() {
         </div>
       )}
     </div>
+    
   );
 }

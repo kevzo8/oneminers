@@ -19,6 +19,7 @@ export default function HomePage() {
       <main>
         <Hero />
         <LiveNetwork />
+<div aria-hidden="true" className="h-8 w-full" />
         <Ticker />
         <Listings />
         <MinersTable />
