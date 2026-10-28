@@ -141,6 +141,45 @@ npx convex run api.leads.list
 2. Copy the generated `NEXT_PUBLIC_CONVEX_URL` to your hosting provider (Vercel, etc.).
 3. The site will then persist leads and can serve listings from Convex.
 
+## Free data sources you can add
+
+All are public APIs with generous free tiers — just add the API key to `.env.local` and wire into the existing API routes.
+
+| Data | API | Free tier | Integration point |
+|------|-----|-----------|-------------------|
+| **Bitcoin network** (hashrate, difficulty, height, fees, price) | mempool.space + CoinGecko | Unlimited | `/api/network` ✅ done |
+| **Miner profitability** (ASIC hashrate, power, efficiency, daily profit) | Hashrate Index API | 1,000 req/day | Replace `lib/data.ts` miners |
+| **Coin prices / market data** | CoinGecko API | 10–50 req/sec | Ticker, calculator |
+| **Coin prices / market data** | CoinMarketCap API | 333 req/day | Ticker, calculator |
+| **Lightning Network stats** | Amboss / 1ML API | Free | New "Lightning" section |
+| **Mining pool stats** (hashrate, blocks, payouts) | Luxor / Foundry / Antpool APIs | Varies | Miner table |
+| **Difficulty adjustment estimates** | mempool.space `/v1/difficulty-adjustment` | Unlimited | Calculator |
+| **BTC fees history** | mempool.space `/v1/fees/mempool-blocks` | Unlimited | Fee estimator UI |
+| **Exchange rates (fiat)** | exchangerate.host / Frankfurter | Unlimited | Multi-currency calculator |
+
+**Quick integration example** (Hashrate Index miners):
+```typescript
+// lib/miners.ts
+export async function getLiveMiners() {
+  const res = await fetch('https://api.hashrateindex.com/v1/hardware', {
+    headers: { Authorization: `Bearer ${process.env.HASHRATE_INDEX_KEY}` },
+    next: { revalidate: 3600 },
+  });
+  return res.json();
+}
+```
+
+## Useful free endpoints (no key required)
+
+- **mempool.space**: `https://mempool.space/api/v1/difficulty`, `/v1/mining/hashrate`, `/blocks/tip/height`, `/v1/fees/recommended`
+- **CoinGecko**: `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd`
+- **exchangerate.host**: `https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP`
+- **Blockchain.com**: `https://api.blockchain.info/charts/hash-rate?timespan=5years&format=json`
+
+## Footnotes & attribution
+
+All live data sources and design references are documented in the footer with links. The demo uses mock data for listings/miners — replace with real APIs when ready.
+
 ## Deploy
 
 Vercel is the fastest path:
