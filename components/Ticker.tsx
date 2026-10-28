@@ -20,21 +20,22 @@ function CoinRow({ symbol, price, change }: { symbol: string; price: number; cha
 export default function Ticker() {
   return (
     <section className="border-y border-line bg-white/[0.015]" aria-label="Market prices">
-      <div className="mx-auto flex max-w-7xl items-center gap-4 overflow-hidden px-5 sm:px-8">
-        <div className="flex shrink-0 items-center gap-2 border-r border-line/60 px-5 py-3 bg-white/[0.01]">
-          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Market Prices</span>
-          <span className="h-4 w-px bg-line" />
+      <div className="mx-auto flex max-w-7xl flex-col gap-2 px-5 sm:px-8">
+        <div className="flex items-center gap-2 px-2 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
+          Market Prices
         </div>
-        <div className="marquee-track flex-1 min-w-0">
-          <div className="flex">
-            {coins.map((coin) => (
-              <CoinRow key={coin.symbol} {...coin} />
-            ))}
-          </div>
-          <div className="flex" aria-hidden="true">
-            {coins.map((coin) => (
-              <CoinRow key={`${coin.symbol}-dup`} {...coin} />
-            ))}
+        <div className="border-y border-line bg-white/[0.015] overflow-hidden">
+          <div className="marquee-track">
+            <div className="flex">
+              {coins.map((coin) => (
+                <CoinRow key={coin.symbol} {...coin} />
+              ))}
+            </div>
+            <div className="flex" aria-hidden="true">
+              {coins.map((coin) => (
+                <CoinRow key={`${coin.symbol}-dup`} {...coin} />
+              ))}
+            </div>
           </div>
         </div>
       </div>

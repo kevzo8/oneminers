@@ -1,4 +1,4 @@
-import { ArrowUpRight, Globe2, Send, MessageSquare, Linkedin, Github } from "lucide-react";
+import { ArrowUpRight, Globe2, Send, MessageSquare, Linkedin, Twitter } from "lucide-react";
 
 const columns = [
   {
@@ -18,10 +18,10 @@ const columns = [
 const socials = [
   { name: "Telegram", href: "https://t.me/cryptositesio", icon: Send, label: "@cryptositesio" },
   { name: "Facebook", href: "https://facebook.com/cryptositesio", icon: MessageSquare, label: "@cryptositesio" },
+  { name: "X", href: "https://x.com/cryptosites_io", icon: Twitter, label: "@cryptosites_io" },
   { name: "Threads", href: "https://threads.net/@cryptosites_io", icon: Send, label: "@cryptosites_io" },
   { name: "LinkedIn", href: "https://linkedin.com/company/cryptositesio", icon: Linkedin, label: "cryptositesio" },
   { name: "Reddit", href: "https://reddit.com/r/cryptositesio", icon: MessageSquare, label: "r/cryptositesio" },
-  { name: "GitHub", href: "https://github.com/kevzo8/oneminers", icon: Github, label: "kevzo8/oneminers" },
 ];
 
 const footnotes = [
