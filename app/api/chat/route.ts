@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { answerFromKnowledge, SYSTEM_PROMPT, type ChatMessage } from "@/lib/chat";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const windowMs = 60_000;
 const maxRequests = 30;
