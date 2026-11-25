@@ -6,11 +6,13 @@ import Insights from "@/components/Insights";
 import LeadForm from "@/components/LeadForm";
 import Listings from "@/components/Listings";
 import LiveNetwork from "@/components/LiveNetwork";
-import MinersTable from "@/components/MinersTable";
+import TopMiners from "@/components/TopMiners";
 import ProfitCalculator from "@/components/ProfitCalculator";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import Ticker from "@/components/Ticker";
+
+export const revalidate = 600;
 
 export default function HomePage() {
   return (
@@ -22,7 +24,7 @@ export default function HomePage() {
 <div aria-hidden="true" className="h-8 w-full" />
         <Ticker />
         <Listings />
-        <MinersTable />
+        <TopMiners />
         <HowItWorks />
         <AiDesk />
         <ProfitCalculator />

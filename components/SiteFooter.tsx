@@ -2,29 +2,45 @@ import { ArrowUpRight, Globe2, Send, MessageSquare, Linkedin, Twitter } from "lu
 
 const columns = [
   {
-    title: "Marketplace",
-    links: ["Sites for sale", "Sites for lease", "Hosting capacity", "List your site"],
+    title: "Directory",
+    links: [
+      { label: "All ASIC miners", href: "/miners" },
+      { label: "Vendors", href: "/vendors" },
+      { label: "List your company", href: "/sell" },
+      { label: "Seller portal", href: "/vendor-portal" },
+    ],
   },
   {
     title: "Tools",
-    links: ["Profitability calculator", "Miner economics", "Power cost", "Hashrate converter"],
+    links: [
+      { label: "Profitability calculator", href: "/#calculator" },
+      { label: "Top miners", href: "/#miners" },
+      { label: "Live network", href: "/#top" },
+      { label: "Sites marketplace", href: "/#marketplace" },
+    ],
   },
   {
     title: "Company",
-    links: ["About OneMiners", "Contact the desk", "Insights", "Privacy"],
+    links: [
+      { label: "About OneMiners", href: "https://oneminers.com/pages/about-us" },
+      { label: "Contact the desk", href: "/#contact" },
+      { label: "Insights", href: "/#insights" },
+      { label: "Privacy", href: "https://oneminers.com/pages/privacy-policy" },
+    ],
   },
 ];
 
 const socials = [
-  { name: "Telegram", href: "https://t.me/cryptositesio", icon: Send, label: "@cryptositesio" },
-  { name: "Facebook", href: "https://facebook.com/cryptositesio", icon: MessageSquare, label: "@cryptositesio" },
-  { name: "X", href: "https://x.com/cryptosites_io", icon: Twitter, label: "@cryptosites_io" },
-  { name: "Threads", href: "https://threads.net/@cryptosites_io", icon: Send, label: "@cryptosites_io" },
-  { name: "LinkedIn", href: "https://linkedin.com/company/cryptositesio", icon: Linkedin, label: "cryptositesio" },
-  { name: "Reddit", href: "https://reddit.com/r/cryptositesio", icon: MessageSquare, label: "r/cryptositesio" },
+  { name: "Telegram", href: "https://t.me/oneminers_hosting", icon: Send, label: "oneminers_hosting" },
+  { name: "Facebook", href: "https://www.facebook.com/oneminers/", icon: MessageSquare, label: "oneminers" },
+  { name: "X", href: "https://x.com/oneminers", icon: Twitter, label: "@oneminers" },
+  { name: "LinkedIn", href: "https://www.linkedin.com/company/oneminers/", icon: Linkedin, label: "oneminers" },
+  { name: "Reddit", href: "https://www.reddit.com/r/oneminers/", icon: MessageSquare, label: "r/oneminers" },
 ];
 
 const footnotes = [
+  "Miner profitability uses network difficulty, block rewards and prices from the <a href=\"https://whattomine.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">WhatToMine</a> ASIC feed (refreshed every 10 minutes, with a saved snapshot as fallback).",
+  "Vendor offers and prices in the directory are sample data for this demo. Miner specs follow manufacturer announcements; verify before purchase.",
   "Live network data sourced from <a href=\"https://mempool.space\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">mempool.space</a> (public API).",
   "BTC price via <a href=\"https://www.coingecko.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">CoinGecko</a> public API.",
   "Market prices are illustrative samples; replace with <a href=\"https://www.coingecko.com/en/api\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">CoinGecko</a> or <a href=\"https://coinmarketcap.com/api/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">CoinMarketCap</a> for production.",
@@ -38,7 +54,7 @@ export default function SiteFooter() {
       <div className="mx-auto w-full max-w-7xl px-5 py-14 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[1.2fr_1.8fr]">
           <div>
-            <a href="#top" className="flex items-center gap-2.5">
+            <a href="/" className="flex items-center gap-2.5">
               <span className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-white/[0.04]">
                 <svg viewBox="0 0 32 32" className="h-5 w-5" fill="none" aria-hidden="true">
                   <path d="M16 3 28 9.9v12.2L16 29 4 22.1V9.9L16 3Z" stroke="#B9FF66" strokeWidth="1.6" />
@@ -81,12 +97,12 @@ export default function SiteFooter() {
                 <h3 className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">{column.title}</h3>
                 <ul className="mt-3 space-y-2">
                   {column.links.map((link) => (
-                    <li key={link}>
+                    <li key={link.label}>
                       <a
-                        href={link === "Contact the desk" ? "#contact" : "#marketplace"}
+                        href={link.href}
                         className="group inline-flex items-center gap-1 text-xs text-muted transition-colors hover:text-ink"
                       >
-                        {link}
+                        {link.label}
                         <ArrowUpRight className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
                       </a>
                     </li>

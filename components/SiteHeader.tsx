@@ -6,7 +6,7 @@ import { navLinks } from "@/lib/data";
 
 function Brand() {
   return (
-    <a href="#top" className="group flex items-center gap-2.5">
+    <a href="/" className="group flex items-center gap-2.5">
       <span className="relative grid h-9 w-9 place-items-center rounded-xl border border-line bg-white/[0.04]">
         <svg viewBox="0 0 32 32" className="h-5 w-5" fill="none" aria-hidden="true">
           <path d="M16 3 28 9.9v12.2L16 29 4 22.1V9.9L16 3Z" stroke="#B9FF66" strokeWidth="1.6" />
@@ -60,11 +60,11 @@ export default function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2.5 sm:flex">
-          <a href="#calculator" className="btn-ghost px-4 py-2 text-sm">
-            Run numbers
+          <a href="/vendor-portal" className="btn-ghost px-4 py-2 text-sm">
+            Seller login
           </a>
-          <a href="#contact" className="btn-primary px-4 py-2 text-sm">
-            List your site
+          <a href="/sell" className="btn-primary px-4 py-2 text-sm">
+            List your company
             <ArrowUpRight className="h-4 w-4" />
           </a>
         </div>
@@ -94,8 +94,8 @@ export default function SiteHeader() {
               </a>
             ))}
           </nav>
-          <a href="#contact" onClick={() => setOpen(false)} className="btn-primary mt-5 w-full px-4 py-3 text-sm">
-            List your site
+          <a href="/sell" onClick={() => setOpen(false)} className="btn-primary mt-5 w-full px-4 py-3 text-sm">
+            List your company
             <ArrowUpRight className="h-4 w-4" />
           </a>
         </div>

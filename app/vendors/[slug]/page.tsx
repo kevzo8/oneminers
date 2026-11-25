@@ -1,0 +1,165 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowUpRight, CalendarDays, Clock, CreditCard, Globe, ShieldCheck, Star } from "lucide-react";
+import { Breadcrumbs, Flag, MinerGlyph, PageShell, TierBadge, VerifiedBadge } from "@/components/directory/ui";
+import { getMiner, getVendor, offersForVendor, VENDORS } from "@/lib/catalog";
+import { formatHashrate, formatUsd } from "@/lib/economics";
+
+type Params = { params: Promise<{ slug: string }> };
+
+export function generateStaticParams() {
+  return VENDORS.map((vendor) => ({ slug: vendor.slug }));
+}
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { slug } = await params;
+  const vendor = getVendor(slug);
+  if (!vendor) return { title: "Vendor not found" };
+  return {
+    title: `${vendor.name}: ASIC miner prices, stock & reviews`,
+    description: `${vendor.name} (${vendor.country}) ASIC miner listings with live prices and availability. ${vendor.about}`,
+  };
+}
+
+export default async function VendorPage({ params }: Params) {
+  const { slug } = await params;
+  const vendor = getVendor(slug);
+  if (!vendor) notFound();
+
+  const listings = offersForVendor(vendor.slug)
+    .map((offer) => ({ offer, miner: getMiner(offer.minerSlug) }))
+    .filter((row): row is { offer: typeof row.offer; miner: NonNullable<typeof row.miner> } => Boolean(row.miner))
+    .sort((a, b) => a.miner.algorithm.localeCompare(b.miner.algorithm) || b.offer.price - a.offer.price);
+
+  const inStock = listings.filter((row) => row.offer.availability === "In stock").length;
+  const website = vendor.website.startsWith("http") ? vendor.website : null;
+
+  const facts = [
+    { icon: CalendarDays, label: "In business since", value: String(vendor.since) },
+    { icon: Clock, label: "Typical reply", value: `~${vendor.replyMinutes} min` },
+    { icon: ShieldCheck, label: "Warranty", value: vendor.warrantyMonths >= 12 ? `${Math.round(vendor.warrantyMonths / 12)} years` : `${vendor.warrantyMonths} months` },
+    { icon: CreditCard, label: "Payments", value: vendor.payments.join(", ") },
+  ];
+
+  return (
+    <PageShell>
+      <div className="mx-auto w-full max-w-7xl space-y-8 px-5 sm:px-8">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Vendors", href: "/vendors" }, { label: vendor.name }]} />
+
+        <section className="surface rounded-3xl p-6 sm:p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="flex items-start gap-4">
+              <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-line bg-white/[0.04] text-xl font-bold text-accent">
+                {vendor.name
+                  .split(" ")
+                  .slice(0, 2)
+                  .map((word) => word[0])
+                  .join("")}
+              </span>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-3xl font-bold tracking-tight text-ink">{vendor.name}</h1>
+                  <TierBadge tier={vendor.tier} />
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <Flag code={vendor.countryCode} label={vendor.country} />
+                  <VerifiedBadge verified={vendor.verified} partner={vendor.partner} />
+                  <span className="inline-flex items-center gap-1 text-xs text-muted">
+                    <Star className="h-3.5 w-3.5 fill-amber text-amber" />
+                    {vendor.rating.toFixed(1)} · {vendor.reviews} reviews
+                  </span>
+                </div>
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">{vendor.about}</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
+              {website ? (
+                <a href={`${website}?ref=miner-directory`} target="_blank" rel="noopener sponsored" className="btn-primary px-5 py-2.5 text-sm">
+                  <Globe className="h-4 w-4" /> Visit website
+                </a>
+              ) : null}
+              <a href="/#contact" className="btn-ghost px-5 py-2.5 text-sm">
+                Ask a question
+              </a>
+            </div>
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {facts.map((fact) => (
+              <div key={fact.label} className="rounded-xl border border-line bg-white/[0.02] p-3">
+                <fact.icon className="h-4 w-4 text-aqua" />
+                <div className="mt-2 text-sm font-semibold text-ink">{fact.value}</div>
+                <div className="text-[10px] uppercase tracking-[0.1em] text-muted">{fact.label}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <div className="mb-3 flex items-end justify-between">
+            <h2 className="text-lg font-bold text-ink">
+              Listings <span className="text-muted">({listings.length})</span>
+            </h2>
+            <span className="text-xs text-muted">{inStock} in stock</span>
+          </div>
+          <div className="surface overflow-hidden rounded-2xl">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[720px] text-left">
+                <thead>
+                  <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
+                    <th className="px-4 py-3 font-semibold">Miner</th>
+                    <th className="px-4 py-3 font-semibold">Algorithm</th>
+                    <th className="px-4 py-3 font-semibold">Condition</th>
+                    <th className="px-4 py-3 font-semibold">Availability</th>
+                    <th className="px-4 py-3 text-right font-semibold">Price</th>
+                    <th className="px-4 py-3" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {listings.map(({ offer, miner }) => (
+                    <tr key={offer.id} className="border-b border-line/60 last:border-0 hover:bg-white/[0.02]">
+                      <td className="px-4 py-3">
+                        <Link href={`/miners/${miner.slug}`} className="flex items-center gap-3">
+                          <MinerGlyph manufacturer={miner.manufacturer} algorithm={miner.algorithm} cooling={miner.cooling} size="sm" />
+                          <span>
+                            <span className="block text-sm font-semibold text-ink hover:text-accent">{miner.model}</span>
+                            <span className="block text-[11px] text-muted">
+                              {miner.manufacturer} · {formatHashrate(miner.hashrate, miner.unit)}
+                            </span>
+                          </span>
+                        </Link>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-muted">{miner.algorithm}</td>
+                      <td className="px-4 py-3 text-xs text-muted">{offer.condition}</td>
+                      <td
+                        className={`px-4 py-3 text-xs font-semibold ${
+                          offer.availability === "In stock" ? "text-accent" : offer.availability === "Pre-order" ? "text-amber" : "text-muted"
+                        }`}
+                      >
+                        {offer.availability}
+                      </td>
+                      <td className="px-4 py-3 text-right text-sm font-bold tabular-nums text-ink">
+                        {formatUsd(offer.price + offer.shipping, 0)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <Link href={`/miners/${miner.slug}#offers`} className="inline-flex items-center gap-1 text-xs font-semibold text-aqua hover:text-accent">
+                          Compare <ArrowUpRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {vendor.sample ? (
+            <p className="mt-2 text-[11px] text-muted/70">This is a fictional sample vendor for the demo. Its listings and prices are not real.</p>
+          ) : (
+            <p className="mt-2 text-[11px] text-muted/70">Prices in this demo are illustrative. Check the vendor&apos;s site for current prices.</p>
+          )}
+        </section>
+      </div>
+    </PageShell>
+  );
+}
