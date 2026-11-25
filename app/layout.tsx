@@ -10,31 +10,30 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "OneMiners — Powered land for proof-of-work",
+    default: "OneMiners: ASIC miner profitability, prices and hosting",
     template: "%s · OneMiners",
   },
   description:
-    "Energized crypto-mining sites, hosting capacity, and live miner economics. Browse capacity from 2.1¢/kWh, compare ASIC profitability, and request a full site package.",
+    "Live profitability for every major ASIC miner, prices from verified sellers, and hosting from 3.6¢/kWh. Compare miners, find the best price and see what each one earns hosted.",
   applicationName: "OneMiners",
   keywords: [
-    "bitcoin mining sites",
+    "ASIC miner profitability",
+    "bitcoin miner prices",
+    "where to buy ASIC miners",
     "crypto mining hosting",
     "ASIC hosting",
-    "mining facility",
-    "hashrate marketplace",
-    "Cebu",
+    "mining calculator",
   ],
   openGraph: {
-    title: "OneMiners — Powered land for proof-of-work",
-    description:
-      "Energized mining sites, hosting capacity, and live miner economics. Demo marketplace built for OneMiners.",
+    title: "OneMiners: ASIC miner profitability, prices and hosting",
+    description: "Live profitability for every major ASIC miner, prices from verified sellers, and hosting from 3.6¢/kWh.",
     type: "website",
     siteName: "OneMiners",
   },
   twitter: {
     card: "summary_large_image",
-    title: "OneMiners — Powered land for proof-of-work",
-    description: "Energized mining sites, hosting capacity, and live miner economics.",
+    title: "OneMiners: ASIC miner profitability, prices and hosting",
+    description: "Live profitability, verified seller prices and hosting from 3.6¢/kWh.",
   },
   icons: {
     icon: "/icon.svg",

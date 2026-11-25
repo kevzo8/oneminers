@@ -65,6 +65,7 @@ export default async function VendorPage({ params }: Params) {
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-3xl font-bold tracking-tight text-ink">{vendor.name}</h1>
                   <TierBadge tier={vendor.tier} />
+                  {vendor.sample ? <span className="rounded-full border border-line bg-white/[0.04] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <Flag code={vendor.countryCode} label={vendor.country} />
@@ -158,9 +159,9 @@ export default async function VendorPage({ params }: Params) {
             </div>
           </div>
           {vendor.sample ? (
-            <p className="mt-2 text-[11px] text-muted/70">This is a fictional sample vendor for the demo. Its listings and prices are not real.</p>
+            <p className="mt-2 text-[11px] text-muted/70">This is a sample listing shown until real sellers join. Its prices are placeholders.</p>
           ) : (
-            <p className="mt-2 text-[11px] text-muted/70">Prices in this demo are illustrative. Check the vendor&apos;s site for current prices.</p>
+            <p className="mt-2 text-[11px] text-muted/70">Prices are provided by the seller. Confirm the current price and stock on the seller&apos;s site.</p>
           )}
         </section>
       </div>

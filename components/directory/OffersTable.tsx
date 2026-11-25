@@ -114,6 +114,7 @@ export default function OffersTable({
                           {row.vendor.name}
                         </Link>
                         <TierBadge tier={row.vendor.tier} />
+                        {row.vendor.sample ? <span className="rounded-full border border-line bg-white/[0.04] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
                       </div>
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-muted">
                         <VerifiedBadge verified={row.vendor.verified} partner={row.vendor.partner} />
@@ -190,7 +191,7 @@ export default function OffersTable({
       <p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-muted/70">
         <Info className="mt-0.5 h-3 w-3 shrink-0" />
         &ldquo;Recommended&rdquo; shows paid plans first (Gold, then Silver, then Bronze). A paid plan changes position only, never
-        the price or data shown. Buyers pay vendors directly. Offers other than OneMiners are sample data in this demo.
+        the price or data shown. Buyers pay sellers directly. Listings marked Sample are placeholders until sellers join.
       </p>
     </div>
   );

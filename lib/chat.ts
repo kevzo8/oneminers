@@ -81,7 +81,7 @@ export function buildSystemPrompt(dir: Directory, market: MarketSnapshot, conver
 Rules:
 - Be concise: 2-5 short sentences. Use exact numbers from the data and link the relevant page path (e.g. /miners/...).
 - Profit figures assume today's difficulty and prices and are not guaranteed. Never give investment advice.
-- Vendor prices and every vendor except OneMiners are SAMPLE data in this demo. Say so if asked about buying or prices.
+- Vendors marked SAMPLE are placeholders until real sellers join, so their prices are not real. Say so if asked about buying from them.
 - If the data doesn't cover a question, say so and suggest the contact form (/#contact). Never invent miners, prices, people or company facts.
 - Electricity cost decides profitability: compare $0.07/kWh with OneMiners hosting from 3.6¢/kWh when relevant.
 
@@ -100,7 +100,7 @@ OneMiners (real company facts): sells ASIC miners and hosts them from 3.6¢/kWh 
 
 Selling on this directory (/sell): resellers list free for 6 months, then $100/month, no commission, cancel anytime. They must link to oneminers.com from their site (partner link, checked automatically) and get company verification. Seller portal: /vendor-portal.
 
-Other pages: all miners /miners, vendors /vendors, profit calculator /#calculator, mining sites marketplace /#marketplace (sample listings).`;
+Other pages: all miners /miners, vendors /vendors, profit calculator /#calculator, hosting comparison by site /#hosting, contact /#contact.`;
 }
 
 function findMiner(rows: RankedRow[], q: string) {
@@ -156,11 +156,11 @@ export function answerFromKnowledge(messages: ChatMessage[], dir: Directory, mar
       .sort((a, b) => (a.bestPrice ?? 0) - (b.bestPrice ?? 0))
       .slice(0, 3)
       .map((row) => `${row.model} from ${formatUsd(row.bestPrice ?? 0, 0)}`);
-    return `Lowest-priced miners that are profitable at $0.07/kWh: ${cheap.join(", ")}. Prices in this demo are sample data. Compare offers on each miner page.`;
+    return `Lowest-priced miners that are profitable at $0.07/kWh: ${cheap.join(", ")}. Prices marked Sample are placeholders. Compare offers on each miner page.`;
   }
 
   if (/(site|land|marketplace|lease|mw)/.test(q)) {
-    return "The mining-sites marketplace on the homepage (/#marketplace) shows sample energized sites for sale, lease and hosting. Use the contact form (/#contact) to ask about real availability.";
+    return "OneMiners hosts miners in Nigeria, Norway, the USA (Georgia, Houston, West Texas), Dubai and Ethiopia, from 3.6¢/kWh. Compare a miner's profit at each site on /#hosting, or ask the team via /#contact.";
   }
 
   if (/(hi|hello|hey|good (morning|afternoon|evening))/.test(q)) {

@@ -109,21 +109,6 @@ export default defineSchema({
     ),
   }).index("by_takenAt", ["takenAt"]),
 
-  // Marketplace inventory: energized sites for sale, lease, or hosting.
-  listings: defineTable({
-    id: v.string(),
-    slug: v.string(),
-    title: v.string(),
-    country: v.string(),
-    countryCode: v.string(),
-    type: v.union(v.literal("sale"), v.literal("lease"), v.literal("hosting")),
-    capacityMW: v.number(),
-    powerCents: v.number(),
-    status: v.string(),
-    tags: v.array(v.string()),
-    summary: v.string(),
-    priceUsd: v.optional(v.number()),
-  }).index("by_slug", ["slug"]),
 
   // Lead capture, stored for the desk. Quote requests carry the miner and vendor.
   leads: defineTable({

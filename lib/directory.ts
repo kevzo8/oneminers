@@ -107,6 +107,25 @@ export function topByDefaultProfit(dir: Directory, market: MarketSnapshot, count
     .slice(0, count);
 }
 
+/** Industrial miners with live income, best first at the lowest hosting rate (for hosting comparisons). */
+export function hostableMiners(dir: Directory, market: MarketSnapshot, rate: number) {
+  return dir.miners
+    .filter((miner) => miner.category === "Industrial")
+    .map((miner) => {
+      const top = revenuesFor(miner, market)[0];
+      const income = top?.usdPerDay ?? 0;
+      return {
+        slug: miner.slug,
+        label: `${miner.manufacturer} ${miner.model} (${miner.hashrate} ${miner.unit}) · ${top?.tag ?? ""}`,
+        incomeUsd: income,
+        powerW: miner.powerW,
+        hostedProfit: dailyProfit(income, miner.powerW, { ...DEFAULT_SETTINGS, electricity: rate }).profit,
+      };
+    })
+    .sort((a, b) => b.hostedProfit - a.hostedProfit)
+    .map(({ hostedProfit, ...miner }) => miner);
+}
+
 export function offerRows(dir: Directory, slug: string): OfferRow[] {
   return offersForMiner(dir, slug).flatMap((offer) => {
     const vendor = getVendor(dir, offer.vendorSlug);

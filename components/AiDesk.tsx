@@ -1,37 +1,38 @@
 "use client";
 
-import { ArrowUpRight, BarChart3, Bot, Sparkles, Workflow } from "lucide-react";
+import { ArrowUpRight, BarChart3, Bot, Database, MessageSquareText, Sparkles } from "lucide-react";
 
 const features = [
   {
-    icon: Bot,
-    title: "Assistant on your inventory",
-    body: "Answers from live listings, power terms, and miner economics instead of a generic FAQ.",
-  },
-  {
-    icon: Workflow,
-    title: "Qualified lead flow",
-    body: "Captures capacity, country, and budget, then routes the request with context already attached.",
+    icon: Database,
+    title: "Answers from live data",
+    body: "Uses the same live profitability, prices and hosting rates you see on the site. No generic answers.",
   },
   {
     icon: BarChart3,
-    title: "Market and power watch",
-    body: "Tracks coin economics and power rates so the shortlist updates before a client asks.",
+    title: "Runs the numbers for you",
+    body: "Ask what a model earns, which miner pays back fastest, or what hosting changes. It does the math.",
+  },
+  {
+    icon: MessageSquareText,
+    title: "Remembers the conversation",
+    body: "Follow-up questions work. Come back later and your chat is still there.",
   },
 ];
 
-export default function AiDesk() {
+export type AiExample = { question: string; answer: string; followUp: string; followUpAnswer: string };
+
+export default function AiDesk({ example }: { example: AiExample }) {
   return (
     <section className="relative py-20 sm:py-24">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
-          <div className="chip text-accent">AI deal desk</div>
+          <div className="chip text-accent">AI mining assistant</div>
           <h2 className="mt-4 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-            Not another listing board. <span className="text-gradient">An operator's desk.</span>
+            Ask in plain words. <span className="text-gradient">Get real numbers.</span>
           </h2>
           <p className="mt-3 max-w-md text-sm leading-relaxed text-muted sm:text-base">
-            The marketplace is the surface. Underneath it, AI keeps the inventory, economics, and
-            conversations in sync so the team spends time on deals, not tabs.
+            Not sure where to start? Ask the assistant. It answers from the directory&apos;s live data and links you to the right page.
           </p>
 
           <div className="mt-6 space-y-3">
@@ -54,9 +55,9 @@ export default function AiDesk() {
           <button
             type="button"
             onClick={() => window.dispatchEvent(new Event("oneminers:open-chat"))}
-            className="btn-ghost mt-6 px-5 py-2.5 text-xs"
+            className="btn-primary mt-6 px-5 py-2.5 text-xs"
           >
-            <Sparkles className="h-3.5 w-3.5 text-accent" />
+            <Sparkles className="h-3.5 w-3.5" />
             Ask the assistant
             <ArrowUpRight className="h-3.5 w-3.5" />
           </button>
@@ -73,44 +74,42 @@ export default function AiDesk() {
             </div>
             <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-accent">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Live
+              Live data
             </span>
           </div>
 
           <div className="space-y-3 pt-4">
-            <div className="flex justify-end">
-              <div className="max-w-[82%] rounded-2xl rounded-br-md bg-accent px-3.5 py-2.5 text-xs font-medium leading-relaxed text-[#08120a]">
-                What is the cheapest energized site right now?
+            {[
+              { role: "user", text: example.question },
+              { role: "assistant", text: example.answer },
+              { role: "user", text: example.followUp },
+              { role: "assistant", text: example.followUpAnswer },
+            ].map((message, index) => (
+              <div key={index} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={
+                    message.role === "user"
+                      ? "max-w-[82%] rounded-2xl rounded-br-md bg-accent px-3.5 py-2.5 text-xs font-medium leading-relaxed text-[#08120a]"
+                      : "max-w-[86%] rounded-2xl rounded-bl-md border border-line bg-white/[0.04] px-3.5 py-2.5 text-xs leading-relaxed text-ink"
+                  }
+                >
+                  {message.text}
+                </div>
               </div>
-            </div>
-            <div className="flex justify-start">
-              <div className="max-w-[86%] rounded-2xl rounded-bl-md border border-line bg-white/[0.04] px-3.5 py-2.5 text-xs leading-relaxed text-ink">
-                Itaipu Hydro in Paraguay: 40 MW, energized, 2.1¢/kWh. The Permian flare-gas lease in
-                Texas is next at 2.8¢/kWh with 25 MW. Want the full package?
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <div className="max-w-[82%] rounded-2xl rounded-br-md bg-accent px-3.5 py-2.5 text-xs font-medium leading-relaxed text-[#08120a]">
-                Estimate 10 MW at 2.1¢ with S23 Hyds.
-              </div>
-            </div>
-            <div className="flex justify-start">
-              <div className="max-w-[86%] rounded-2xl rounded-bl-md border border-line bg-white/[0.04] px-3.5 py-2.5 text-xs leading-relaxed text-ink">
-                At 4.5¢ effective power and $0.0215/TH/day, each S23 Hyd nets about $2.7/day. Ten MW
-                fits roughly 900 units before cooling overhead. I can route this to the desk.
-              </div>
-            </div>
+            ))}
           </div>
 
-          <div className="mt-4 flex items-center gap-2 rounded-xl border border-line bg-white/[0.03] px-3 py-2.5">
-            <span className="text-[11px] text-muted/70">Ask about capacity, power, or profit...</span>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new Event("oneminers:open-chat"))}
+            className="mt-4 flex w-full items-center gap-2 rounded-xl border border-line bg-white/[0.03] px-3 py-2.5 text-left hover:border-accent/30"
+          >
+            <span className="text-[11px] text-muted/70">Ask about miners, prices, hosting…</span>
             <span className="ml-auto grid h-6 w-6 place-items-center rounded-md bg-accent/90">
               <ArrowUpRight className="h-3.5 w-3.5 text-[#08120a]" />
             </span>
-          </div>
-          <p className="mt-3 text-center text-[9px] text-muted/60">
-            Demo assistant · replies from the site's own data
-          </p>
+          </button>
+          <p className="mt-3 text-center text-[9px] text-muted/60">Example built from today&apos;s live numbers · not investment advice</p>
         </div>
       </div>
     </section>

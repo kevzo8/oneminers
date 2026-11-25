@@ -62,7 +62,10 @@ export default async function VendorsPage() {
                       <Flag code={vendor.countryCode} label={vendor.country} />
                     </div>
                   </div>
-                  <TierBadge tier={vendor.tier} />
+                  <div className="flex items-center gap-1.5">
+                    <TierBadge tier={vendor.tier} />
+                    {vendor.sample ? <span className="rounded-full border border-line bg-white/[0.04] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
+                  </div>
                 </div>
                 <p className="line-clamp-2 text-xs leading-relaxed text-muted">{vendor.about}</p>
                 <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted">
@@ -92,7 +95,7 @@ export default async function VendorsPage() {
         </div>
 
         <p className="text-[11px] leading-relaxed text-muted/70">
-          Vendors marked &ldquo;Sample&rdquo; are fictional companies used until real sellers join. Sorted by plan tier, then rating.
+          Vendors marked &ldquo;Sample&rdquo; are placeholders until real sellers join. Sorted by plan tier, then rating.
         </p>
       </div>
     </PageShell>

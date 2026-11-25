@@ -1,23 +1,24 @@
-import { FileCheck2, Handshake, MapPinned, Search } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, BarChart3, Server, ShoppingCart, Store } from "lucide-react";
 
 const steps = [
   {
-    icon: Search,
+    icon: BarChart3,
     step: "01",
-    title: "Browse",
-    body: "Filter live sites by country, capacity, power cost, and deal type: sale, lease, or hosting.",
+    title: "Compare",
+    body: "Live income, electricity cost, ROI and efficiency for every miner, at your power price or at a hosting rate.",
   },
   {
-    icon: Handshake,
+    icon: ShoppingCart,
     step: "02",
-    title: "Connect",
-    body: "Request the full package for utility terms, interconnect details, equipment lists, and site photos.",
+    title: "Buy",
+    body: "See every seller's price, stock, warranty and shipping for the model you want. Buy directly from the seller.",
   },
   {
-    icon: FileCheck2,
+    icon: Server,
     step: "03",
-    title: "Close",
-    body: "Coordinate site tours, diligence, and handover with owners, utilities, and hosting operators.",
+    title: "Host",
+    body: "Ship it straight to a data center from 3.6¢/kWh. It's installed, monitored and paid out to your wallet.",
   },
 ];
 
@@ -29,23 +30,23 @@ export default function HowItWorks() {
           <div>
             <div className="chip text-aqua">How it works</div>
             <h2 className="mt-4 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-              Map pin to <span className="text-gradient">energized site.</span>
+              From spec sheet <span className="text-gradient">to hashing.</span>
             </h2>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-muted sm:text-base">
-              A deal desk built for operators, not browsers. Every listing starts with headline terms
-              and ends with a diligence package.
+              One place to decide which miner to buy, who to buy it from, and where it earns the most.
             </p>
-            <div className="surface mt-6 flex items-center gap-3 rounded-2xl p-4">
+            <Link href="/sell" className="surface mt-6 flex items-center gap-3 rounded-2xl p-4 transition-colors hover:border-accent/30">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-accent/10">
-                <MapPinned className="h-5 w-5 text-accent" />
+                <Store className="h-5 w-5 text-accent" />
               </span>
-              <div>
-                <div className="text-xs font-bold text-ink">Private deal flow</div>
+              <div className="flex-1">
+                <div className="text-xs font-bold text-ink">Sell mining hardware?</div>
                 <p className="mt-0.5 text-[11px] leading-relaxed text-muted">
-                  New megawatts reach the desk before they reach brokers. Ask for the current shortlist.
+                  List your stock free for 6 months, then $100/month. No commission.
                 </p>
               </div>
-            </div>
+              <ArrowUpRight className="h-4 w-4 text-muted" />
+            </Link>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">

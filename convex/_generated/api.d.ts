@@ -14,10 +14,8 @@ import type * as chat from "../chat.js";
 import type * as crons from "../crons.js";
 import type * as directory from "../directory.js";
 import type * as leads from "../leads.js";
-import type * as listings from "../listings.js";
 import type * as market from "../market.js";
 import type * as partnerLink from "../partnerLink.js";
-import type * as seed from "../seed.js";
 import type * as seller from "../seller.js";
 import type * as users from "../users.js";
 
@@ -34,10 +32,8 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   directory: typeof directory;
   leads: typeof leads;
-  listings: typeof listings;
   market: typeof market;
   partnerLink: typeof partnerLink;
-  seed: typeof seed;
   seller: typeof seller;
   users: typeof users;
 }>;

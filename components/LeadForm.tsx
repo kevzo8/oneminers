@@ -8,7 +8,7 @@ type State = "idle" | "sending" | "sent" | "error";
 export default function LeadForm() {
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState("");
-  const [form, setForm] = useState({ name: "", email: "", interest: "For sale", message: "" });
+  const [form, setForm] = useState({ name: "", email: "", interest: "Buying miners", message: "" });
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,13 +39,13 @@ export default function LeadForm() {
 
           <div className="relative grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
             <div>
-              <div className="chip text-accent">Contact the desk</div>
+              <div className="chip text-accent">Talk to the team</div>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-                Tell us what you need to <span className="text-gradient">power.</span>
+                Buying, hosting or selling? <span className="text-gradient">Let's talk.</span>
               </h2>
               <p className="mt-3 max-w-md text-sm leading-relaxed text-muted">
-                Share your target capacity, country preference, and power budget. The desk will match
-                you with the closest live inventory and send the full package.
+                Tell us which miners you're looking at, how many, and whether you want them hosted. We'll come back with prices,
+                availability and a hosting quote.
               </p>
 
               <div className="mt-7 space-y-3">
@@ -55,7 +55,7 @@ export default function LeadForm() {
                   </span>
                   <div>
                     <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Email</div>
-                    <div className="text-sm font-semibold text-ink">hello@oneminers.example</div>
+                    <a href="mailto:sales@oneminers.com" className="text-sm font-semibold text-ink hover:text-accent">sales@oneminers.com</a>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-xl border border-line bg-white/[0.03] px-4 py-3">
@@ -63,8 +63,8 @@ export default function LeadForm() {
                     <MessageSquare className="h-4 w-4 text-aqua" />
                   </span>
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Telegram desk</div>
-                    <div className="text-sm font-semibold text-ink">@oneminers</div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Telegram</div>
+                    <a href="https://t.me/oneminers_hosting" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-ink hover:text-accent">t.me/oneminers_hosting</a>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 rounded-xl border border-line bg-white/[0.03] px-4 py-3">
@@ -86,14 +86,13 @@ export default function LeadForm() {
                 </span>
                 <h3 className="mt-4 text-xl font-bold text-ink">Request received.</h3>
                 <p className="mt-2 max-w-xs text-sm leading-relaxed text-muted">
-                  Thanks, {form.name.split(" ")[0] || "there"}. The desk will follow up with matching
-                  capacity and the full package.
+                  Thanks, {form.name.split(" ")[0] || "there"}. We'll reply within one business day.
                 </p>
                 <button
                   type="button"
                   onClick={() => {
                     setState("idle");
-                    setForm({ name: "", email: "", interest: "For sale", message: "" });
+                    setForm({ name: "", email: "", interest: "Buying miners", message: "" });
                   }}
                   className="btn-ghost mt-6 px-4 py-2 text-xs"
                 >
@@ -136,36 +135,35 @@ export default function LeadForm() {
                     onChange={(event) => setForm({ ...form, interest: event.target.value })}
                     className="input"
                   >
-                    <option>For sale</option>
-                    <option>For lease</option>
+                    <option>Buying miners</option>
                     <option>Hosting</option>
-                    <option>List my site</option>
-                    <option>General</option>
+                    <option>Buying and hosting</option>
+                    <option>Selling on the directory</option>
+                    <option>Something else</option>
                   </select>
                 </label>
 
                 <label className="grid gap-1.5">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">
-                    Target capacity / notes
+                    Models, quantity and notes
                   </span>
                   <textarea
                     rows={4}
                     value={form.message}
                     onChange={(event) => setForm({ ...form, message: event.target.value })}
                     className="input resize-none"
-                    placeholder="e.g. 10-20 MW, Paraguay or Philippines, energized preferred"
+                    placeholder="e.g. 20× Antminer S21 XP Hyd, hosted in Texas or Norway"
                   />
                 </label>
 
                 {state === "error" ? <p className="text-xs text-red-300">{error}</p> : null}
 
                 <button type="submit" disabled={state === "sending"} className="btn-primary mt-1 px-5 py-3 text-sm disabled:opacity-60">
-                  {state === "sending" ? "Sending..." : "Request the package"}
+                  {state === "sending" ? "Sending..." : "Send request"}
                   <Send className="h-4 w-4" />
                 </button>
                 <p className="text-[10px] leading-relaxed text-muted/70">
-                  Demo form. Submissions are acknowledged locally and can be forwarded to a webhook.
-                  No data is sold.
+                  We use your details only to answer your request. We never sell your data.
                 </p>
               </form>
             )}

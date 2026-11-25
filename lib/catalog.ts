@@ -1,6 +1,6 @@
 // Miner catalog, vendors and offers for the directory.
 // Specs follow manufacturer announcements (verify before purchase). Vendor names other than
-// OneMiners and every price/offer here are illustrative sample data for the demo.
+// OneMiners and every generated price/offer are placeholder (sample) data until sellers join.
 
 import type { Algorithm, HashUnit } from "./economics";
 

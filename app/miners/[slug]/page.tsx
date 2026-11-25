@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowUpRight, Building2, Cpu, Gauge, MessageSquareQuote, Plug, Server } from "lucide-react";
+import HostingCompare from "@/components/directory/HostingCompare";
 import OffersTable from "@/components/directory/OffersTable";
 import ProfitPanel, { MineableCoins, ProfitHeadline } from "@/components/directory/ProfitPanel";
 import SettingsBar from "@/components/directory/SettingsBar";
@@ -179,12 +180,7 @@ export default async function MinerPage({ params }: Params) {
                   <MessageSquareQuote className="h-4 w-4" />
                   Request a bulk quote
                 </a>
-                <a
-                  href="https://oneminers.com/pages/hosting-centers"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-ghost px-4 py-2.5 text-xs"
-                >
+                <a href={miner.category === "Industrial" ? "#hosting" : "https://oneminers.com/pages/hosting-centers"} className="btn-ghost px-4 py-2.5 text-xs">
                   <Server className="h-4 w-4" />
                   Host it from 3.6¢/kWh
                 </a>
@@ -235,6 +231,19 @@ export default async function MinerPage({ params }: Params) {
             revenueUsd={top?.usdPerDay ?? 0}
           />
         </section>
+
+        {miner.category === "Industrial" ? (
+          <section id="hosting" className="scroll-mt-24">
+            <div className="mb-3">
+              <h2 className="text-lg font-bold text-ink">Host the {miner.model}</h2>
+              <p className="text-xs text-muted">Live profit at each OneMiners hosting site, compared with your own power price.</p>
+            </div>
+            <HostingCompare
+              fixedSlug={miner.slug}
+              miners={[{ slug: miner.slug, label: fullName, incomeUsd: top?.usdPerDay ?? 0, powerW: miner.powerW }]}
+            />
+          </section>
+        ) : null}
 
         <section className="grid gap-6 lg:grid-cols-[1.4fr_1fr] [&>*]:min-w-0">
           <div>

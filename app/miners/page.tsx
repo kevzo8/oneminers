@@ -64,7 +64,7 @@ export default async function MinersPage() {
         <p className="text-[11px] leading-relaxed text-muted/70">
           Network data {market.source === "live" ? "live from WhatToMine" : "from a saved snapshot (live feed unavailable)"}
           , updated {updated} UTC. BTC ${market.btcUsd.toLocaleString("en-US", { maximumFractionDigits: 0 })}. Income
-          assumes today&apos;s difficulty and prices. Offers and prices are sample data in this demo. Not investment advice.
+          assumes today&apos;s difficulty and prices. Prices come from each seller; listings marked Sample are placeholders. Not investment advice.
         </p>
       </div>
     </PageShell>

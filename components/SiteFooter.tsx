@@ -14,9 +14,9 @@ const columns = [
     title: "Tools",
     links: [
       { label: "Profitability calculator", href: "/#calculator" },
+      { label: "Hosting profit", href: "/#hosting" },
       { label: "Top miners", href: "/#miners" },
-      { label: "Live network", href: "/#top" },
-      { label: "Sites marketplace", href: "/#marketplace" },
+      { label: "Hosting locations", href: "https://oneminers.com/pages/hosting-centers" },
     ],
   },
   {
@@ -24,7 +24,7 @@ const columns = [
     links: [
       { label: "About OneMiners", href: "https://oneminers.com/pages/about-us" },
       { label: "Contact the desk", href: "/#contact" },
-      { label: "Insights", href: "/#insights" },
+      { label: "OneMiners app", href: "https://oneminers.com/pages/oneminers-app" },
       { label: "Privacy", href: "https://oneminers.com/pages/privacy-policy" },
     ],
   },
@@ -39,13 +39,9 @@ const socials = [
 ];
 
 const footnotes = [
-  "Miner profitability uses network difficulty, block rewards and prices from the <a href=\"https://whattomine.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">WhatToMine</a> ASIC feed (refreshed every 10 minutes, with a saved snapshot as fallback).",
-  "Vendor offers and prices in the directory are sample data for this demo. Miner specs follow manufacturer announcements; verify before purchase.",
-  "Live network data sourced from <a href=\"https://mempool.space\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">mempool.space</a> (public API).",
-  "BTC price via <a href=\"https://www.coingecko.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">CoinGecko</a> public API.",
-  "Market prices are illustrative samples; replace with <a href=\"https://www.coingecko.com/en/api\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">CoinGecko</a> or <a href=\"https://coinmarketcap.com/api/\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">CoinMarketCap</a> for production.",
-  "Inspired by <a href=\"https://cryptosites.io\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">cryptosites.io</a> and <a href=\"https://miningnow.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">miningnow.com</a> — design references only.",
-  "This is a demo. All listings, figures, and economics are illustrative. Not investment advice.",
+  "Profitability uses live network difficulty, block rewards and prices from the <a href=\"https://whattomine.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">WhatToMine</a> ASIC feed, refreshed every 10 minutes. Coin prices via <a href=\"https://www.coingecko.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">CoinGecko</a>; Bitcoin network data via <a href=\"https://mempool.space\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">mempool.space</a>.",
+  "Miner specifications follow manufacturer announcements (±5%). Prices and stock are provided by each seller; listings marked Sample are placeholders until sellers join.",
+  "Hosting rates and capacity as published by OneMiners. Earnings estimates assume today&rsquo;s difficulty and prices and are not investment advice.",
 ];
 
 export default function SiteFooter() {
@@ -66,12 +62,12 @@ export default function SiteFooter() {
               </span>
             </a>
             <p className="mt-4 max-w-sm text-xs leading-relaxed text-muted">
-              Powered land for proof-of-work. A demo marketplace for energized mining sites, hosting
-              capacity, and miner economics.
+              The ASIC miner directory by OneMiners: live profitability, prices from verified sellers,
+              and hosting from 3.6¢/kWh.
             </p>
             <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-line bg-white/[0.03] px-3 py-1.5 text-[11px] text-muted">
               <Globe2 className="h-3.5 w-3.5 text-aqua" />
-              Cebu, Philippines · Global inventory
+              Austin, TX · Prague, CZ · Global hosting network
             </div>
 
             <div className="mt-8 flex flex-wrap gap-2">
@@ -114,12 +110,12 @@ export default function SiteFooter() {
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-line pt-6 text-[10px] leading-relaxed text-muted/70 sm:flex-row sm:items-center sm:justify-between">
-          <p>© 2026 OneMiners. Demo site. All listings and figures are illustrative.</p>
-          <p>Nothing on this site is investment advice. Confirm all terms in diligence.</p>
+          <p>© 2026 OneMiners. All rights reserved.</p>
+          <p>Mining income is variable. Nothing on this site is investment advice.</p>
         </div>
 
         <div className="mt-8 border-t border-line pt-6 space-y-2">
-          <h4 className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Data sources &amp; attribution</h4>
+          <h4 className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted">Data sources</h4>
           <ul className="space-y-1 text-[10px] leading-relaxed text-muted/80">
             {footnotes.map((note, i) => (
               <li key={i} dangerouslySetInnerHTML={{ __html: `• ${note}` }} />
