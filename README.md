@@ -131,8 +131,8 @@ npx convex run api.listings.list
 # Create a test lead
 npx convex run api.leads.create --args '{"name":"Test","email":"test@example.com","interest":"Hosting"}'
 
-# List leads
-npx convex run api.leads.list
+# List leads (internal function: CLI and dashboard only, never public)
+npx convex run leads:list
 ```
 
 ### Production deployment

@@ -1,9 +1,12 @@
-import { mutation, query } from "./_generated/server";
+import { internalQuery, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-export const list = query({
+// Internal on purpose: leads contain personal data. Public functions can be called by anyone
+// who knows the deployment URL, so this is only reachable from the dashboard, the CLI
+// (`npx convex run leads:list`) or other server-side Convex functions.
+export const list = internalQuery({
   args: {},
   handler: async (ctx) => {
     return await ctx.db.query("leads").order("desc").collect();
