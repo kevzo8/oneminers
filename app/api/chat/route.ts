@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { answerFromKnowledge, SYSTEM_PROMPT, type ChatMessage } from "@/lib/chat";
+import { answerFromKnowledge, buildSystemPrompt, type ChatMessage } from "@/lib/chat";
+import { getMarket } from "@/lib/market";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,6 +8,7 @@ export const dynamic = "force-dynamic";
 const windowMs = 60_000;
 const maxRequests = 30;
 const hits = new Map<string, number[]>();
+const SESSION_PATTERN = /^[a-zA-Z0-9-]{16,64}$/;
 
 function rateLimited(ip: string) {
   const now = Date.now();
@@ -23,12 +25,57 @@ function parseMessages(value: unknown): ChatMessage[] {
       (item): item is ChatMessage =>
         !!item &&
         typeof item === "object" &&
-        (item as ChatMessage).role !== undefined &&
         ((item as ChatMessage).role === "user" || (item as ChatMessage).role === "assistant") &&
         typeof (item as ChatMessage).content === "string"
     )
     .map((item) => ({ role: item.role, content: item.content.slice(0, 2_000) }))
     .slice(-8);
+}
+
+async function convexClient() {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!url) return null;
+  const [{ ConvexHttpClient }, { api }] = await Promise.all([import("convex/browser"), import("@/convex/_generated/api")]);
+  return { client: new ConvexHttpClient(url), api };
+}
+
+/** Earlier messages for this browser's conversation, read from the database. */
+async function loadHistory(sessionId: string | null): Promise<ChatMessage[] | null> {
+  if (!sessionId) return null;
+  try {
+    const convex = await convexClient();
+    if (!convex) return null;
+    const rows = await convex.client.query(convex.api.chat.history, { sessionId, limit: 12 });
+    return rows.map((row) => ({ role: row.role, content: row.content }));
+  } catch (err) {
+    console.warn("[chat] history unavailable", err);
+    return null;
+  }
+}
+
+async function saveTurn(sessionId: string | null, user: string, assistant: string) {
+  if (!sessionId) return false;
+  try {
+    const convex = await convexClient();
+    if (!convex) return false;
+    await convex.client.mutation(convex.api.chat.appendTurn, { sessionId, user, assistant });
+    return true;
+  } catch (err) {
+    console.warn("[chat] could not save turn", err);
+    return false;
+  }
+}
+
+function sessionFrom(value: unknown) {
+  return typeof value === "string" && SESSION_PATTERN.test(value) ? value : null;
+}
+
+/** GET /api/chat?sessionId=… → the saved conversation, so it survives page reloads. */
+export async function GET(request: Request) {
+  const sessionId = sessionFrom(new URL(request.url).searchParams.get("sessionId"));
+  if (!sessionId) return NextResponse.json({ messages: [] });
+  const history = await loadHistory(sessionId);
+  return NextResponse.json({ messages: history ?? [] });
 }
 
 export async function POST(request: Request) {
@@ -37,17 +84,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Too many requests. Try again in a minute." }, { status: 429 });
   }
 
-  let body: unknown;
+  let body: { messages?: unknown; sessionId?: unknown };
   try {
-    body = await request.json();
+    body = (await request.json()) as typeof body;
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const messages = parseMessages((body as { messages?: unknown })?.messages);
-  if (!messages.length) {
+  const sessionId = sessionFrom(body.sessionId);
+  const clientMessages = parseMessages(body.messages);
+  const question = [...clientMessages].reverse().find((m) => m.role === "user");
+  if (!question) {
     return NextResponse.json({ error: "No messages provided" }, { status: 400 });
   }
+
+  // The database is the source of truth for the conversation; the browser copy is the fallback.
+  const [history, market] = await Promise.all([loadHistory(sessionId), getMarket()]);
+  const messages: ChatMessage[] = history ? [...history.slice(-10), question] : clientMessages;
+
+  let reply: string | null = null;
+  let source: "model" | "knowledge" = "knowledge";
 
   const apiKey = process.env.OPENAI_API_KEY;
   if (apiKey) {
@@ -56,30 +112,32 @@ export async function POST(request: Request) {
     try {
       const response = await fetch(`${base}/chat/completions`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
         body: JSON.stringify({
           model,
-          temperature: 0.4,
-          max_tokens: 350,
-          messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+          temperature: 0.3,
+          max_tokens: 450,
+          messages: [{ role: "system", content: buildSystemPrompt(market) }, ...messages],
         }),
+        signal: AbortSignal.timeout(20_000),
       });
       if (response.ok) {
-        const data = (await response.json()) as {
-          choices?: { message?: { content?: string } }[];
-        };
-        const reply = data.choices?.[0]?.message?.content;
-        if (typeof reply === "string" && reply.trim()) {
-          return NextResponse.json({ reply: reply.trim(), source: "model" });
+        const data = (await response.json()) as { choices?: { message?: { content?: string } }[] };
+        const text = data.choices?.[0]?.message?.content;
+        if (typeof text === "string" && text.trim()) {
+          reply = text.trim();
+          source = "model";
         }
+      } else {
+        console.warn("[chat] model error", response.status);
       }
-    } catch {
-      // Fall through to the local knowledge base.
+    } catch (err) {
+      console.warn("[chat] model unavailable", err);
     }
   }
 
-  return NextResponse.json({ reply: answerFromKnowledge(messages), source: "knowledge" });
+  if (!reply) reply = answerFromKnowledge(messages, market);
+  const saved = await saveTurn(sessionId, question.content, reply);
+
+  return NextResponse.json({ reply, source, saved });
 }

@@ -1,4 +1,4 @@
-import { internalQuery, mutation } from "./_generated/server";
+import { internalMutation, internalQuery, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -10,6 +10,14 @@ export const list = internalQuery({
   args: {},
   handler: async (ctx) => {
     return await ctx.db.query("leads").order("desc").collect();
+  },
+});
+
+/** Delete one lead (e.g. a test entry). Dashboard and CLI only. */
+export const remove = internalMutation({
+  args: { id: v.id("leads") },
+  handler: async (ctx, { id }) => {
+    await ctx.db.delete(id);
   },
 });
 

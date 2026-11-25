@@ -1,16 +1,33 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowUp, Bot, MessageCircle, Sparkles, X } from "lucide-react";
+import { ArrowUp, Bot, MessageCircle, RotateCcw, Sparkles, X } from "lucide-react";
 import { chatSuggestions } from "@/lib/data";
 
 type Message = { role: "user" | "assistant"; content: string };
 
+const SESSION_KEY = "om.chat-session";
+
 const initial: Message = {
   role: "assistant",
   content:
-    "Hi — I'm the OneMiners assistant. Ask me about the demo site inventory, hosting terms, power costs, or run the numbers with you.",
+    "Hi, I'm the OneMiners assistant. Ask me which miners are most profitable, what a model earns, where to buy it, hosting costs, or how to list your company.",
 };
+
+function newSessionId() {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}-${Math.random().toString(36).slice(2, 12)}`;
+}
+
+function getSessionId() {
+  let id = window.localStorage.getItem(SESSION_KEY);
+  if (!id) {
+    id = newSessionId();
+    window.localStorage.setItem(SESSION_KEY, id);
+  }
+  return id;
+}
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
@@ -18,8 +35,27 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Load this browser's saved conversation from the database the first time the chat opens.
+  useEffect(() => {
+    if (!open || historyLoaded) return;
+    setHistoryLoaded(true);
+    fetch(`/api/chat?sessionId=${encodeURIComponent(getSessionId())}`)
+      .then((res) => (res.ok ? res.json() : { messages: [] }))
+      .then((data: { messages?: Message[] }) => {
+        if (data.messages?.length) setMessages([initial, ...data.messages]);
+      })
+      .catch(() => undefined);
+  }, [open, historyLoaded]);
+
+  function startNewChat() {
+    window.localStorage.setItem(SESSION_KEY, newSessionId());
+    setMessages([initial]);
+    setError("");
+  }
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -51,7 +87,7 @@ export default function ChatWidget() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next }),
+        body: JSON.stringify({ messages: next, sessionId: getSessionId() }),
       });
       const data = (await response.json()) as { reply?: string; error?: string };
       if (!response.ok || !data.reply) throw new Error(data.error || "The assistant is unavailable.");
@@ -87,9 +123,19 @@ export default function ChatWidget() {
               </span>
               <div>
                 <div className="text-xs font-bold text-ink">OneMiners assistant</div>
-                <div className="text-[10px] text-muted">Answers from site data</div>
+                <div className="text-[10px] text-muted">Live miner data · remembers this chat</div>
               </div>
             </div>
+            <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={startNewChat}
+              className="grid h-8 w-8 place-items-center rounded-full text-muted transition-colors hover:bg-white/[0.06] hover:text-ink"
+              aria-label="Start a new chat"
+              title="New chat"
+            >
+              <RotateCcw className="h-4 w-4" />
+            </button>
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -98,6 +144,7 @@ export default function ChatWidget() {
             >
               <X className="h-4 w-4" />
             </button>
+            </div>
           </div>
 
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
@@ -164,7 +211,7 @@ export default function ChatWidget() {
                 ref={inputRef}
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
-                placeholder="Ask about sites, hosting, profit..."
+                placeholder="Ask about miners, prices, hosting…"
                 className="w-full bg-transparent text-xs text-ink outline-none placeholder:text-muted/60"
                 aria-label="Message the assistant"
               />
@@ -178,7 +225,7 @@ export default function ChatWidget() {
               </button>
             </div>
             <p className="mt-2 text-center text-[9px] text-muted/60">
-              Demo AI · answers from the site's own data
+              AI answers from live miner data · not investment advice
             </p>
           </form>
         </div>

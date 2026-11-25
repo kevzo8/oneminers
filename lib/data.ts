@@ -94,17 +94,6 @@ export const listings: Listing[] = [
   },
 ];
 
-export const coins = [
-  { symbol: "BTC", name: "Bitcoin", price: 81480.36, change: 2.2 },
-  { symbol: "ZEC", name: "Zcash", price: 1313.71, change: 6.1 },
-  { symbol: "KAS", name: "Kaspa", price: 0.03585441, change: 3.6 },
-  { symbol: "LTC", name: "Litecoin", price: 57.74, change: 2.3 },
-  { symbol: "DOGE", name: "Dogecoin", price: 0.08020953, change: 3.9 },
-  { symbol: "XMR", name: "Monero", price: 612.39, change: 2.7 },
-  { symbol: "ETC", name: "Ethereum Classic", price: 7.68, change: 2.0 },
-  { symbol: "CKB", name: "Nervos", price: 0.00139349, change: 1.1 },
-];
-
 export const insights = [
   {
     category: "Site underwriting",
@@ -148,8 +137,8 @@ export const navLinks = [
 ];
 
 export const chatSuggestions = [
-  "What sites are available?",
-  "How does hosting work?",
-  "Estimate my profit",
-  "Where is Oneminers based?",
+  "Most profitable miner right now?",
+  "What does an Antminer S21 XP Hyd earn?",
+  "How much is hosting?",
+  "How do I list my company?",
 ];
