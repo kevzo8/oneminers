@@ -3,11 +3,11 @@ import { Activity, Database, Store } from "lucide-react";
 import MinerExplorer from "@/components/directory/MinerExplorer";
 import SettingsBar from "@/components/directory/SettingsBar";
 import { Breadcrumbs, PageShell } from "@/components/directory/ui";
-import { ALGORITHMS, MANUFACTURERS, MINERS, OFFERS, VENDORS } from "@/lib/catalog";
-import { allRows } from "@/lib/directory";
+import { algorithmsOf, allRows, loadDirectory, manufacturersOf } from "@/lib/directory";
 import { getMarket } from "@/lib/market";
 
-export const revalidate = 600;
+// Seller edits show up within a minute; market data itself is cached for 10 minutes.
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "ASIC miner profitability, prices & where to buy",
@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 };
 
 export default async function MinersPage() {
-  const market = await getMarket();
-  const rows = allRows(market);
+  const [market, dir] = await Promise.all([getMarket(), loadDirectory()]);
+  const rows = allRows(dir, market);
   const updated = new Date(market.updatedAt).toLocaleString("en-US", {
     dateStyle: "medium",
     timeStyle: "short",
@@ -44,9 +44,9 @@ export default async function MinersPage() {
           </div>
           <div className="grid grid-cols-3 gap-2 text-center">
             {[
-              { icon: Database, value: MINERS.length, label: "Miners" },
-              { icon: Store, value: VENDORS.length, label: "Vendors" },
-              { icon: Activity, value: OFFERS.length, label: "Offers" },
+              { icon: Database, value: dir.miners.length, label: "Miners" },
+              { icon: Store, value: dir.vendors.length, label: "Vendors" },
+              { icon: Activity, value: dir.offers.length, label: "Offers" },
             ].map((stat) => (
               <div key={stat.label} className="surface rounded-2xl px-4 py-3">
                 <stat.icon className="mx-auto h-4 w-4 text-accent" />
@@ -59,7 +59,7 @@ export default async function MinersPage() {
 
         <SettingsBar />
 
-        <MinerExplorer rows={rows} manufacturers={MANUFACTURERS} algorithms={ALGORITHMS} />
+        <MinerExplorer rows={rows} manufacturers={manufacturersOf(dir)} algorithms={algorithmsOf(dir)} />
 
         <p className="text-[11px] leading-relaxed text-muted/70">
           Network data {market.source === "live" ? "live from WhatToMine" : "from a saved snapshot (live feed unavailable)"}

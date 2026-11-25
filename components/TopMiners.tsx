@@ -2,14 +2,13 @@ import Link from "next/link";
 import { ArrowUpRight, Cpu, Store } from "lucide-react";
 import { CoinChip } from "@/components/directory/MinerExplorer";
 import { MinerGlyph } from "@/components/directory/ui";
-import { MINERS, VENDORS } from "@/lib/catalog";
-import { topByDefaultProfit } from "@/lib/directory";
+import { loadDirectory, topByDefaultProfit } from "@/lib/directory";
 import { DEFAULT_SETTINGS, formatEfficiency, formatHashrate, formatUsd } from "@/lib/economics";
 import { getMarket } from "@/lib/market";
 
 export default async function TopMiners() {
-  const market = await getMarket();
-  const top = topByDefaultProfit(market, 8);
+  const [market, dir] = await Promise.all([getMarket(), loadDirectory()]);
+  const top = topByDefaultProfit(dir, market, 8);
 
   return (
     <section id="miners" className="relative py-20 sm:py-28">
@@ -21,8 +20,8 @@ export default async function TopMiners() {
               What the hardware <span className="text-gradient">actually earns.</span>
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
-              Live profit after power at ${DEFAULT_SETTINGS.electricity}/kWh, the best price across {VENDORS.length} vendors,
-              and a full page for every one of {MINERS.length} miners.
+              Live profit after power at ${DEFAULT_SETTINGS.electricity}/kWh, the best price across {dir.vendors.length} vendors,
+              and a full page for every one of {dir.miners.length} miners.
             </p>
           </div>
           <div className="flex gap-2">

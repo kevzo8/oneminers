@@ -1,5 +1,5 @@
 import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 
 // Chat sessions are identified by a random UUID created in the visitor's browser.
 // Knowing the id is what grants access to that one conversation; there is no public
@@ -11,7 +11,7 @@ const MAX_PER_SESSION = 300;
 const MAX_PER_MINUTE = 20;
 
 function checkSession(sessionId: string) {
-  if (!SESSION_PATTERN.test(sessionId)) throw new Error("Invalid session.");
+  if (!SESSION_PATTERN.test(sessionId)) throw new ConvexError("Invalid session.");
 }
 
 /** The latest messages of one conversation, oldest first. */
@@ -36,7 +36,7 @@ export const appendTurn = mutation({
     checkSession(sessionId);
     const question = user.trim().slice(0, MAX_LENGTH);
     const answer = assistant.trim().slice(0, MAX_LENGTH);
-    if (!question || !answer) throw new Error("Empty message.");
+    if (!question || !answer) throw new ConvexError("Empty message.");
 
     const now = Date.now();
     const recent = await ctx.db
@@ -44,9 +44,9 @@ export const appendTurn = mutation({
       .withIndex("by_session", (q) => q.eq("sessionId", sessionId))
       .order("desc")
       .take(MAX_PER_SESSION);
-    if (recent.length >= MAX_PER_SESSION) throw new Error("This conversation is full. Start a new chat.");
+    if (recent.length >= MAX_PER_SESSION) throw new ConvexError("This conversation is full. Start a new chat.");
     if (recent.filter((row) => now - row.createdAt < 60_000).length >= MAX_PER_MINUTE * 2) {
-      throw new Error("Too many messages. Try again in a minute.");
+      throw new ConvexError("Too many messages. Try again in a minute.");
     }
 
     await ctx.db.insert("chatMessages", { sessionId, role: "user", content: question, createdAt: now });

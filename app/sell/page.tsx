@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { BadgeCheck, BarChart3, Check, FileSpreadsheet, Handshake, Link2, MessageSquareQuote, Store } from "lucide-react";
 import VendorApplyForm from "@/components/directory/VendorApplyForm";
 import { Breadcrumbs, PageShell } from "@/components/directory/ui";
-import { MINERS } from "@/lib/catalog";
 
 export const metadata: Metadata = {
   title: "List your company: sell ASIC miners to qualified buyers",
@@ -18,7 +17,7 @@ const steps = [
 ];
 
 const benefits = [
-  { icon: Store, text: `Your offers on every matching miner page (${MINERS.length}+ models)` },
+  { icon: Store, text: "Your offers on every matching miner page" },
   { icon: BadgeCheck, text: "Verified vendor profile with ratings and reply time" },
   { icon: MessageSquareQuote, text: "Quote requests and buyer leads sent straight to you" },
   { icon: BarChart3, text: "Seller portal: views, clicks and leads every month" },

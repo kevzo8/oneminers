@@ -14,6 +14,11 @@ export type OfferRow = Offer & {
 
 const TIER_ORDER = { Gold: 0, Silver: 1, Bronze: 2, Free: 3 } as const;
 
+function updatedLabel(updatedAt: number) {
+  const days = Math.floor((Date.now() - updatedAt) / 86_400_000);
+  return days <= 0 ? "today" : days === 1 ? "yesterday" : `${days}d ago`;
+}
+
 function shopHref(row: OfferRow) {
   if (!row.vendor.sample && row.vendor.website.startsWith("http")) {
     return `${row.vendor.website}?ref=miner-directory`;
@@ -144,7 +149,7 @@ export default function OffersTable({
                         {row.availability}
                       </span>
                       <span className="block text-[10px] text-muted/70">
-                        updated {row.updatedDaysAgo === 0 ? "today" : `${row.updatedDaysAgo}d ago`}
+                        updated {updatedLabel(row.updatedAt)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">

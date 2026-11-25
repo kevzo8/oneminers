@@ -1,8 +1,7 @@
 // Site assistant: system prompt and offline answers, both built from the same live data the
 // directory pages show (miner catalog + WhatToMine network data + vendors and offers).
 
-import { offersForVendor, VENDORS } from "./catalog";
-import { allRows } from "./directory";
+import { allRows, offersForVendor, type Directory } from "./directory";
 import { dailyProfit, DEFAULT_SETTINGS, formatEfficiency, formatHashrate, formatUsd, type MarketSnapshot } from "./economics";
 import type { MinerRow } from "@/components/directory/MinerExplorer";
 
@@ -12,8 +11,8 @@ const HOSTED_RATE = 0.036;
 
 type RankedRow = MinerRow & { profitDefault: number; profitHosted: number };
 
-function rank(market: MarketSnapshot): RankedRow[] {
-  return allRows(market).map((row) => {
+function rank(dir: Directory, market: MarketSnapshot): RankedRow[] {
+  return allRows(dir, market).map((row) => {
     const income = row.topCoin?.usdPerDay ?? 0;
     return {
       ...row,
@@ -67,14 +66,14 @@ function relevantRows(all: RankedRow[], conversation: string) {
   return [...picked.values()].sort((a, b) => b.profitDefault - a.profitDefault);
 }
 
-export function buildSystemPrompt(market: MarketSnapshot, conversation = "") {
-  const all = rank(market);
+export function buildSystemPrompt(dir: Directory, market: MarketSnapshot, conversation = "") {
+  const all = rank(dir, market);
   const rows = relevantRows(all, conversation);
   const catalog = all.map((row) => row.model).join(", ");
   const updated = new Date(market.updatedAt).toISOString().slice(0, 16).replace("T", " ");
-  const vendors = VENDORS.map(
+  const vendors = dir.vendors.map(
     (vendor) =>
-      `${vendor.name} (${vendor.country}, ${vendor.tier} plan${vendor.verified ? ", verified" : ""}${vendor.hosting ? ", offers hosting" : ""}, ${offersForVendor(vendor.slug).length} listings${vendor.sample ? ", SAMPLE vendor" : ""}) page /vendors/${vendor.slug}`
+      `${vendor.name} (${vendor.country}, ${vendor.tier} plan${vendor.verified ? ", verified" : ""}${vendor.hosting ? ", offers hosting" : ""}, ${offersForVendor(dir, vendor.slug).length} listings${vendor.sample ? ", SAMPLE vendor" : ""}) page /vendors/${vendor.slug}`
   ).join("\n");
 
   return `You are the assistant on a mining-hardware directory run with OneMiners. Answer from the DATA below only.
@@ -118,10 +117,10 @@ function findMiner(rows: RankedRow[], q: string) {
 }
 
 /** Offline answers when no AI model is configured or reachable. Uses the same live data. */
-export function answerFromKnowledge(messages: ChatMessage[], market: MarketSnapshot) {
+export function answerFromKnowledge(messages: ChatMessage[], dir: Directory, market: MarketSnapshot) {
   const last = [...messages].reverse().find((m) => m.role === "user");
   const q = (last?.content ?? "").toLowerCase();
-  const rows = rank(market);
+  const rows = rank(dir, market);
   const byProfit = [...rows].sort((a, b) => b.profitDefault - a.profitDefault);
 
   if (!q.trim()) return "Ask me about miner profitability, prices, hosting, or listing your company.";

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { answerFromKnowledge, buildSystemPrompt, type ChatMessage } from "@/lib/chat";
+import { loadDirectory } from "@/lib/directory";
 import { getMarket } from "@/lib/market";
 
 export const runtime = "nodejs";
@@ -99,7 +100,7 @@ export async function POST(request: Request) {
   }
 
   // The database is the source of truth for the conversation; the browser copy is the fallback.
-  const [history, market] = await Promise.all([loadHistory(sessionId), getMarket()]);
+  const [history, market, dir] = await Promise.all([loadHistory(sessionId), getMarket(), loadDirectory()]);
   const messages: ChatMessage[] = history ? [...history.slice(-10), question] : clientMessages;
 
   let reply: string | null = null;
@@ -121,7 +122,7 @@ export async function POST(request: Request) {
           max_tokens: 1200,
           ...(/gpt-oss|o\d|reason/i.test(model) ? { reasoning_effort: "low" } : {}),
           messages: [
-            { role: "system", content: buildSystemPrompt(market, messages.map((m) => m.content).join(" ")) },
+            { role: "system", content: buildSystemPrompt(dir, market, messages.map((m) => m.content).join(" ")) },
             ...messages,
           ],
         }),
@@ -142,7 +143,7 @@ export async function POST(request: Request) {
     }
   }
 
-  if (!reply) reply = answerFromKnowledge(messages, market);
+  if (!reply) reply = answerFromKnowledge(messages, dir, market);
   const saved = await saveTurn(sessionId, question.content, reply);
 
   return NextResponse.json({ reply, source, saved });

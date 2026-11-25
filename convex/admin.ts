@@ -1,0 +1,169 @@
+import { ConvexError, v } from "convex/values";
+import { internalMutation, mutation, query } from "./_generated/server";
+import { requireAdmin } from "./users";
+import { vAlgorithm, vCategory, vCooling, vTier, vUnit } from "./schema";
+import { MINERS, OFFERS, VENDORS } from "../lib/catalog";
+
+/** Everything the admin screen needs. */
+export const overview = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const vendors = await ctx.db.query("vendors").order("desc").take(1000);
+    const withCounts = [];
+    for (const vendor of vendors) {
+      const offers = await ctx.db.query("offers").withIndex("by_vendor", (q) => q.eq("vendorId", vendor._id)).take(1000);
+      withCounts.push({ ...vendor, offerCount: offers.length });
+    }
+    const miners = await ctx.db.query("miners").take(2000);
+    const snapshots = await ctx.db.query("marketSnapshots").withIndex("by_takenAt").order("desc").take(1);
+    return {
+      vendors: withCounts,
+      miners: miners.sort((a, b) => a.manufacturer.localeCompare(b.manufacturer) || a.model.localeCompare(b.model)),
+      lastSnapshotAt: snapshots[0]?.takenAt ?? null,
+    };
+  },
+});
+
+export const setVendorReview = mutation({
+  args: {
+    vendorId: v.id("vendors"),
+    status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected")),
+    verified: v.boolean(),
+    tier: vTier,
+  },
+  handler: async (ctx, { vendorId, ...patch }) => {
+    await requireAdmin(ctx);
+    if (!(await ctx.db.get(vendorId))) throw new ConvexError("Vendor not found.");
+    await ctx.db.patch(vendorId, patch);
+  },
+});
+
+const minerFields = {
+  slug: v.string(),
+  manufacturer: v.string(),
+  model: v.string(),
+  algorithm: vAlgorithm,
+  hashrate: v.number(),
+  unit: vUnit,
+  powerW: v.number(),
+  cooling: vCooling,
+  category: vCategory,
+  release: v.number(),
+  refPrice: v.number(),
+  active: v.boolean(),
+};
+
+/** Add or edit a miner model (matched by slug). */
+export const upsertMiner = mutation({
+  args: minerFields,
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    if (!/^[a-z0-9-]{3,90}$/.test(args.slug)) throw new ConvexError("Slug: lowercase letters, numbers and dashes.");
+    if (!(args.hashrate > 0 && args.powerW > 0)) throw new ConvexError("Hashrate and power must be positive.");
+    const existing = await ctx.db.query("miners").withIndex("by_slug", (q) => q.eq("slug", args.slug)).unique();
+    if (existing) await ctx.db.patch(existing._id, args);
+    else await ctx.db.insert("miners", args);
+  },
+});
+
+/** Remove the fictional sample vendors and their offers once real sellers are live. */
+export const deleteSampleVendors = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const vendors = await ctx.db.query("vendors").take(1000);
+    let removed = 0;
+    for (const vendor of vendors.filter((row) => row.sample)) {
+      const offers = await ctx.db.query("offers").withIndex("by_vendor", (q) => q.eq("vendorId", vendor._id)).take(2000);
+      for (const offer of offers) await ctx.db.delete(offer._id);
+      await ctx.db.delete(vendor._id);
+      removed += 1;
+    }
+    return removed;
+  },
+});
+
+/** CLI only: `npx convex run admin:grantAdmin '{"userId":"..."}'`. The user id is shown in the seller portal. */
+export const grantAdmin = internalMutation({
+  args: { userId: v.id("users") },
+  handler: async (ctx, { userId }) => {
+    if (!(await ctx.db.get(userId))) throw new ConvexError("User not found.");
+    await ctx.db.patch(userId, { role: "admin" });
+  },
+});
+
+/**
+ * CLI only: load the starter catalog (`npx convex run admin:seed`). Safe to re-run: miners are
+ * upserted by slug; team vendors and their offers are only created if missing.
+ */
+export const seed = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    let miners = 0;
+    for (const miner of MINERS) {
+      const existing = await ctx.db.query("miners").withIndex("by_slug", (q) => q.eq("slug", miner.slug)).unique();
+      const row = {
+        slug: miner.slug,
+        manufacturer: miner.manufacturer,
+        model: miner.model,
+        algorithm: miner.algorithm,
+        hashrate: miner.hashrate,
+        unit: miner.unit,
+        powerW: miner.powerW,
+        cooling: miner.cooling,
+        category: miner.category,
+        release: miner.release,
+        refPrice: miner.refPrice,
+        active: true,
+      };
+      if (existing) await ctx.db.patch(existing._id, row);
+      else await ctx.db.insert("miners", row);
+      miners += 1;
+    }
+
+    let vendors = 0;
+    let offers = 0;
+    for (const vendor of VENDORS) {
+      const existing = await ctx.db.query("vendors").withIndex("by_slug", (q) => q.eq("slug", vendor.slug)).unique();
+      if (existing) continue;
+      const vendorId = await ctx.db.insert("vendors", {
+        slug: vendor.slug,
+        name: vendor.name,
+        country: vendor.country,
+        countryCode: vendor.countryCode,
+        website: vendor.website,
+        about: vendor.about,
+        payments: vendor.payments,
+        warrantyMonths: vendor.warrantyMonths,
+        hosting: vendor.hosting,
+        since: vendor.since,
+        replyMinutes: vendor.replyMinutes,
+        rating: vendor.rating,
+        reviews: vendor.reviews,
+        tier: vendor.tier,
+        status: "approved",
+        verified: vendor.verified,
+        sample: vendor.sample,
+        createdAt: Date.now(),
+      });
+      vendors += 1;
+      for (const offer of OFFERS.filter((row) => row.vendorSlug === vendor.slug)) {
+        await ctx.db.insert("offers", {
+          minerSlug: offer.minerSlug,
+          vendorId,
+          price: offer.price,
+          shipping: offer.shipping,
+          condition: offer.condition,
+          availability: offer.availability,
+          shipsFrom: offer.shipsFrom,
+          psuIncluded: offer.psuIncluded,
+          warrantyMonths: offer.warrantyMonths,
+          updatedAt: offer.updatedAt,
+        });
+        offers += 1;
+      }
+    }
+    return { miners, vendors, offers };
+  },
+});

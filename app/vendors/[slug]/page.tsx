@@ -3,18 +3,21 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowUpRight, CalendarDays, Clock, CreditCard, Globe, ShieldCheck, Star } from "lucide-react";
 import { Breadcrumbs, Flag, MinerGlyph, PageShell, TierBadge, VerifiedBadge } from "@/components/directory/ui";
-import { getMiner, getVendor, offersForVendor, VENDORS } from "@/lib/catalog";
+import { getMiner, getVendor, loadDirectory, offersForVendor } from "@/lib/directory";
 import { formatHashrate, formatUsd } from "@/lib/economics";
+
+export const revalidate = 60;
 
 type Params = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return VENDORS.map((vendor) => ({ slug: vendor.slug }));
+export async function generateStaticParams() {
+  const dir = await loadDirectory();
+  return dir.vendors.map((vendor) => ({ slug: vendor.slug }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const vendor = getVendor(slug);
+  const vendor = getVendor(await loadDirectory(), slug);
   if (!vendor) return { title: "Vendor not found" };
   return {
     title: `${vendor.name}: ASIC miner prices, stock & reviews`,
@@ -24,11 +27,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function VendorPage({ params }: Params) {
   const { slug } = await params;
-  const vendor = getVendor(slug);
+  const dir = await loadDirectory();
+  const vendor = getVendor(dir, slug);
   if (!vendor) notFound();
 
-  const listings = offersForVendor(vendor.slug)
-    .map((offer) => ({ offer, miner: getMiner(offer.minerSlug) }))
+  const listings = offersForVendor(dir, vendor.slug)
+    .map((offer) => ({ offer, miner: getMiner(dir, offer.minerSlug) }))
     .filter((row): row is { offer: typeof row.offer; miner: NonNullable<typeof row.miner> } => Boolean(row.miner))
     .sort((a, b) => a.miner.algorithm.localeCompare(b.miner.algorithm) || b.offer.price - a.offer.price);
 

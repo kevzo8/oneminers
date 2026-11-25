@@ -89,13 +89,6 @@ export const MINERS: MinerModel[] = [
   m("Bitmain", "Antminer K7", "Eaglesong", 63.5, "TH/s", 3080, "Air", 2022, 700),
 ];
 
-export const MANUFACTURERS = Array.from(new Set(MINERS.map((miner) => miner.manufacturer)));
-export const ALGORITHMS = Array.from(new Set(MINERS.map((miner) => miner.algorithm)));
-
-export function getMiner(slug: string) {
-  return MINERS.find((miner) => miner.slug === slug);
-}
-
 // ---------------------------------------------------------------------------
 // Vendors
 
@@ -258,10 +251,6 @@ export const VENDORS: Vendor[] = [
   },
 ];
 
-export function getVendor(slug: string) {
-  return VENDORS.find((vendor) => vendor.slug === slug);
-}
-
 export const TIER_RANK: Record<VendorTier, number> = { Gold: 0, Silver: 1, Bronze: 2, Free: 3 };
 
 // ---------------------------------------------------------------------------
@@ -278,8 +267,11 @@ export type Offer = {
   shipsFrom: string;
   psuIncluded: boolean;
   warrantyMonths: number;
-  updatedDaysAgo: number;
+  /** Epoch ms of the vendor's last update. */
+  updatedAt: number;
 };
+
+const SEED_TIME = Date.UTC(2026, 10, 25, 0, 0, 0);
 
 function hash(text: string) {
   let h = 2166136261;
@@ -315,27 +307,12 @@ function buildOffers(): Offer[] {
         shipsFrom: vendor.countryCode,
         psuIncluded: miner.cooling === "Air" || stockRoll > 0.5,
         warrantyMonths: vendor.warrantyMonths,
-        updatedDaysAgo: Math.floor(hash(`${miner.slug}:${vendor.slug}:age`) * 9),
+        updatedAt: SEED_TIME - Math.floor(hash(`${miner.slug}:${vendor.slug}:age`) * 9) * 86_400_000,
       });
     }
   }
   return offers;
 }
 
+/** Starter offers (sample data), loaded into Convex by `admin:seed`. */
 export const OFFERS: Offer[] = buildOffers();
-
-export function offersForMiner(slug: string) {
-  return OFFERS.filter((offer) => offer.minerSlug === slug);
-}
-
-export function offersForVendor(slug: string) {
-  return OFFERS.filter((offer) => offer.vendorSlug === slug);
-}
-
-/** Cheapest available (in stock or pre-order) total price for a miner. */
-export function bestPrice(slug: string) {
-  const prices = offersForMiner(slug)
-    .filter((offer) => offer.availability !== "Out of stock")
-    .map((offer) => offer.price + offer.shipping);
-  return prices.length ? Math.min(...prices) : null;
-}

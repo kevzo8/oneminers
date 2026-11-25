@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight, Clock, Server, Star } from "lucide-react";
 import { Breadcrumbs, Flag, PageShell, TierBadge, VerifiedBadge } from "@/components/directory/ui";
-import { offersForVendor, TIER_RANK, VENDORS } from "@/lib/catalog";
+import { TIER_RANK } from "@/lib/catalog";
+import { loadDirectory, offersForVendor } from "@/lib/directory";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "ASIC miner vendors and resellers",
@@ -10,8 +13,9 @@ export const metadata: Metadata = {
     "Verified ASIC miner resellers with live stock and prices, reply times, ratings and payment methods. Compare vendors before you buy.",
 };
 
-export default function VendorsPage() {
-  const vendors = [...VENDORS].sort((a, b) => TIER_RANK[a.tier] - TIER_RANK[b.tier] || b.rating - a.rating);
+export default async function VendorsPage() {
+  const dir = await loadDirectory();
+  const vendors = [...dir.vendors].sort((a, b) => TIER_RANK[a.tier] - TIER_RANK[b.tier] || b.rating - a.rating);
 
   return (
     <PageShell>
@@ -37,7 +41,7 @@ export default function VendorsPage() {
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {vendors.map((vendor) => {
-            const count = offersForVendor(vendor.slug).length;
+            const count = offersForVendor(dir, vendor.slug).length;
             return (
               <Link
                 key={vendor.slug}
@@ -88,7 +92,7 @@ export default function VendorsPage() {
         </div>
 
         <p className="text-[11px] leading-relaxed text-muted/70">
-          Vendors other than OneMiners are fictional sample companies for this demo. Sorted by plan tier, then rating.
+          Vendors marked &ldquo;Sample&rdquo; are fictional companies used until real sellers join. Sorted by plan tier, then rating.
         </p>
       </div>
     </PageShell>

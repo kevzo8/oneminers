@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import VendorPortal from "@/components/portal/VendorPortal";
+import ConvexAuthClient from "@/components/portal/ConvexAuthClient";
+import SellerPortal from "@/components/portal/SellerPortal";
 import { Breadcrumbs, PageShell } from "@/components/directory/ui";
-import { MINERS } from "@/lib/catalog";
+import { loadDirectory } from "@/lib/directory";
 import { formatHashrate } from "@/lib/economics";
 
 export const metadata: Metadata = {
@@ -10,18 +11,25 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-export default function VendorPortalPage() {
-  const miners = MINERS.map((miner) => ({
-    slug: miner.slug,
-    label: `${miner.manufacturer} ${miner.model} · ${formatHashrate(miner.hashrate, miner.unit)}`,
-    refPrice: miner.refPrice,
-  }));
+export const revalidate = 300;
+
+export default async function VendorPortalPage() {
+  const dir = await loadDirectory();
+  const miners = dir.miners
+    .map((miner) => ({
+      slug: miner.slug,
+      label: `${miner.manufacturer} ${miner.model} · ${formatHashrate(miner.hashrate, miner.unit)}`,
+      refPrice: miner.refPrice,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label));
 
   return (
     <PageShell>
       <div className="mx-auto w-full max-w-7xl space-y-6 px-5 sm:px-8">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Seller portal" }]} />
-        <VendorPortal miners={miners} />
+        <ConvexAuthClient>
+          <SellerPortal miners={miners} />
+        </ConvexAuthClient>
       </div>
     </PageShell>
   );

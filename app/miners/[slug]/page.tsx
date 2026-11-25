@@ -7,8 +7,7 @@ import ProfitPanel, { MineableCoins, ProfitHeadline } from "@/components/directo
 import SettingsBar from "@/components/directory/SettingsBar";
 import { CoinChip } from "@/components/directory/MinerExplorer";
 import { Breadcrumbs, MinerGlyph, PageShell } from "@/components/directory/ui";
-import { bestPrice, getMiner, MINERS } from "@/lib/catalog";
-import { offerRows, relatedMiners, revenuesFor } from "@/lib/directory";
+import { bestPrice, getMiner, loadDirectory, offerRows, relatedMiners, revenuesFor } from "@/lib/directory";
 import {
   breakEvenElectricity,
   DEFAULT_SETTINGS,
@@ -20,17 +19,19 @@ import {
 } from "@/lib/economics";
 import { getMarket } from "@/lib/market";
 
-export const revalidate = 600;
+export const revalidate = 60;
 
 type Params = { params: Promise<{ slug: string }> };
 
-export function generateStaticParams() {
-  return MINERS.map((miner) => ({ slug: miner.slug }));
+// Known miners are pre-rendered; miners added later in the admin render on first visit.
+export async function generateStaticParams() {
+  const dir = await loadDirectory();
+  return dir.miners.map((miner) => ({ slug: miner.slug }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const miner = getMiner(slug);
+  const miner = getMiner(await loadDirectory(), slug);
   if (!miner) return { title: "Miner not found" };
   const name = `${miner.manufacturer} ${miner.model} (${formatHashrate(miner.hashrate, miner.unit)})`;
   return {
@@ -41,15 +42,15 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function MinerPage({ params }: Params) {
   const { slug } = await params;
-  const miner = getMiner(slug);
+  const [dir, market] = await Promise.all([loadDirectory(), getMarket()]);
+  const miner = getMiner(dir, slug);
   if (!miner) notFound();
 
-  const market = await getMarket();
   const revenues = revenuesFor(miner, market);
   const top = revenues[0];
-  const offers = offerRows(miner.slug);
-  const best = bestPrice(miner.slug);
-  const related = relatedMiners(miner);
+  const offers = offerRows(dir, miner.slug);
+  const best = bestPrice(dir, miner.slug);
+  const related = relatedMiners(dir, miner);
   const fullName = `${miner.manufacturer} ${miner.model}`;
   const hashrateLabel = formatHashrate(miner.hashrate, miner.unit);
   const efficiency = formatEfficiency(miner.powerW, miner.hashrate, miner.unit);
