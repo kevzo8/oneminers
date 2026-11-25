@@ -38,8 +38,39 @@ function minerLine(row: RankedRow) {
   ].join(" | ");
 }
 
-export function buildSystemPrompt(market: MarketSnapshot) {
-  const rows = rank(market).sort((a, b) => b.profitDefault - a.profitDefault);
+/**
+ * Full details only for the miners relevant to this conversation (top earners, cheapest profitable,
+ * and any model the visitor mentions), plus every model name. Keeps the prompt small enough for
+ * free-tier rate limits while the assistant still knows the whole catalog exists.
+ */
+function relevantRows(all: RankedRow[], conversation: string) {
+  const byProfit = [...all].sort((a, b) => b.profitDefault - a.profitDefault);
+  const picked = new Map<string, RankedRow>();
+  const add = (row: RankedRow) => picked.set(row.slug, row);
+
+  byProfit.slice(0, 6).forEach(add);
+  [...all].sort((a, b) => b.profitHosted - a.profitHosted).slice(0, 3).forEach(add);
+  all
+    .filter((row) => row.bestPrice && row.profitDefault > 0)
+    .sort((a, b) => (a.bestPrice ?? 0) - (b.bestPrice ?? 0))
+    .slice(0, 3)
+    .forEach(add);
+
+  const words = conversation.toLowerCase().split(/[^a-z0-9+]+/).filter((word) => word.length >= 2);
+  for (const row of all) {
+    const tokens = `${row.manufacturer} ${row.model} ${row.algorithm} ${row.topCoin?.tag ?? ""}`.toLowerCase().split(/[^a-z0-9+]+/);
+    const modelHit = tokens.some((token) => /\d/.test(token) && words.includes(token));
+    const coinOrAlgoHit = [row.topCoin?.tag?.toLowerCase(), row.algorithm.toLowerCase()].some((t) => t && words.includes(t));
+    const makerHit = words.includes(row.manufacturer.toLowerCase());
+    if (modelHit || (picked.size < 18 && (coinOrAlgoHit || makerHit))) add(row);
+  }
+  return [...picked.values()].sort((a, b) => b.profitDefault - a.profitDefault);
+}
+
+export function buildSystemPrompt(market: MarketSnapshot, conversation = "") {
+  const all = rank(market);
+  const rows = relevantRows(all, conversation);
+  const catalog = all.map((row) => row.model).join(", ");
   const updated = new Date(market.updatedAt).toISOString().slice(0, 16).replace("T", " ");
   const vendors = VENDORS.map(
     (vendor) =>
@@ -57,8 +88,11 @@ Rules:
 
 DATA (network data ${market.source === "live" ? "live" : "snapshot"} as of ${updated} UTC, BTC $${Math.round(market.btcUsd).toLocaleString("en-US")}):
 
-Miners, most profitable first at $0.07/kWh and 1% pool fee:
+All ${all.length} miners in the directory: ${catalog}.
+
+Details for the miners relevant to this conversation, most profitable first at $0.07/kWh and 1% pool fee:
 ${rows.map(minerLine).join("\n")}
+If asked about a listed miner without details here, give its page /miners and say the page has live numbers.
 
 Vendors:
 ${vendors}

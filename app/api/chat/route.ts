@@ -116,8 +116,14 @@ export async function POST(request: Request) {
         body: JSON.stringify({
           model,
           temperature: 0.3,
-          max_tokens: 450,
-          messages: [{ role: "system", content: buildSystemPrompt(market) }, ...messages],
+          // Reasoning models (e.g. gpt-oss) spend part of this budget thinking before answering,
+          // so keep reasoning light and leave enough room for the reply itself.
+          max_tokens: 1200,
+          ...(/gpt-oss|o\d|reason/i.test(model) ? { reasoning_effort: "low" } : {}),
+          messages: [
+            { role: "system", content: buildSystemPrompt(market, messages.map((m) => m.content).join(" ")) },
+            ...messages,
+          ],
         }),
         signal: AbortSignal.timeout(20_000),
       });
