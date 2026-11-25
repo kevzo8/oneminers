@@ -116,23 +116,24 @@ export type Vendor = {
 
 export const VENDORS: Vendor[] = [
   {
+    // Real company; facts from oneminers.com (FAQ / About). No rating or reply time until we measure them.
     slug: "oneminers",
     name: "OneMiners",
     country: "United States",
     countryCode: "US",
-    tier: "Gold",
+    tier: "Free",
     verified: true,
     partner: true,
-    replyMinutes: 40,
-    rating: 4.8,
-    reviews: 270,
+    replyMinutes: 0,
+    rating: 0,
+    reviews: 0,
     since: 2017,
-    payments: ["Bank transfer", "BTC", "USDT", "Pay later"],
-    warrantyMonths: 84,
+    payments: ["Bank transfer", "BTC", "USDT", "USDC", "ETH", "Pay later"],
+    warrantyMonths: 12,
     hosting: true,
     website: "https://oneminers.com",
     about:
-      "ASIC sales with fully managed hosting from 3.6¢/kWh across 17+ locations. Hosted miners carry a 7-year warranty and are managed in the OneMiners app.",
+      "ASIC miner sales with managed hosting. Hosted miners carry a 7-year warranty; miners shipped to customers carry 12 months.",
     sample: false,
   },
   {

@@ -10,12 +10,14 @@ export const revalidate = 60;
 export const metadata: Metadata = {
   title: "ASIC miner vendors and resellers",
   description:
-    "Verified ASIC miner resellers with live stock and prices, reply times, ratings and payment methods. Compare vendors before you buy.",
+    "ASIC miner sellers with their prices, stock, warranty and payment methods. Compare sellers before you buy.",
 };
 
 export default async function VendorsPage() {
   const dir = await loadDirectory();
-  const vendors = [...dir.vendors].sort((a, b) => TIER_RANK[a.tier] - TIER_RANK[b.tier] || b.rating - a.rating);
+  const vendors = [...dir.vendors].sort(
+    (a, b) => TIER_RANK[a.tier] - TIER_RANK[b.tier] || offersForVendor(dir, b.slug).length - offersForVendor(dir, a.slug).length
+  );
 
   return (
     <PageShell>
@@ -70,13 +72,17 @@ export default async function VendorsPage() {
                 <p className="line-clamp-2 text-xs leading-relaxed text-muted">{vendor.about}</p>
                 <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted">
                   <VerifiedBadge verified={vendor.verified} partner={vendor.partner} />
-                  <span className="inline-flex items-center gap-1">
-                    <Star className="h-3 w-3 fill-amber text-amber" />
-                    {vendor.rating.toFixed(1)} ({vendor.reviews})
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <Clock className="h-3 w-3" /> ~{vendor.replyMinutes}m reply
-                  </span>
+                  {vendor.reviews > 0 ? (
+                    <span className="inline-flex items-center gap-1">
+                      <Star className="h-3 w-3 fill-amber text-amber" />
+                      {vendor.rating.toFixed(1)} ({vendor.reviews})
+                    </span>
+                  ) : null}
+                  {vendor.replyMinutes > 0 ? (
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="h-3 w-3" /> ~{vendor.replyMinutes}m reply
+                    </span>
+                  ) : null}
                   {vendor.hosting ? (
                     <span className="inline-flex items-center gap-1 text-aqua">
                       <Server className="h-3 w-3" /> Hosting
@@ -95,7 +101,7 @@ export default async function VendorsPage() {
         </div>
 
         <p className="text-[11px] leading-relaxed text-muted/70">
-          Vendors marked &ldquo;Sample&rdquo; are placeholders until real sellers join. Sorted by plan tier, then rating.
+          Sorted by plan, then by number of listings.
         </p>
       </div>
     </PageShell>

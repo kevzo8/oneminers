@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Clock, Mail, MessageSquare, Send } from "lucide-react";
+import { Check, Clock, Mail, Send } from "lucide-react";
 
 type State = "idle" | "sending" | "sent" | "error";
 
@@ -50,24 +50,6 @@ export default function LeadForm() {
 
               <div className="mt-7 space-y-3">
                 <div className="flex items-center gap-3 rounded-xl border border-line bg-white/[0.03] px-4 py-3">
-                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent/10">
-                    <Mail className="h-4 w-4 text-accent" />
-                  </span>
-                  <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Email</div>
-                    <a href="mailto:sales@oneminers.com" className="text-sm font-semibold text-ink hover:text-accent">sales@oneminers.com</a>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 rounded-xl border border-line bg-white/[0.03] px-4 py-3">
-                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-aqua/10">
-                    <MessageSquare className="h-4 w-4 text-aqua" />
-                  </span>
-                  <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Telegram</div>
-                    <a href="https://t.me/oneminers_hosting" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-ink hover:text-accent">t.me/oneminers_hosting</a>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 rounded-xl border border-line bg-white/[0.03] px-4 py-3">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-violet/10">
                     <Clock className="h-4 w-4 text-violet-300" />
                   </span>
@@ -76,6 +58,15 @@ export default function LeadForm() {
                     <div className="text-sm font-semibold text-ink">Usually within one business day</div>
                   </div>
                 </div>
+                <a href="/sell" className="flex items-center gap-3 rounded-xl border border-line bg-white/[0.03] px-4 py-3 transition-colors hover:border-accent/30">
+                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent/10">
+                    <Mail className="h-4 w-4 text-accent" />
+                  </span>
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Selling miners?</div>
+                    <div className="text-sm font-semibold text-ink">List your company free during the launch promo</div>
+                  </div>
+                </a>
               </div>
             </div>
 

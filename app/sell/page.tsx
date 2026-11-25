@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import { BadgeCheck, BarChart3, Check, FileSpreadsheet, Handshake, Link2, MessageSquareQuote, Store } from "lucide-react";
-import VendorApplyForm from "@/components/directory/VendorApplyForm";
+import Link from "next/link";
 import { Breadcrumbs, PageShell } from "@/components/directory/ui";
 
 export const metadata: Metadata = {
   title: "List your company: sell ASIC miners to qualified buyers",
   description:
-    "Resellers list miners free for 6 months, then $100/month with no commission. Cancel anytime. Get a verified vendor profile, offers on every miner page, and buyer leads.",
+    "Launch promo: list your miners free for 6 months, then $100/month with no commission. Cancel anytime. Your listings go live as soon as you add them.",
 };
 
 const steps = [
-  { icon: Store, title: "Apply", text: "Tell us about your company and the brands you carry." },
-  { icon: BadgeCheck, title: "Get verified", text: "We check company registration and payment details, then add your Verified badge." },
-  { icon: Link2, title: "Add the partner link", text: "Link to OneMiners from your partners page. The portal checks it for you." },
-  { icon: FileSpreadsheet, title: "Upload listings", text: "Add models by hand or paste a CSV. Update prices and stock anytime." },
+  { icon: Store, title: "Create your account", text: "Add your company details. It takes two minutes." },
+  { icon: FileSpreadsheet, title: "Add listings", text: "Add models by hand or paste a CSV. They go live on the miner pages right away." },
+  { icon: Link2, title: "Add the partner link", text: "Within 14 days, link to our partner OneMiners from your site. The portal checks it for you." },
+  { icon: BadgeCheck, title: "Get verified", text: "We check your company registration and add your Verified badge." },
 ];
 
 const benefits = [
@@ -27,11 +27,11 @@ const benefits = [
 const faqs = [
   {
     q: "What does it cost?",
-    a: "Nothing for the first 6 months. After that it's $100 per month per company, with no commission on sales. Cancel anytime; your listings simply go offline at the end of the paid month.",
+    a: "During the launch promo, nothing for the first 6 months. After that it's $100 per month per company, with no commission on sales. Cancel anytime; your listings simply go offline at the end of the paid month.",
   },
   {
     q: "Why do you ask for a partner link?",
-    a: "Listing is free for 6 months in exchange for a link to OneMiners from your website, for example on a partners or 'trusted by' page. The seller portal checks the link automatically.",
+    a: "The launch promo asks partners to link to OneMiners, our hosting partner, from their website, for example on a partners page. Add it within 14 days of signing up; the seller portal checks it automatically and keeps your listings public."
   },
   {
     q: "Who can list?",
@@ -59,19 +59,19 @@ export default function SellPage() {
 
         <section className="grid gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-start">
           <div>
-            <div className="chip text-accent">For resellers & manufacturers</div>
+            <div className="chip text-accent">Launch promo · 6 months free</div>
             <h1 className="mt-4 text-4xl font-bold tracking-tight text-ink sm:text-5xl">
               Put your miners in front of <span className="text-gradient">ready buyers.</span>
             </h1>
             <p className="mt-4 max-w-xl text-base leading-relaxed text-muted">
-              Buyers compare profit, ROI and price here before they buy. List your stock, get verified, and receive quote
-              requests directly.
+              Buyers compare profit, ROI and price here before they buy. Add your stock and it appears on every matching
+              miner page right away.
             </p>
 
             <div className="surface mt-8 rounded-3xl p-6">
               <div className="flex flex-wrap items-end gap-x-6 gap-y-2">
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">First 6 months</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-accent">Launch promo · first 6 months</div>
                   <div className="text-4xl font-bold text-accent">Free</div>
                 </div>
                 <div className="pb-1 text-2xl text-muted">→</div>
@@ -83,7 +83,7 @@ export default function SellPage() {
                 </div>
               </div>
               <ul className="mt-5 grid gap-2 sm:grid-cols-2">
-                {["No commission on sales", "Cancel anytime", "Unlimited listings", "No card for the free period"].map((item) => (
+                {["No commission on sales", "Cancel anytime", "Listings live immediately", "No card during the promo"].map((item) => (
                   <li key={item} className="flex items-center gap-2 text-sm text-ink">
                     <Check className="h-4 w-4 text-accent" />
                     {item}
@@ -103,7 +103,21 @@ export default function SellPage() {
           </div>
 
           <div id="apply" className="lg:sticky lg:top-24">
-            <VendorApplyForm />
+            <div className="surface-strong rounded-3xl p-6 sm:p-8">
+              <div className="chip text-accent">Launch promo</div>
+              <h2 className="mt-4 text-2xl font-bold text-ink">List free for 6 months</h2>
+              <p className="mt-2 text-sm leading-relaxed text-muted">
+                Create a seller account, add your company and your miners. Your listings appear on the matching miner pages
+                as soon as you save them.
+              </p>
+              <Link href="/vendor-portal" className="btn-primary mt-6 w-full px-5 py-3 text-sm">
+                Create seller account
+              </Link>
+              <Link href="/vendor-portal" className="btn-ghost mt-2 w-full px-5 py-3 text-sm">
+                I already have an account
+              </Link>
+              <p className="mt-4 text-center text-[11px] text-muted/70">No card needed during the promo. Cancel anytime.</p>
+            </div>
           </div>
         </section>
 

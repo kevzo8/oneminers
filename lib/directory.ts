@@ -38,6 +38,32 @@ export const loadDirectory = cache(async (): Promise<Directory> => {
   }
 });
 
+export type HistoryPoint = { t: number; incomeUsd: number };
+
+/**
+ * A miner's income history from our own hourly market snapshots (real recorded data only).
+ * Returns an empty list when the database is unavailable or history hasn't been recorded yet.
+ */
+export async function minerIncomeHistory(miner: MinerModel, current: MarketSnapshot, days = 90): Promise<HistoryPoint[]> {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!url) return [];
+  try {
+    const [{ ConvexHttpClient }, { api }] = await Promise.all([import("convex/browser"), import("@/convex/_generated/api")]);
+    const rows = await new ConvexHttpClient(url).query(api.directory.marketHistory, { days });
+    const meta = new Map(current.coins.map((coin) => [coin.tag, coin]));
+    return rows.map((row) => {
+      const coins = row.coins.flatMap((coin) => {
+        const known = meta.get(coin.tag);
+        return known ? [{ ...known, nethashHs: coin.nethashHs, blockReward: coin.blockReward, blockTimeSec: coin.blockTimeSec, priceUsd: coin.priceUsd }] : [];
+      });
+      const snapshot: MarketSnapshot = { coins, btcUsd: row.btcUsd, updatedAt: row.takenAt, source: "live" };
+      return { t: row.takenAt, incomeUsd: revenuesFor(miner, snapshot)[0]?.usdPerDay ?? 0 };
+    });
+  } catch {
+    return [];
+  }
+}
+
 export function getMiner(dir: Directory, slug: string) {
   return dir.miners.find((miner) => miner.slug === slug);
 }

@@ -41,9 +41,9 @@ export default async function VendorPage({ params }: Params) {
 
   const facts = [
     { icon: CalendarDays, label: "In business since", value: String(vendor.since) },
-    { icon: Clock, label: "Typical reply", value: `~${vendor.replyMinutes} min` },
+    ...(vendor.replyMinutes > 0 ? [{ icon: Clock, label: "Typical reply", value: `~${vendor.replyMinutes} min` }] : []),
     { icon: ShieldCheck, label: "Warranty", value: vendor.warrantyMonths >= 12 ? `${Math.round(vendor.warrantyMonths / 12)} years` : `${vendor.warrantyMonths} months` },
-    { icon: CreditCard, label: "Payments", value: vendor.payments.join(", ") },
+    { icon: CreditCard, label: "Payments", value: vendor.payments.join(", ") || "Ask the seller" },
   ];
 
   return (
@@ -70,10 +70,12 @@ export default async function VendorPage({ params }: Params) {
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <Flag code={vendor.countryCode} label={vendor.country} />
                   <VerifiedBadge verified={vendor.verified} partner={vendor.partner} />
-                  <span className="inline-flex items-center gap-1 text-xs text-muted">
-                    <Star className="h-3.5 w-3.5 fill-amber text-amber" />
-                    {vendor.rating.toFixed(1)} · {vendor.reviews} reviews
-                  </span>
+                  {vendor.reviews > 0 ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-muted">
+                      <Star className="h-3.5 w-3.5 fill-amber text-amber" />
+                      {vendor.rating.toFixed(1)} · {vendor.reviews} reviews
+                    </span>
+                  ) : null}
                 </div>
                 <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">{vendor.about}</p>
               </div>
@@ -156,6 +158,9 @@ export default async function VendorPage({ params }: Params) {
                   ))}
                 </tbody>
               </table>
+              {listings.length === 0 ? (
+                <p className="px-4 py-10 text-center text-sm text-muted">This seller hasn&apos;t listed any miners yet.</p>
+              ) : null}
             </div>
           </div>
           {vendor.sample ? (

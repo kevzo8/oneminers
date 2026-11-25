@@ -93,9 +93,31 @@ export const grantAdmin = internalMutation({
   },
 });
 
+function vendorRow(vendor: (typeof VENDORS)[number]) {
+  return {
+    slug: vendor.slug,
+    name: vendor.name,
+    country: vendor.country,
+    countryCode: vendor.countryCode,
+    website: vendor.website,
+    about: vendor.about,
+    payments: vendor.payments,
+    warrantyMonths: vendor.warrantyMonths,
+    hosting: vendor.hosting,
+    since: vendor.since,
+    replyMinutes: vendor.replyMinutes,
+    rating: vendor.rating,
+    reviews: vendor.reviews,
+    tier: vendor.tier,
+    status: "approved" as const,
+    verified: vendor.verified,
+    sample: vendor.sample,
+  };
+}
+
 /**
- * CLI only: load the starter catalog (`npx convex run admin:seed`). Safe to re-run: miners are
- * upserted by slug; team vendors and their offers are only created if missing.
+ * CLI only: load REAL data (`npx convex run admin:seed`). Miner specs, and team vendors that are real
+ * companies (OneMiners), without prices. Safe to re-run: upserts by slug.
  */
 export const seed = internalMutation({
   args: {},
@@ -123,31 +145,35 @@ export const seed = internalMutation({
     }
 
     let vendors = 0;
+    for (const vendor of VENDORS.filter((row) => !row.sample)) {
+      const existing = await ctx.db.query("vendors").withIndex("by_slug", (q) => q.eq("slug", vendor.slug)).unique();
+      if (existing) await ctx.db.patch(existing._id, vendorRow(vendor));
+      else await ctx.db.insert("vendors", { ...vendorRow(vendor), createdAt: Date.now() });
+      vendors += 1;
+    }
+    return { miners, vendors };
+  },
+});
+
+/**
+ * CLI only, DEVELOPMENT only: sample vendors and placeholder offers for testing
+ * (`npx convex run admin:seedSamples`). Refuses to run unless the deployment has the environment
+ * variable SAMPLE_DATA=allowed, which is set on the dev deployment and never on production.
+ */
+export const seedSamples = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    if (process.env.SAMPLE_DATA !== "allowed") {
+      throw new ConvexError("Sample data is disabled on this deployment (set SAMPLE_DATA=allowed on dev only).");
+    }
+    let vendors = 0;
     let offers = 0;
     for (const vendor of VENDORS) {
-      const existing = await ctx.db.query("vendors").withIndex("by_slug", (q) => q.eq("slug", vendor.slug)).unique();
-      if (existing) continue;
-      const vendorId = await ctx.db.insert("vendors", {
-        slug: vendor.slug,
-        name: vendor.name,
-        country: vendor.country,
-        countryCode: vendor.countryCode,
-        website: vendor.website,
-        about: vendor.about,
-        payments: vendor.payments,
-        warrantyMonths: vendor.warrantyMonths,
-        hosting: vendor.hosting,
-        since: vendor.since,
-        replyMinutes: vendor.replyMinutes,
-        rating: vendor.rating,
-        reviews: vendor.reviews,
-        tier: vendor.tier,
-        status: "approved",
-        verified: vendor.verified,
-        sample: vendor.sample,
-        createdAt: Date.now(),
-      });
-      vendors += 1;
+      const doc = await ctx.db.query("vendors").withIndex("by_slug", (q) => q.eq("slug", vendor.slug)).unique();
+      const vendorId = doc ? doc._id : await ctx.db.insert("vendors", { ...vendorRow(vendor), createdAt: Date.now() });
+      if (!doc) vendors += 1;
+      const existing = await ctx.db.query("offers").withIndex("by_vendor", (q) => q.eq("vendorId", vendorId)).take(1);
+      if (existing.length) continue;
       for (const offer of OFFERS.filter((row) => row.vendorSlug === vendor.slug)) {
         await ctx.db.insert("offers", {
           minerSlug: offer.minerSlug,
@@ -164,6 +190,32 @@ export const seed = internalMutation({
         offers += 1;
       }
     }
-    return { miners, vendors, offers };
+    return { vendors, offers };
+  },
+});
+
+/**
+ * CLI only: make a deployment clean. Deletes sample vendors and their offers, and every offer from a
+ * team-added vendor (those prices were placeholders). Seller-owned data is never touched.
+ */
+export const purgeSampleData = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const vendors = await ctx.db.query("vendors").take(1000);
+    let vendorsRemoved = 0;
+    let offersRemoved = 0;
+    for (const vendor of vendors) {
+      if (vendor.ownerId) continue;
+      const offers = await ctx.db.query("offers").withIndex("by_vendor", (q) => q.eq("vendorId", vendor._id)).take(4000);
+      for (const offer of offers) {
+        await ctx.db.delete(offer._id);
+        offersRemoved += 1;
+      }
+      if (vendor.sample) {
+        await ctx.db.delete(vendor._id);
+        vendorsRemoved += 1;
+      }
+    }
+    return { vendorsRemoved, offersRemoved };
   },
 });

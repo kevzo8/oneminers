@@ -2,7 +2,7 @@ import { ShieldCheck, Smartphone, Wrench } from "lucide-react";
 import HostingCompare from "@/components/directory/HostingCompare";
 import SettingsBar from "@/components/directory/SettingsBar";
 import { hostableMiners, loadDirectory } from "@/lib/directory";
-import { HOSTING_SITES, LOWEST_HOSTING_RATE, TOTAL_HOSTING_MW } from "@/lib/hosting";
+import { HOSTING_PROVIDER, HOSTING_SITES, LOWEST_HOSTING_RATE, TOTAL_HOSTING_MW } from "@/lib/hosting";
 import { getMarket } from "@/lib/market";
 
 export default async function HostingSection() {
@@ -19,15 +19,15 @@ export default async function HostingSection() {
               Same miner. <span className="text-gradient">Very different profit.</span>
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-muted sm:text-base">
-              Electricity decides whether a miner makes money. Pick a machine and compare its live profit at every OneMiners
-              hosting site ({HOSTING_SITES.length} locations, {TOTAL_HOSTING_MW} MW) against your own power price.
+              Electricity decides whether a miner makes money. Pick a machine and compare its live profit at each hosting site listed
+              by {HOSTING_PROVIDER} ({HOSTING_SITES.length} locations, {TOTAL_HOSTING_MW} MW) against your own power price.
             </p>
           </div>
           <div className="grid gap-2 text-xs text-muted sm:grid-cols-3 lg:max-w-md lg:grid-cols-1">
             {[
-              { icon: ShieldCheck, text: "7-year warranty on hosted miners" },
+              { icon: ShieldCheck, text: "Provider warranty on hosted miners" },
               { icon: Wrench, text: "Installed, monitored and repaired on site" },
-              { icon: Smartphone, text: "Manage everything in the OneMiners app" },
+              { icon: Smartphone, text: "Remote monitoring in the provider's app" },
             ].map((item) => (
               <span key={item.text} className="inline-flex items-center gap-2">
                 <item.icon className="h-4 w-4 text-accent" /> {item.text}

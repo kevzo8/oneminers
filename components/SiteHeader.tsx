@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Menu, X } from "lucide-react";
 import { navLinks } from "@/lib/data";
+import { BRAND } from "@/lib/brand";
 
 function Brand() {
   return (
@@ -14,7 +15,7 @@ function Brand() {
         </svg>
       </span>
       <span className="text-sm font-bold tracking-[0.18em] text-ink">
-        ONE<span className="text-accent">MINERS</span>
+        {BRAND.logo[0]}<span className="text-accent">{BRAND.logo[1]}</span>
       </span>
     </a>
   );

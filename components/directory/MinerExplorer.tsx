@@ -144,7 +144,8 @@ export default function MinerExplorer({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search model, maker or coin…"
-              className="input pl-9"
+              className="input"
+              style={{ paddingLeft: "2.25rem" }}
               aria-label="Search miners"
             />
           </label>

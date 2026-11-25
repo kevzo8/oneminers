@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowUp, Bot, MessageCircle, RotateCcw, Sparkles, X } from "lucide-react";
 import { chatSuggestions } from "@/lib/data";
+import { BRAND } from "@/lib/brand";
 
 type Message = { role: "user" | "assistant"; content: string };
 
@@ -11,7 +12,7 @@ const SESSION_KEY = "om.chat-session";
 const initial: Message = {
   role: "assistant",
   content:
-    "Hi, I'm the OneMiners assistant. Ask me which miners are most profitable, what a model earns, where to buy it, hosting costs, or how to list your company.",
+    `Hi, I'm the ${BRAND.name} assistant. Ask me which miners are most profitable, what a model earns, where to buy it, hosting costs, or how to list your company.`,
 };
 
 function newSessionId() {
@@ -122,7 +123,7 @@ export default function ChatWidget() {
                 <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-accent" />
               </span>
               <div>
-                <div className="text-xs font-bold text-ink">OneMiners assistant</div>
+                <div className="text-xs font-bold text-ink">{BRAND.name} assistant</div>
                 <div className="text-[10px] text-muted">Live miner data · remembers this chat</div>
               </div>
             </div>

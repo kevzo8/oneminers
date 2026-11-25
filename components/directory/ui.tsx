@@ -146,7 +146,7 @@ export function VerifiedBadge({ verified, partner }: { verified: boolean; partne
         <span className="text-[10px] font-medium text-muted">Unverified</span>
       )}
       {partner ? (
-        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-aqua" title="Lists OneMiners as a partner">
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-aqua" title="Verified partner link">
           <Handshake className="h-3.5 w-3.5" />
           Partner
         </span>

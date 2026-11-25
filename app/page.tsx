@@ -9,8 +9,9 @@ import ProfitCalculator, { type CalculatorMiner } from "@/components/ProfitCalcu
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
 import Ticker from "@/components/Ticker";
-import TopMiners from "@/components/TopMiners";
-import { loadDirectory, revenuesFor } from "@/lib/directory";
+import MinerExplorer from "@/components/directory/MinerExplorer";
+import SettingsBar from "@/components/directory/SettingsBar";
+import { algorithmsOf, allRows, loadDirectory, manufacturersOf, revenuesFor } from "@/lib/directory";
 import { DEFAULT_SETTINGS, dailyProfit, formatHashrate, formatUsd } from "@/lib/economics";
 import { HOSTING_SITES, LOWEST_HOSTING_RATE } from "@/lib/hosting";
 import { getMarket } from "@/lib/market";
@@ -46,7 +47,7 @@ export default async function HomePage() {
   const atHome = best ? dailyProfit(best.miner.incomeUsd, best.miner.powerW, { ...DEFAULT_SETTINGS, electricity: HOME_RATE }).profit : 0;
   const example: AiExample = best
     ? {
-        question: "Which miner makes the most if I host it with you?",
+        question: "Which miner makes the most if I host it?",
         answer: `Right now it's the ${best.miner.label.split(" · ")[0]}: about ${formatUsd(best.miner.incomeUsd)}/day in ${best.miner.coin}, or ${formatUsd(
           best.hosted
         )}/day profit hosted in ${cheapest?.name ?? "our lowest-cost site"} at ${(LOWEST_HOSTING_RATE * 100).toFixed(1)}¢/kWh.`,
@@ -62,10 +63,16 @@ export default async function HomePage() {
       <SiteHeader />
       <main>
         <Hero />
-        <LiveNetwork />
-        <div aria-hidden="true" className="h-8 w-full" />
         <Ticker />
-        <TopMiners />
+        <section id="miners" className="relative scroll-mt-20 py-8">
+          <div className="mx-auto w-full max-w-7xl space-y-4 px-5 sm:px-8">
+            <SettingsBar />
+            <MinerExplorer rows={allRows(dir, market)} manufacturers={manufacturersOf(dir)} algorithms={algorithmsOf(dir)} />
+          </div>
+        </section>
+        <div className="py-6">
+          <LiveNetwork />
+        </div>
         <HostingSection />
         <HowItWorks />
         {best ? <AiDesk example={example} /> : null}

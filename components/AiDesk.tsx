@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUpRight, BarChart3, Bot, Database, MessageSquareText, Sparkles } from "lucide-react";
+import { BRAND } from "@/lib/brand";
 
 const features = [
   {
@@ -70,7 +71,7 @@ export default function AiDesk({ example }: { example: AiExample }) {
               <span className="relative grid h-7 w-7 place-items-center rounded-lg bg-accent/10">
                 <Bot className="h-3.5 w-3.5 text-accent" />
               </span>
-              OneMiners assistant
+              {BRAND.name} assistant
             </div>
             <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-accent">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />

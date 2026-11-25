@@ -95,6 +95,35 @@ lib/
 - **Sections:** `components/` and `app/page.tsx`
 - **Convex schema & functions:** `convex/` (schema, listings, leads, seed)
 
+## Environments (dev vs prod)
+
+| | Local (your laptop) | Production (Vercel) |
+|---|---|---|
+| Convex deployment | `dev:fantastic-viper-570` | `prod:qualified-puffin-550` |
+| Configured by | `.env.local` (`CONVEX_DEPLOYMENT`, `NEXT_PUBLIC_CONVEX_URL`) | Vercel project env vars |
+| Data | Real catalog + **sample** vendors/prices for testing | **Real data only** |
+| Sample data | Allowed (`SAMPLE_DATA=allowed` set on the dev deployment) | Refused: `admin:seedSamples` throws |
+
+Run locally (two terminals):
+
+```powershell
+npx convex dev      # syncs convex/ functions to the DEV deployment as you edit
+npm run dev         # http://localhost:3000, reads from the DEV database
+```
+
+Useful commands:
+
+```powershell
+npx convex run admin:seed                 # real catalog (dev)
+npx convex run admin:seedSamples          # sample vendors + placeholder prices (dev only)
+npx convex run admin:seed --prod          # real catalog (prod)
+npx convex run admin:purgeSampleData --prod   # remove any sample/placeholder data from prod
+npx convex run admin:grantAdmin '{"userId":"<account id>"}' --prod
+npx convex deploy                          # deploy functions to PROD
+```
+
+Brand name lives in `lib/brand.ts`.
+
 ## Convex Backend
 
 The repo includes a complete Convex backend (same pattern as finance-tracker):

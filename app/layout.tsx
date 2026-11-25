@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { BRAND } from "@/lib/brand";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -10,12 +11,12 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "OneMiners: ASIC miner profitability, prices and hosting",
-    template: "%s · OneMiners",
+    default: `${BRAND.name}: ${BRAND.tagline}`,
+    template: `%s · ${BRAND.name}`,
   },
   description:
-    "Live profitability for every major ASIC miner, prices from verified sellers, and hosting from 3.6¢/kWh. Compare miners, find the best price and see what each one earns hosted.",
-  applicationName: "OneMiners",
+    BRAND.description,
+  applicationName: BRAND.name,
   keywords: [
     "ASIC miner profitability",
     "bitcoin miner prices",
@@ -25,15 +26,15 @@ export const metadata: Metadata = {
     "mining calculator",
   ],
   openGraph: {
-    title: "OneMiners: ASIC miner profitability, prices and hosting",
-    description: "Live profitability for every major ASIC miner, prices from verified sellers, and hosting from 3.6¢/kWh.",
+    title: `${BRAND.name}: ${BRAND.tagline}`,
+    description: BRAND.description,
     type: "website",
-    siteName: "OneMiners",
+    siteName: BRAND.name,
   },
   twitter: {
     card: "summary_large_image",
-    title: "OneMiners: ASIC miner profitability, prices and hosting",
-    description: "Live profitability, verified seller prices and hosting from 3.6¢/kWh.",
+    title: `${BRAND.name}: ${BRAND.tagline}`,
+    description: BRAND.description,
   },
   icons: {
     icon: "/icon.svg",

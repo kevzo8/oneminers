@@ -42,10 +42,18 @@ export default function OffersTable({
   const [settings] = useMiningSettings();
   const [mode, setMode] = useState<"price" | "recommended">("price");
   const [onlyInStock, setOnlyInStock] = useState(false);
+  const [condition, setCondition] = useState<"All" | "New" | "Refurbished">("All");
+  const [country, setCountry] = useState("All");
+  const countries = useMemo(() => Array.from(new Set(offers.map((offer) => offer.shipsFrom))).sort(), [offers]);
   const profit = dailyProfit(revenueUsd, powerW, settings).profit;
 
   const rows = useMemo(() => {
-    const list = offers.filter((offer) => !onlyInStock || offer.availability === "In stock");
+    const list = offers.filter(
+      (offer) =>
+        (!onlyInStock || offer.availability === "In stock") &&
+        (condition === "All" || offer.condition === condition) &&
+        (country === "All" || offer.shipsFrom === country)
+    );
     return [...list].sort((a, b) => {
       const total = a.price + a.shipping - (b.price + b.shipping);
       if (mode === "recommended") {
@@ -55,7 +63,7 @@ export default function OffersTable({
       const stockB = b.availability === "Out of stock" ? 1 : 0;
       return stockA - stockB || total;
     });
-  }, [offers, mode, onlyInStock]);
+  }, [offers, mode, onlyInStock, condition, country]);
 
   const perUnitLabel = unit.replace("/s", "");
 
@@ -76,6 +84,20 @@ export default function OffersTable({
             </button>
           ))}
         </div>
+        <div className="flex flex-wrap items-center gap-3">
+        <select value={condition} onChange={(event) => setCondition(event.target.value as typeof condition)} className="input w-auto py-1.5 text-xs" aria-label="Condition">
+          <option value="All" className="bg-[#0b1016]">New and refurbished</option>
+          <option value="New" className="bg-[#0b1016]">New only</option>
+          <option value="Refurbished" className="bg-[#0b1016]">Refurbished only</option>
+        </select>
+        <select value={country} onChange={(event) => setCountry(event.target.value)} className="input w-auto py-1.5 text-xs" aria-label="Ships from">
+          <option value="All" className="bg-[#0b1016]">Ships from anywhere</option>
+          {countries.map((code) => (
+            <option key={code} value={code} className="bg-[#0b1016]">
+              Ships from {code}
+            </option>
+          ))}
+        </select>
         <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-muted">
           <input
             type="checkbox"
@@ -85,6 +107,7 @@ export default function OffersTable({
           />
           In stock only
         </label>
+        </div>
       </div>
 
       <div className="surface overflow-hidden rounded-2xl">
@@ -118,14 +141,18 @@ export default function OffersTable({
                       </div>
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-muted">
                         <VerifiedBadge verified={row.vendor.verified} partner={row.vendor.partner} />
-                        <span className="inline-flex items-center gap-0.5">
-                          <Star className="h-3 w-3 fill-amber text-amber" />
-                          {row.vendor.rating.toFixed(1)} ({row.vendor.reviews})
-                        </span>
-                        <span className="inline-flex items-center gap-0.5">
-                          <Clock className="h-3 w-3" />
-                          replies ~{row.vendor.replyMinutes}m
-                        </span>
+                        {row.vendor.reviews > 0 ? (
+                          <span className="inline-flex items-center gap-0.5">
+                            <Star className="h-3 w-3 fill-amber text-amber" />
+                            {row.vendor.rating.toFixed(1)} ({row.vendor.reviews})
+                          </span>
+                        ) : null}
+                        {row.vendor.replyMinutes > 0 ? (
+                          <span className="inline-flex items-center gap-0.5">
+                            <Clock className="h-3 w-3" />
+                            replies ~{row.vendor.replyMinutes}m
+                          </span>
+                        ) : null}
                       </div>
                     </td>
                     <td className="px-4 py-3">
@@ -180,7 +207,7 @@ export default function OffersTable({
               {rows.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-10 text-center text-sm text-muted">
-                    No offers match. Try including pre-orders.
+                    {offers.length ? "No offers match these filters." : "No seller lists this miner yet."}
                   </td>
                 </tr>
               ) : null}

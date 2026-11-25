@@ -11,7 +11,8 @@ export type HostingSite = {
   url: string;
 };
 
-export const HOSTING_SOURCE = "Rates and capacity as published on oneminers.com, November 2026. Final terms are confirmed by OneMiners.";
+export const HOSTING_PROVIDER = "OneMiners";
+export const HOSTING_SOURCE = "Hosting rates and capacity as published by OneMiners (oneminers.com), November 2026. Final terms are confirmed by the provider.";
 
 export const HOSTING_SITES: HostingSite[] = [
   { id: "nigeria", name: "Nigeria", countryCode: "NG", rate: 0.036, capacityMW: 33, url: "https://oneminers.com/pages/nigeria-hosting" },

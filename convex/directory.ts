@@ -2,11 +2,17 @@ import { v } from "convex/values";
 import { query } from "./_generated/server";
 import type { Doc } from "./_generated/dataModel";
 
-/** A vendor is shown publicly once approved and (for seller-owned vendors) its partner link is verified. */
-export function isPublicVendor(vendor: Doc<"vendors">) {
-  if (vendor.status !== "approved") return false;
-  if (!vendor.ownerId) return true; // added by the team (OneMiners, sample data)
-  return vendor.partnerLinkStatus === "found";
+export const PARTNER_GRACE_DAYS = 14;
+
+/**
+ * Listings go public as soon as a seller adds them. A seller is hidden only when an admin rejects
+ * it, or when its partner link still isn't verified after the grace period.
+ */
+export function isPublicVendor(vendor: Doc<"vendors">, now: number) {
+  if (vendor.status === "rejected") return false;
+  if (!vendor.ownerId) return vendor.status === "approved"; // added by the team
+  if (vendor.partnerLinkStatus === "found") return true;
+  return now - vendor.createdAt < PARTNER_GRACE_DAYS * 86_400_000;
 }
 
 function publicVendor(vendor: Doc<"vendors">) {
@@ -28,7 +34,7 @@ function publicVendor(vendor: Doc<"vendors">) {
     tier: vendor.tier,
     verified: vendor.verified,
     sample: vendor.sample,
-    partner: vendor.slug === "oneminers" || vendor.partnerLinkStatus === "found",
+    partner: !vendor.ownerId || vendor.partnerLinkStatus === "found",
   };
 }
 
@@ -40,11 +46,9 @@ export const snapshot = query({
       .query("miners")
       .withIndex("by_active", (q) => q.eq("active", true))
       .take(2000);
-    const approved = await ctx.db
-      .query("vendors")
-      .withIndex("by_status", (q) => q.eq("status", "approved"))
-      .take(1000);
-    const vendors = approved.filter(isPublicVendor);
+    const now = Date.now();
+    const all = await ctx.db.query("vendors").take(1000);
+    const vendors = all.filter((vendor) => isPublicVendor(vendor, now));
     const visible = new Map(vendors.map((vendor) => [vendor._id, vendor.slug]));
     const activeSlugs = new Set(miners.map((miner) => miner.slug));
 

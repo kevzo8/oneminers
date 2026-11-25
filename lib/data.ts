@@ -1,11 +1,12 @@
 // Site navigation and assistant prompts.
 
 export const navLinks = [
-  { label: "ASIC Miners", href: "/miners" },
+  { label: "ASIC Miners", href: "/#miners" },
+  { label: "Coins", href: "/coins" },
+  { label: "Compare", href: "/compare" },
   { label: "Vendors", href: "/vendors" },
   { label: "Hosting", href: "/#hosting" },
-  { label: "Calculator", href: "/#calculator" },
-  { label: "Sell on OneMiners", href: "/sell" },
+  { label: "Sell miners", href: "/sell" },
 ];
 
 export const chatSuggestions = [

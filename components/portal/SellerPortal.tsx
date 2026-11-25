@@ -31,6 +31,17 @@ export type PortalMiner = { slug: string; label: string; refPrice: number };
 type Stock = "In stock" | "Pre-order" | "Out of stock";
 type Condition = "New" | "Refurbished";
 
+/** Ask the site to refresh public pages right after a seller saves, so changes show immediately. */
+function refreshPublic(paths: string[]) {
+  void fetch("/api/revalidate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ paths: Array.from(new Set(paths)).slice(0, 10) }),
+  }).catch(() => undefined);
+}
+
+const GRACE_DAYS = 14;
+
 function errorText(err: unknown) {
   if (err instanceof ConvexError) return typeof err.data === "string" ? err.data : JSON.stringify(err.data);
   const message = err instanceof Error ? err.message : String(err);
@@ -60,10 +71,10 @@ export default function SellerPortal({ miners }: { miners: PortalMiner[] }) {
             </h1>
             <ul className="mt-6 space-y-3 text-sm text-muted">
               {[
-                "6 months free, then $100/month. No commission, cancel anytime",
+                "Launch promo: first 6 months free, then $100/month. No commission, cancel anytime",
                 "Your prices on every matching miner page, with live ROI",
                 "Add listings one by one or import a CSV",
-                "Verified badge after a quick company check",
+                "Listings go live as soon as you add them",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2">
                   <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
@@ -113,7 +124,7 @@ function SignedIn({ miners }: { miners: PortalMiner[] }) {
         <div className="mx-auto max-w-2xl">
           <h1 className="text-3xl font-bold tracking-tight text-ink">Tell us about your company</h1>
           <p className="mt-2 text-sm text-muted">
-            We review every seller before their listings go public, usually within one business day.
+            Your listings go live as soon as you add them. We verify companies within one business day.
           </p>
           <div className="mt-6">
             <CompanyForm />
@@ -167,6 +178,7 @@ function CompanyForm({ vendor, onDone }: { vendor?: Doc<"vendors">; onDone?: () 
     try {
       if (vendor) await updateVendor(args);
       else await createVendor(args);
+      refreshPublic(["/vendors", ...(vendor ? [`/vendors/${vendor.slug}`] : [])]);
       onDone?.();
     } catch (err) {
       setError(errorText(err));
@@ -246,15 +258,16 @@ function CompanyForm({ vendor, onDone }: { vendor?: Doc<"vendors">; onDone?: () 
 function Dashboard({ vendor, offers, miners }: { vendor: Doc<"vendors">; offers: Doc<"offers">[]; miners: PortalMiner[] }) {
   const [editing, setEditing] = useState(false);
   const linkOk = vendor.partnerLinkStatus === "found";
-  const live = vendor.status === "approved" && linkOk;
+  const graceLeft = Math.max(0, Math.ceil((vendor.createdAt + GRACE_DAYS * 86_400_000 - Date.now()) / 86_400_000));
+  const live = vendor.status !== "rejected" && (linkOk || graceLeft > 0);
   const inStock = offers.filter((offer) => offer.availability === "In stock").length;
   const daysLeft = vendor.trialEndsAt ? Math.max(0, Math.ceil((vendor.trialEndsAt - Date.now()) / 86_400_000)) : 0;
 
   const steps = [
     { done: true, label: "Company profile created" },
-    { done: vendor.status === "approved", label: vendor.status === "rejected" ? "Not approved: contact us" : "Approved by our team" },
-    { done: linkOk, label: "Partner link to oneminers.com verified" },
-    { done: offers.length > 0, label: "At least one listing added" },
+    { done: offers.length > 0, label: "Listings added (they go live right away)" },
+    { done: linkOk, label: linkOk ? "Partner link verified" : `Partner link to oneminers.com: ${graceLeft} days left to add it` },
+    { done: vendor.verified, label: "Verified badge (after our company check)" },
   ];
 
   return (
@@ -268,7 +281,7 @@ function Dashboard({ vendor, offers, miners }: { vendor: Doc<"vendors">; offers:
                 live ? "border-accent/30 bg-accent/10 text-accent" : "border-amber/30 bg-amber/10 text-amber"
               }`}
             >
-              {live ? "Live" : vendor.status === "rejected" ? "Rejected" : "Not live yet"}
+              {live ? "Live" : vendor.status === "rejected" ? "Rejected" : "Hidden: partner link missing"}
             </span>
             {vendor.verified ? <span className="text-[11px] font-semibold text-accent">✓ Verified</span> : null}
           </div>
@@ -290,10 +303,15 @@ function Dashboard({ vendor, offers, miners }: { vendor: Doc<"vendors">; offers:
 
       {editing ? <CompanyForm vendor={vendor} onDone={() => setEditing(false)} /> : null}
 
-      {!live ? (
+      {!linkOk || !vendor.verified || !live ? (
         <div className="surface rounded-2xl p-5">
-          <div className="flex items-center gap-2 text-sm font-semibold text-amber">
-            <AlertTriangle className="h-4 w-4" /> Your listings go public when all steps are done
+          <div className={`flex items-center gap-2 text-sm font-semibold ${live ? "text-accent" : "text-amber"}`}>
+            {live ? <CheckCircle2 className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+            {live
+              ? "Your listings are live. Finish these steps to keep them public and earn the Verified badge."
+              : vendor.status === "rejected"
+                ? "Your company wasn't approved. Contact us for details."
+                : "Your listings are hidden until your partner link is verified."}
           </div>
           <ul className="mt-3 grid gap-2 sm:grid-cols-2">
             {steps.map((step) => (
@@ -310,7 +328,7 @@ function Dashboard({ vendor, offers, miners }: { vendor: Doc<"vendors">; offers:
         {[
           { label: "Listings", value: offers.length },
           { label: "In stock", value: inStock },
-          { label: "Free days left", value: daysLeft },
+          { label: "Promo days left", value: daysLeft },
           { label: "Status", value: live ? "Public" : "Hidden" },
         ].map((kpi) => (
           <div key={kpi.label} className="surface rounded-2xl p-4">
@@ -325,7 +343,7 @@ function Dashboard({ vendor, offers, miners }: { vendor: Doc<"vendors">; offers:
         <PartnerLinkCard vendor={vendor} />
       </div>
 
-      <ListingsCard offers={offers} miners={miners} live={live} />
+      <ListingsCard offers={offers} miners={miners} live={live} vendorSlug={vendor.slug} />
     </div>
   );
 }
@@ -342,14 +360,14 @@ function PlanCard({ vendor, daysLeft }: { vendor: Doc<"vendors">; daysLeft: numb
       <div className="flex items-start justify-between">
         <div>
           <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Plan</div>
-          <div className="mt-1 text-xl font-bold text-ink">{daysLeft > 0 ? "Free period" : vendor.canceled ? "Canceled" : "Listing plan · $100/month"}</div>
+          <div className="mt-1 text-xl font-bold text-ink">{daysLeft > 0 ? "Launch promo · 6 months free" : vendor.canceled ? "Canceled" : "Listing plan · $100/month"}</div>
         </div>
         <span
           className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] ${
             vendor.canceled ? "border-red-400/30 bg-red-400/10 text-red-300" : "border-accent/30 bg-accent/10 text-accent"
           }`}
         >
-          {vendor.canceled ? "Ends after free period" : "Active"}
+          {vendor.canceled ? "Ends after promo" : "Active"}
         </span>
       </div>
       {daysLeft > 0 ? (
@@ -358,7 +376,7 @@ function PlanCard({ vendor, daysLeft }: { vendor: Doc<"vendors">; daysLeft: numb
             <div className="h-full rounded-full bg-gradient-to-r from-accent to-aqua" style={{ width: `${progress}%` }} />
           </div>
           <p className="mt-2 text-xs text-muted">
-            <strong className="text-ink">{daysLeft} days</strong> of free listing left, until {trialEnd}.
+            <strong className="text-ink">{daysLeft} days</strong> of the launch promo left, until {trialEnd}.
           </p>
         </>
       ) : null}
@@ -473,7 +491,7 @@ function toDraft(offer: Doc<"offers">): Draft {
   };
 }
 
-function ListingsCard({ offers, miners, live }: { offers: Doc<"offers">[]; miners: PortalMiner[]; live: boolean }) {
+function ListingsCard({ offers, miners, live, vendorSlug }: { offers: Doc<"offers">[]; miners: PortalMiner[]; live: boolean; vendorSlug: string }) {
   const upsertOffer = useMutation(api.seller.upsertOffer);
   const deleteOffer = useMutation(api.seller.deleteOffer);
   const importOffers = useMutation(api.seller.importOffers);
@@ -529,6 +547,8 @@ function ListingsCard({ offers, miners, live }: { offers: Doc<"offers">[]; miner
         warrantyMonths: Number(draft.warrantyMonths) || 0,
       });
       if (!draft.offerId) setDrafts((current) => current.filter((item) => item.key !== draft.key));
+      const before = offers.find((offer) => offer._id === draft.offerId)?.minerSlug;
+      refreshPublic(["/", "/miners", `/miners/${draft.minerSlug}`, ...(before ? [`/miners/${before}`] : []), "/vendors", `/vendors/${vendorSlug}`]);
     } catch (err) {
       setRowError((current) => ({ ...current, [draft.key]: errorText(err) }));
     } finally {
@@ -554,6 +574,7 @@ function ListingsCard({ offers, miners, live }: { offers: Doc<"offers">[]; miner
     if (!rows.length) return;
     try {
       const result = await importOffers({ rows });
+      refreshPublic(["/", "/miners", "/vendors", `/vendors/${vendorSlug}`, ...rows.slice(0, 6).map((row) => `/miners/${row.minerSlug}`)]);
       setCsvResult(
         `Added ${result.added}, updated ${result.updated}.${result.errors.length ? ` Problems: ${result.errors.join("; ")}` : ""}`
       );
@@ -571,7 +592,7 @@ function ListingsCard({ offers, miners, live }: { offers: Doc<"offers">[]; miner
             <PackageCheck className="h-5 w-5 text-accent" /> Your listings
           </h2>
           <p className="text-xs text-muted">
-            {live ? "Saved changes appear on the public miner pages within a minute." : "Saved now; they go public once your profile is live."}
+            {live ? "Saved listings appear on the public miner pages right away." : "Saved. They'll show publicly once your partner link is verified."}
           </p>
         </div>
         <div className="flex gap-2">
@@ -698,7 +719,10 @@ function ListingsCard({ offers, miners, live }: { offers: Doc<"offers">[]; miner
                           setDrafts((current) => current.filter((item) => item.key !== draft.key));
                           return;
                         }
-                        if (window.confirm("Delete this listing?")) await deleteOffer({ offerId: draft.offerId });
+                        if (window.confirm("Delete this listing?")) {
+                          await deleteOffer({ offerId: draft.offerId });
+                          refreshPublic(["/", "/miners", `/miners/${draft.minerSlug}`, "/vendors", `/vendors/${vendorSlug}`]);
+                        }
                       }}
                       className="ml-1 inline-grid h-8 w-8 place-items-center rounded-full text-muted hover:bg-white/[0.06] hover:text-red-300"
                       aria-label="Delete listing"

@@ -4,11 +4,12 @@ import { notFound } from "next/navigation";
 import { ArrowUpRight, Building2, Cpu, Gauge, MessageSquareQuote, Plug, Server } from "lucide-react";
 import HostingCompare from "@/components/directory/HostingCompare";
 import OffersTable from "@/components/directory/OffersTable";
+import ProfitHistory from "@/components/directory/ProfitHistory";
 import ProfitPanel, { MineableCoins, ProfitHeadline } from "@/components/directory/ProfitPanel";
 import SettingsBar from "@/components/directory/SettingsBar";
 import { CoinChip } from "@/components/directory/MinerExplorer";
 import { Breadcrumbs, MinerGlyph, PageShell } from "@/components/directory/ui";
-import { bestPrice, getMiner, loadDirectory, offerRows, relatedMiners, revenuesFor } from "@/lib/directory";
+import { bestPrice, getMiner, loadDirectory, minerIncomeHistory, offerRows, relatedMiners, revenuesFor } from "@/lib/directory";
 import {
   breakEvenElectricity,
   DEFAULT_SETTINGS,
@@ -48,6 +49,7 @@ export default async function MinerPage({ params }: Params) {
   if (!miner) notFound();
 
   const revenues = revenuesFor(miner, market);
+  const history = await minerIncomeHistory(miner, market, 90);
   const top = revenues[0];
   const offers = offerRows(dir, miner.slug);
   const best = bestPrice(dir, miner.slug);
@@ -171,7 +173,7 @@ export default async function MinerPage({ params }: Params) {
                   </div>
                 </div>
                 <a href="#offers" className="btn-primary px-4 py-2 text-sm">
-                  Compare offers
+                  See offers
                   <ArrowUpRight className="h-4 w-4" />
                 </a>
               </div>
@@ -180,6 +182,9 @@ export default async function MinerPage({ params }: Params) {
                   <MessageSquareQuote className="h-4 w-4" />
                   Request a bulk quote
                 </a>
+                <Link href={`/compare?m=${miner.slug}`} className="btn-ghost px-4 py-2.5 text-xs sm:col-span-2">
+                  Compare with other miners
+                </Link>
                 <a href={miner.category === "Industrial" ? "#hosting" : "https://oneminers.com/pages/hosting-centers"} className="btn-ghost px-4 py-2.5 text-xs">
                   <Server className="h-4 w-4" />
                   Host it from 3.6¢/kWh
@@ -190,6 +195,8 @@ export default async function MinerPage({ params }: Params) {
             <ProfitPanel powerW={miner.powerW} revenues={revenues} bestPrice={best} />
           </div>
         </section>
+
+        <ProfitHistory points={history} powerW={miner.powerW} />
 
         <section className="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
           <div>
@@ -236,7 +243,7 @@ export default async function MinerPage({ params }: Params) {
           <section id="hosting" className="scroll-mt-24">
             <div className="mb-3">
               <h2 className="text-lg font-bold text-ink">Host the {miner.model}</h2>
-              <p className="text-xs text-muted">Live profit at each OneMiners hosting site, compared with your own power price.</p>
+              <p className="text-xs text-muted">Live profit at each listed hosting site, compared with your own power price.</p>
             </div>
             <HostingCompare
               fixedSlug={miner.slug}

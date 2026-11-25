@@ -2,6 +2,8 @@
 // directory pages show (miner catalog + WhatToMine network data + vendors and offers).
 
 import { allRows, offersForVendor, type Directory } from "./directory";
+import { BRAND } from "./brand";
+import { HOSTING_PROVIDER, HOSTING_SITES } from "./hosting";
 import { dailyProfit, DEFAULT_SETTINGS, formatEfficiency, formatHashrate, formatUsd, type MarketSnapshot } from "./economics";
 import type { MinerRow } from "@/components/directory/MinerExplorer";
 
@@ -76,14 +78,15 @@ export function buildSystemPrompt(dir: Directory, market: MarketSnapshot, conver
       `${vendor.name} (${vendor.country}, ${vendor.tier} plan${vendor.verified ? ", verified" : ""}${vendor.hosting ? ", offers hosting" : ""}, ${offersForVendor(dir, vendor.slug).length} listings${vendor.sample ? ", SAMPLE vendor" : ""}) page /vendors/${vendor.slug}`
   ).join("\n");
 
-  return `You are the assistant on a mining-hardware directory run with OneMiners. Answer from the DATA below only.
+  return `You are the assistant on ${BRAND.name}, an independent ASIC miner directory. Answer from the DATA below only.
 
 Rules:
 - Be concise: 2-5 short sentences. Use exact numbers from the data and link the relevant page path (e.g. /miners/...).
 - Profit figures assume today's difficulty and prices and are not guaranteed. Never give investment advice.
 - Vendors marked SAMPLE are placeholders until real sellers join, so their prices are not real. Say so if asked about buying from them.
 - If the data doesn't cover a question, say so and suggest the contact form (/#contact). Never invent miners, prices, people or company facts.
-- Electricity cost decides profitability: compare $0.07/kWh with OneMiners hosting from 3.6¢/kWh when relevant.
+- Electricity cost decides profitability: compare $0.07/kWh with the listed hosting rates (from 3.6¢/kWh) when relevant.
+- Never invent sellers, prices, ratings, stock or company facts. If no seller lists a miner, say so.
 
 DATA (network data ${market.source === "live" ? "live" : "snapshot"} as of ${updated} UTC, BTC $${Math.round(market.btcUsd).toLocaleString("en-US")}):
 
@@ -96,9 +99,9 @@ If asked about a listed miner without details here, give its page /miners and sa
 Vendors:
 ${vendors}
 
-OneMiners (real company facts): sells ASIC miners and hosts them from 3.6¢/kWh in locations including Nigeria, Ethiopia, Dubai, USA (Texas, Georgia, South Carolina, Kansas), Norway, Finland, Canada, Brazil, Paraguay and Czechia. Hosted miners get a 7-year warranty; non-hosted 12 months. Customers manage miners in the OneMiners app (Android/iOS, app.oneminers.com). Website oneminers.com.
+Hosting provider listed on the directory: ${HOSTING_PROVIDER} (oneminers.com). Published sites: ${HOSTING_SITES.map((site) => `${site.name} ${(site.rate * 100).toFixed(1)}¢/kWh`).join(", ")}. Compare per miner on /#hosting.
 
-Selling on this directory (/sell): resellers list free for 6 months, then $100/month, no commission, cancel anytime. They must link to oneminers.com from their site (partner link, checked automatically) and get company verification. Seller portal: /vendor-portal.
+Selling on this directory (/sell): launch promo, the first 6 months are free, then $100/month, no commission, cancel anytime. Listings go live as soon as they're added. Sellers add a partner link to oneminers.com on their site within 14 days (checked automatically). Seller portal: /vendor-portal.
 
 Other pages: all miners /miners, vendors /vendors, profit calculator /#calculator, hosting comparison by site /#hosting, contact /#contact.`;
 }
@@ -131,16 +134,16 @@ export function answerFromKnowledge(messages: ChatMessage[], dir: Directory, mar
       miner.topCoin?.usdPerDay ?? 0
     )}/day mining ${miner.topCoin?.tag}. Profit is ${formatUsd(miner.profitDefault)}/day at $0.07/kWh or ${formatUsd(
       miner.profitHosted
-    )}/day hosted at 3.6¢. Best sample price: ${miner.bestPrice ? formatUsd(miner.bestPrice, 0) : "n/a"}. Details: /miners/${miner.slug}`;
+    )}/day hosted at 3.6¢. ${miner.bestPrice ? `Best listed price: ${formatUsd(miner.bestPrice, 0)}.` : "No seller lists it yet."} Details: /miners/${miner.slug}`;
   }
 
   if (/(sell|list my|listing|vendor|reseller|partner|subscription)/.test(q)) {
-    return "Resellers list free for 6 months, then $100/month with no commission, and can cancel anytime. You'll need company verification and a link to oneminers.com from your site. Apply at /sell, then manage listings at /vendor-portal.";
+    return "Launch promo: list free for the first 6 months, then $100/month with no commission, cancel anytime. Your listings go live as soon as you add them; add a partner link to oneminers.com within 14 days. Start at /vendor-portal.";
   }
 
   if (/(host|hosting|electric|kwh|power cost|energy)/.test(q)) {
     const top = [...rows].sort((a, b) => b.profitHosted - a.profitHosted)[0];
-    return `OneMiners hosts miners from 3.6¢/kWh, with a 7-year warranty on hosted machines. At that rate the ${top.model} makes about ${formatUsd(
+    return `Hosting is listed from 3.6¢/kWh (${HOSTING_PROVIDER}). At that rate the ${top.model} makes about ${formatUsd(
       top.profitHosted
     )}/day. Compare any miner at your own power price on /miners.`;
   }
@@ -160,7 +163,7 @@ export function answerFromKnowledge(messages: ChatMessage[], dir: Directory, mar
   }
 
   if (/(site|land|marketplace|lease|mw)/.test(q)) {
-    return "OneMiners hosts miners in Nigeria, Norway, the USA (Georgia, Houston, West Texas), Dubai and Ethiopia, from 3.6¢/kWh. Compare a miner's profit at each site on /#hosting, or ask the team via /#contact.";
+    return `Listed hosting sites: ${HOSTING_SITES.map((site) => site.name).join(", ")}, from 3.6¢/kWh. Compare a miner's profit at each site on /#hosting.`;
   }
 
   if (/(hi|hello|hey|good (morning|afternoon|evening))/.test(q)) {
