@@ -150,6 +150,7 @@ Rendered as `NOW` + `MINING` in Inter, bold, wide tracking (`tracking-[0.18em]`)
 | Abstract miner glyph | `components/directory/ui.tsx` | Used where no product photo exists; coloured by manufacturer, not a product image. |
 | UI icons | `lucide-react` | Consistent 1.5–2px stroke; use `h-3.5`, `h-4`, `h-5` sizes. |
 | Social image | `app/opengraph-image.tsx` | 1200×630 PNG generated at build: black canvas, NOWMINING lockup, tagline. |
+| Hosting globe land dots | `lib/worldDots.ts` | Natural Earth land outlines via `world-atlas` (public domain), sampled to a 4° dot grid. |
 | Partner badge | `components/directory/PartnerBadgeCard.tsx` | Self-contained dofollow HTML snippet for sellers. |
 
 There are **no product photos**. Any future imagery must be licensed and attributed; do not lift manufacturer or competitor photos.

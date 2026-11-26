@@ -53,7 +53,7 @@ const columns = [
 const footnotes = [
   "Profitability uses live network hashrate, block rewards and prices from <a href=\"https://backpow.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">BackPoW</a>, refreshed hourly; miner specs and market price ranges also via BackPoW. Coin prices via <a href=\"https://www.coingecko.com\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">CoinGecko</a>; Bitcoin network data via <a href=\"https://mempool.space\" target=\"_blank\" rel=\"noopener noreferrer\" class=\"underline hover:text-accent\">mempool.space</a>.",
   "Miner specifications follow manufacturer announcements (±5%). Prices and stock are provided by each seller.",
-  `Hosting rates and capacity as published by ${HOSTING_PROVIDER}. Earnings estimates assume today&rsquo;s difficulty and prices and are not investment advice.`,
+  `Hosting rates and capacity as published by ${HOSTING_PROVIDER}. Globe land dots from Natural Earth (public domain). Earnings estimates assume today&rsquo;s difficulty and prices and are not investment advice.`,
 ];
 
 export default function SiteFooter() {
