@@ -1,13 +1,15 @@
 "use client";
 
+import { useMoney } from "@/lib/useMoney";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { Plus, X } from "lucide-react";
-import { dailyProfit, formatEfficiency, formatHashrate, formatUsd, roiDays } from "@/lib/economics";
+import { Check, Link2, Plus, X } from "lucide-react";
+import { dailyProfit, formatEfficiency, formatHashrate, roiDays } from "@/lib/economics";
 import { useMiningSettings } from "@/lib/useMiningSettings";
 import type { MinerRow } from "./MinerExplorer";
 import { CoinChip } from "./MinerExplorer";
+import SearchSelect from "./SearchSelect";
 import { MinerGlyph } from "./ui";
 
 const MAX = 4;
@@ -25,8 +27,10 @@ type Row = {
 export default function MinerCompare({ rows, initial }: { rows: MinerRow[]; initial: string[] }) {
   const router = useRouter();
   const [settings] = useMiningSettings();
+  const money = useMoney();
   const [selected, setSelected] = useState<string[]>(initial.filter((slug) => rows.some((row) => row.slug === slug)).slice(0, MAX));
   const [adding, setAdding] = useState("");
+  const [copied, setCopied] = useState(false);
 
   function update(next: string[]) {
     setSelected(next);
@@ -57,12 +61,12 @@ export default function MinerCompare({ rows, initial }: { rows: MinerRow[]; init
       lowerIsBetter: true,
     },
     { label: "Cooling", value: (row) => row.cooling },
-    { label: "Release", value: (row) => row.release, score: (row) => row.release },
-    { label: "Income / day", value: (row) => formatUsd(row.income), score: (row) => row.income },
-    { label: "Electricity / day", value: (row) => formatUsd(-row.power), score: (row) => row.power, lowerIsBetter: true },
-    { label: "Profit / day", value: (row) => <span className={row.profit >= 0 ? "text-accent" : "text-red-400"}>{formatUsd(row.profit)}</span>, score: (row) => row.profit },
-    { label: "Profit / month", value: (row) => formatUsd(row.profit * 30, 0), score: (row) => row.profit },
-    { label: "Best price", value: (row) => (row.bestPrice ? formatUsd(row.bestPrice, 0) : "No sellers yet"), score: (row) => row.bestPrice, lowerIsBetter: true },
+    { label: "Release", value: (row) => row.release ?? "—", score: (row) => row.release ?? null },
+    { label: "Income / day", value: (row) => money(row.income), score: (row) => row.income },
+    { label: "Electricity / day", value: (row) => money(-row.power), score: (row) => row.power, lowerIsBetter: true },
+    { label: "Profit / day", value: (row) => <span className={row.profit >= 0 ? "text-accent" : "text-red-400"}>{money(row.profit)}</span>, score: (row) => row.profit },
+    { label: "Profit / month", value: (row) => money(row.profit * 30, 0), score: (row) => row.profit },
+    { label: "Best price", value: (row) => (row.bestPrice ? money(row.bestPrice, 0) : "No sellers yet"), score: (row) => row.bestPrice, lowerIsBetter: true },
     {
       label: "Payback",
       value: (row) => {
@@ -79,16 +83,20 @@ export default function MinerCompare({ rows, initial }: { rows: MinerRow[]; init
   return (
     <div className="space-y-4">
       <div className="surface flex flex-col gap-3 rounded-2xl p-4 sm:flex-row sm:items-center">
-        <select value={adding} onChange={(event) => setAdding(event.target.value)} className="input py-2.5 text-sm" disabled={selected.length >= MAX}>
-          <option value="" className="bg-[#0b1016]">
-            {selected.length >= MAX ? `Up to ${MAX} miners` : "Add a miner to compare…"}
-          </option>
-          {available.map((row) => (
-            <option key={row.slug} value={row.slug} className="bg-[#0b1016]">
-              {row.manufacturer} {row.model} ({formatHashrate(row.hashrate, row.unit)})
-            </option>
-          ))}
-        </select>
+        <SearchSelect
+          value={adding}
+          options={[
+            { value: "", label: selected.length >= MAX ? `Up to ${MAX} miners` : "Add a miner to compare…" },
+            ...available.map((row) => ({
+              value: row.slug,
+              label: `${row.manufacturer} ${row.model} (${formatHashrate(row.hashrate, row.unit)})`,
+            })),
+          ]}
+          onChange={setAdding}
+          label="Add a miner to compare"
+          disabled={selected.length >= MAX}
+          className="w-full sm:w-96"
+        />
         <button
           type="button"
           disabled={!adding || selected.length >= MAX}
@@ -99,6 +107,19 @@ export default function MinerCompare({ rows, initial }: { rows: MinerRow[]; init
           className="btn-primary shrink-0 px-5 py-2.5 text-sm disabled:opacity-50"
         >
           <Plus className="h-4 w-4" /> Add
+        </button>
+        <button
+          type="button"
+          disabled={!selected.length}
+          onClick={() =>
+            void navigator.clipboard.writeText(window.location.href).then(() => {
+              setCopied(true);
+              window.setTimeout(() => setCopied(false), 1600);
+            })
+          }
+          className="btn-ghost shrink-0 px-4 py-2.5 text-sm disabled:opacity-50"
+        >
+          {copied ? <Check className="h-4 w-4" /> : <Link2 className="h-4 w-4" />} {copied ? "Link copied" : "Share"}
         </button>
       </div>
 

@@ -1,16 +1,19 @@
 "use client";
 
+import { useMoney } from "@/lib/useMoney";
 import { useMemo, useState } from "react";
 import { ArrowUpRight, Home, Server } from "lucide-react";
-import { dailyProfit, formatUsd } from "@/lib/economics";
+import { dailyProfit } from "@/lib/economics";
 import { HOSTING_SITES, HOSTING_SOURCE } from "@/lib/hosting";
 import { useMiningSettings } from "@/lib/useMiningSettings";
+import SearchSelect from "./SearchSelect";
 import { Flag } from "./ui";
 
 export type HostableMiner = { slug: string; label: string; incomeUsd: number; powerW: number };
 
 export default function HostingCompare({ miners, fixedSlug }: { miners: HostableMiner[]; fixedSlug?: string }) {
   const [settings] = useMiningSettings();
+  const money = useMoney();
   const [slug, setSlug] = useState(fixedSlug ?? miners[0]?.slug ?? "");
   const miner = miners.find((item) => item.slug === slug) ?? miners[0];
 
@@ -31,21 +34,21 @@ export default function HostingCompare({ miners, fixedSlug }: { miners: Hostable
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         {fixedSlug ? null : (
-          <label className="block sm:w-96">
+          <div className="block sm:w-96">
             <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Miner</span>
-            <select value={slug} onChange={(event) => setSlug(event.target.value)} className="input mt-1.5 py-2.5 text-sm">
-              {miners.map((item) => (
-                <option key={item.slug} value={item.slug} className="bg-[#0b1016]">
-                  {item.label}
-                </option>
-              ))}
-            </select>
-          </label>
+            <SearchSelect
+              value={slug}
+              options={miners.map((item) => ({ value: item.slug, label: item.label }))}
+              onChange={setSlug}
+              label="Miner"
+              className="mt-1.5 w-full"
+            />
+          </div>
         )}
         {uplift > 0 ? (
           <div className="rounded-2xl border border-accent/25 bg-accent/[0.07] px-4 py-3 text-sm text-ink">
             Hosting in <strong>{best.site.name}</strong> earns{" "}
-            <strong className="text-accent">{formatUsd(uplift)}/day more</strong> than your power at ${settings.electricity.toFixed(3)}/kWh.
+            <strong className="text-accent">{money(uplift)}/day more</strong> than your power at ${settings.electricity.toFixed(3)}/kWh.
           </div>
         ) : null}
       </div>
@@ -66,7 +69,7 @@ export default function HostingCompare({ miners, fixedSlug }: { miners: Hostable
             </thead>
             <tbody>
               {rows.map(({ site, electricity, profit }) => (
-                <tr key={site.id} className="border-b border-line/60 hover:bg-white/[0.02]">
+                <tr key={site.id} className="border-b border-line/60 hover:bg-panel-soft">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 text-sm font-semibold text-ink">
                       <Server className="h-4 w-4 text-aqua" /> {site.name}
@@ -75,9 +78,9 @@ export default function HostingCompare({ miners, fixedSlug }: { miners: Hostable
                   </td>
                   <td className="px-4 py-3 text-right text-xs tabular-nums text-ink">{(site.rate * 100).toFixed(1)}¢/kWh</td>
                   <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{site.capacityMW} MW</td>
-                  <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{formatUsd(-electricity)}</td>
-                  <td className={`px-4 py-3 text-right text-sm font-bold tabular-nums ${profit >= 0 ? "text-accent" : "text-red-400"}`}>{formatUsd(profit)}</td>
-                  <td className={`px-4 py-3 text-right text-xs tabular-nums ${profit >= 0 ? "text-ink" : "text-red-400"}`}>{formatUsd(profit * 30, 0)}</td>
+                  <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{money(-electricity)}</td>
+                  <td className={`px-4 py-3 text-right text-sm font-bold tabular-nums ${profit >= 0 ? "text-accent" : "text-red-400"}`}>{money(profit)}</td>
+                  <td className={`px-4 py-3 text-right text-xs tabular-nums ${profit >= 0 ? "text-ink" : "text-red-400"}`}>{money(profit * 30, 0)}</td>
                   <td className="px-4 py-3 text-right">
                     <a href={`${site.url}?ref=miner-directory`} target="_blank" rel="noopener" className="inline-flex items-center gap-1 text-xs font-bold text-aqua hover:text-accent">
                       Host here <ArrowUpRight className="h-3.5 w-3.5" />
@@ -85,7 +88,7 @@ export default function HostingCompare({ miners, fixedSlug }: { miners: Hostable
                   </td>
                 </tr>
               ))}
-              <tr className="bg-white/[0.02]">
+              <tr className="bg-panel-soft">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2 text-sm font-semibold text-muted">
                     <Home className="h-4 w-4" /> Your own power
@@ -94,9 +97,9 @@ export default function HostingCompare({ miners, fixedSlug }: { miners: Hostable
                 </td>
                 <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{(settings.electricity * 100).toFixed(1)}¢/kWh</td>
                 <td className="px-4 py-3 text-right text-xs text-muted">—</td>
-                <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{formatUsd(-own.electricity)}</td>
-                <td className={`px-4 py-3 text-right text-sm font-bold tabular-nums ${own.profit >= 0 ? "text-accent" : "text-red-400"}`}>{formatUsd(own.profit)}</td>
-                <td className={`px-4 py-3 text-right text-xs tabular-nums ${own.profit >= 0 ? "text-ink" : "text-red-400"}`}>{formatUsd(own.profit * 30, 0)}</td>
+                <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{money(-own.electricity)}</td>
+                <td className={`px-4 py-3 text-right text-sm font-bold tabular-nums ${own.profit >= 0 ? "text-accent" : "text-red-400"}`}>{money(own.profit)}</td>
+                <td className={`px-4 py-3 text-right text-xs tabular-nums ${own.profit >= 0 ? "text-ink" : "text-red-400"}`}>{money(own.profit * 30, 0)}</td>
                 <td />
               </tr>
             </tbody>

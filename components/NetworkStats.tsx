@@ -63,28 +63,28 @@ export default function NetworkStats() {
         Live network
       </div>
       <div className="mt-2 grid grid-cols-2 gap-2 text-xs">
-        <div className="rounded-xl border border-line bg-white/[0.03] p-2">
+        <div className="rounded-xl border border-line bg-panel-soft p-2">
           <div className="flex items-center gap-1 text-muted">
             <Zap className="h-3 w-3" />
             Hashrate
           </div>
           <div className="mt-0.5 font-bold text-ink">{data.hashrateEh ? data.hashrateEh.toFixed(2) + " EH/s" : "—"}</div>
         </div>
-        <div className="rounded-xl border border-line bg-white/[0.03] p-2">
+        <div className="rounded-xl border border-line bg-panel-soft p-2">
           <div className="flex items-center gap-1 text-muted">
             <TrendingUp className="h-3 w-3" />
             Difficulty
           </div>
           <div className="mt-0.5 font-bold text-ink">{data.difficulty ? (data.difficulty / 1e12).toFixed(2) + " T" : "—"}</div>
         </div>
-        <div className="rounded-xl border border-line bg-white/[0.03] p-2">
+        <div className="rounded-xl border border-line bg-panel-soft p-2">
           <div className="flex items-center gap-1 text-muted">
             <Blocks className="h-3 w-3" />
             Height
           </div>
           <div className="mt-0.5 font-bold text-ink">{data.blockHeight ? data.blockHeight.toLocaleString() : "—"}</div>
         </div>
-        <div className="rounded-xl border border-line bg-white/[0.03] p-2">
+        <div className="rounded-xl border border-line bg-panel-soft p-2">
           <div className="flex items-center gap-1 text-muted">
             <DollarSign className="h-3 w-3" />
             BTC
@@ -93,13 +93,13 @@ export default function NetworkStats() {
         </div>
       </div>
       {data.fees && (
-        <div className="mt-2 rounded-xl border border-line bg-white/[0.03] p-2">
+        <div className="mt-2 rounded-xl border border-line bg-panel-soft p-2">
           <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Mempool fees (sat/vB)</div>
           <div className="mt-1 flex gap-1 text-[10px]">
-            <span className="rounded-full border border-line bg-white/[0.03] px-1.5 py-0.5 text-muted">⚡ {data.fees.fastestFee}</span>
-            <span className="rounded-full border border-line bg-white/[0.03] px-1.5 py-0.5 text-muted">30m {data.fees.halfHourFee}</span>
-            <span className="rounded-full border border-line bg-white/[0.03] px-1.5 py-0.5 text-muted">1h {data.fees.hourFee}</span>
-            <span className="rounded-full border border-line bg-white/[0.03] px-1.5 py-0.5 text-muted">eco {data.fees.economyFee}</span>
+            <span className="rounded-full border border-line bg-panel-soft px-1.5 py-0.5 text-muted">⚡ {data.fees.fastestFee}</span>
+            <span className="rounded-full border border-line bg-panel-soft px-1.5 py-0.5 text-muted">30m {data.fees.halfHourFee}</span>
+            <span className="rounded-full border border-line bg-panel-soft px-1.5 py-0.5 text-muted">1h {data.fees.hourFee}</span>
+            <span className="rounded-full border border-line bg-panel-soft px-1.5 py-0.5 text-muted">eco {data.fees.economyFee}</span>
           </div>
         </div>
       )}

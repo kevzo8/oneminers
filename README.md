@@ -1,26 +1,34 @@
-# OneMiners — Powered land for proof-of-work
+# NowMining — ASIC miner profitability, prices and hosting
 
-A polished demo marketplace for energized crypto-mining sites, hosting capacity, and miner economics. Built for the Oneminers CTO conversation in Cebu.
+A live directory of ASIC miners: profitability recalculated from the network every 10 minutes, prices and offers from sellers, hosting rates, and open rankings. Built with Next.js and Convex.
 
-Inspired by the structure of cryptosites.io and miningnow.com, with the same design language as the finance-tracker app: dark glass surfaces, gradient accents, Inter typography, and responsive motion.
+Live data only. Nothing here is investment advice.
 
 ## What is inside
 
-- Hero with live-style site card, network stats, and animated market ticker
-- Marketplace with sale / lease / hosting filters and six demo listings
-- ASIC profitability table with coin filters
-- Interactive profit calculator with hardware presets
-- AI deal desk section plus a floating site assistant
-- Lead capture form and API routes
-- SEO metadata, security headers, responsive layout, reduced-motion support
+- **Profitability-first home page:** searchable/filterable ASIC table with electricity and pool-fee controls, coin filter and a browser watchlist
+- **Rankings (`/rankings`):** score every miner within its algorithm using a published formula (profit, efficiency, hashrate, availability)
+- **Compare (`/compare`):** up to four miners side by side; the selection is kept in the URL so a shared link reproduces it
+- **Coins (`/coins`):** live network stats, CoinGecko market cap / 24h change / 7-day sparklines, per-coin converter, and the miners that mine each coin
+- **Miner pages:** live revenue per coin, profit history, best-price offers from sellers, specs, payback and report-an-error link
+- **Vendors and sellers:** vendor profiles, listing plans, Convex Auth seller portal (`/vendor-portal`) and partner-link verification
+- **Hosting:** comparison of published hosting sites by rate and capacity (`/#hosting`)
+- **Data (`/data`):** our own hourly Bitcoin network snapshots (price, hashrate, hashprice) and the ASIC release/efficiency history
+- **Glossary (`/glossary`):** plain-English mining terms with `DefinedTermSet` structured data
+- **Widgets (`/widgets`):** build an embeddable profitability widget (`/embed/miner/[slug]`), which is allowed in iframes while every other page refuses framing
+- **Report (`/report`) and newsletter:** both feed the same validated lead endpoint
+- **AI assistant:** floating chat widget grounded in the live directory, with a local fallback when no model key is set
+- **Visitor settings:** currency selector (live FX) and electricity price, saved in the browser; every client-rendered table follows them
+- SEO metadata, JSON-LD, sitemap, robots and security headers
 
 ## Stack
 
-- Next.js 15 (App Router)
+- Next.js 16 (App Router, Turbopack)
 - React 19
 - TypeScript (strict)
 - Tailwind CSS 4
 - lucide-react icons
+- Convex (database, auth, crons)
 
 ## Quick start
 
@@ -31,6 +39,13 @@ npm run dev
 
 Open http://localhost:3000.
 
+The site runs without Convex: directory pages fall back to the catalog in `lib/catalog.ts`. For leads, chats, seller accounts and history, start the backend too:
+
+```powershell
+npx convex dev   # terminal 1
+npm run dev      # terminal 2
+```
+
 Production:
 
 ```powershell
@@ -38,9 +53,59 @@ npm run build
 npm start
 ```
 
+## Scripts
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Next.js dev server |
+| `npm run build` / `npm start` | production build / serve |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run codegen` | regenerate `convex/_generated` |
+| `npm run convex:dev` / `convex:deploy` | sync Convex functions to dev / prod |
+
+## Routes
+
+| Route | Purpose |
+|---|---|
+| `/` | Profitability table, network stats, hosting, calculator, assistant |
+| `/miners`, `/miners/[slug]` | Full miner directory and miner detail |
+| `/rankings` | Published-formula rankings by algorithm and brand |
+| `/compare` | Side-by-side miner comparison (`?m=slug,slug`) |
+| `/coins`, `/coins/[tag]` | Coin market/network data and mineable miners |
+| `/vendors`, `/vendors/[slug]` | Seller directory and vendor profiles |
+| `/sell`, `/vendor-portal` | Listing pitch and seller portal (Convex Auth) |
+| `/data` | Hourly network history and ASIC release history |
+| `/glossary` | Mining glossary |
+| `/widgets`, `/embed/miner/[slug]` | Widget builder and embeddable card |
+| `/report` | Report wrong data or suggest a feature |
+| `/tools/hashrate-converter` | Hashrate unit converter |
+| `/api/network`, `/api/fx`, `/api/leads`, `/api/chat` | Data and form endpoints |
+
+## Data sources
+
+| Data | Source | Used by |
+|---|---|---|
+| Bitcoin network (difficulty, hashrate, height, fees, price, mempool) | mempool.space + CoinGecko | `/api/network`, LiveNetwork |
+| Coin prices, network hashrate, block reward/time | WhatToMine (cached snapshot fallback) | `lib/market.ts`, profitability |
+| Market cap, 24h/7d change, 7-day sparkline | CoinGecko `/coins/markets` | `/coins`, coin pages |
+| Fiat exchange rates | CoinGecko `/simple/price` via `/api/fx` | Currency selector, converter |
+| Hourly network snapshots | Our own Convex `marketSnapshots` (cron) | `/data`, profit history |
+| Hosting rates and capacity | Published by the hosting partner | `lib/hosting.ts` |
+
+All network fetches are cached (`revalidate = 600` unless noted) and fall back to bundled data when an API is unavailable.
+
+## Visitor settings
+
+Saved in `localStorage` and shared across pages:
+
+- `om.mining-settings.v1` — electricity price, pool fee, display currency
+- `om.watchlist.v1` — starred miner slugs
+
+Amounts are calculated in USD and converted for display with rates from `/api/fx`.
+
 ## Site assistant
 
-Works immediately with no API key: `lib/chat.ts` answers from the demo inventory and calculator logic.
+Works immediately with no API key: `lib/chat.ts` answers from the live directory and calculator logic.
 
 To use a real model, copy `.env.example` to `.env.local` and set:
 
@@ -52,50 +117,56 @@ OPENAI_MODEL=gpt-4o-mini
 
 Any OpenAI-compatible endpoint works (OpenAI, OpenRouter, Groq, local vLLM, LM Studio). The route is `app/api/chat/route.ts`; it falls back to the local knowledge base on any model error.
 
-## Leads
+## Leads, reports and newsletter
 
-`POST /api/leads` validates the name and email, logs the lead, and returns an id. Set `LEADS_WEBHOOK_URL` in `.env.local` to forward submissions to Slack, Make, Zapier, n8n, or a CRM.
-
-The route also writes to Convex when `NEXT_PUBLIC_CONVEX_URL` is set (see Convex Backend below).
+`POST /api/leads` validates name and email, optionally forwards to `LEADS_WEBHOOK_URL`, and writes to Convex when `NEXT_PUBLIC_CONVEX_URL` is set. The contact form, report form and newsletter signup all use it.
 
 ## Project structure
 
 ```text
 app/
-  api/chat/route.ts      AI chat endpoint with local fallback
-  api/leads/route.ts     lead capture endpoint + optional webhook
-  globals.css            design tokens, glass, gradients, motion
-  layout.tsx             metadata, Inter font, viewport
-  page.tsx               section composition
+  api/{chat,fx,leads,network,revalidate}/   route handlers
+  coins/, miners/, vendors/                 directory pages (list + [slug]/[tag])
+  rankings/, compare/, data/, glossary/     analysis and reference pages
+  widgets/, embed/miner/[slug]/             widget builder and iframe-safe embed
+  report/, sell/, vendor-portal/, admin/    contribution and seller flows
+  sitemap.ts, robots.ts                     SEO
 components/
-  SiteHeader.tsx         sticky nav + mobile menu
-  Hero.tsx               headline, stats, live-style site card
-  Ticker.tsx             sample coin ticker
-  Listings.tsx           marketplace filters + cards
-  MinersTable.tsx        ASIC profitability + coin tabs
-  HowItWorks.tsx         browse -> connect -> close
-  AiDesk.tsx             AI positioning + chat preview
-  ProfitCalculator.tsx   interactive net-profit model
-  Insights.tsx           demo articles
-  LeadForm.tsx           lead capture UI
-  SiteFooter.tsx         footer + disclaimers
-  ChatWidget.tsx         floating assistant
+  Hero, Ticker, LiveNetwork, HostingSection, AiDesk, ProfitCalculator, LeadForm
+  SiteHeader, SiteFooter, NewsletterForm, ChatWidget
+  directory/
+    MinerExplorer        searchable miner table + watchlist
+    MinerCompare         side-by-side compare (URL-synced)
+    OffersTable          seller offers and best price
+    ProfitPanel/History  live profit and hourly history charts
+    HostingCompare       hosting vs your own power
+    HeaderSettings/SettingsBar  currency, electricity and pool fee
+    CoinConverter, Sparkline, NetworkHistory, Glossary, WidgetBuilder, EmbedCard, ReportForm
 lib/
-  data.ts                listings, miners, coins, insights, nav
-  chat.ts                assistant system prompt + fallback answers
-  format.ts              money / number formatting
+  catalog.ts             bundled miner/vendor/offer catalog + sample flag
+  directory.ts           Convex-or-catalog loader, revenues, offers, history
+  economics.ts           profit, ROI, break-even and formatting math
+  market.ts              live coin/network snapshot
+  coinMarkets.ts         CoinGecko market data
+  ranking.ts             published ranking formula
+  chat.ts                assistant prompt and fallback answers
+  hosting.ts, glossary.ts, currency.ts, brand.ts
+  useMiningSettings.ts, useMoney.ts, useWatchlist.ts
+convex/
+  schema.ts              users, miners, vendors, offers, marketSnapshots, leads, chatMessages
+  directory.ts, market.ts, crons.ts   public data + hourly snapshot job
+  seller.ts, partnerLink.ts, admin.ts seller flows, link verification, seeding
 ```
 
-## Customize
+## Convex backend
 
-- **Inventory and copy:** `lib/data.ts`
-- **Brand colors and surfaces:** `app/globals.css` (`@theme`)
-- **Metadata and SEO:** `app/layout.tsx`
-- **Assistant answers:** `lib/chat.ts` (fallback), or the env-backed model
-- **Sections:** `components/` and `app/page.tsx`
-- **Convex schema & functions:** `convex/` (schema, listings, leads, seed)
+- **Schema** (`convex/schema.ts`): `users`, `miners`, `vendors`, `offers`, `marketSnapshots`, `leads`, `chatMessages`.
+- **Hourly snapshot** (`convex/crons.ts` → `convex/market.ts`): records price, hashrate, reward and block time per coin so profit history is ours.
+- **Auth** (`convex/auth.ts`, `convex/auth.config.ts`): seller and admin accounts via `@convex-dev/auth`.
+- **Partner link checks** (`convex/partnerLink.ts`): weekly re-check of the required `oneminers.com` backlink.
+- **Seed and sample rules** (`convex/admin.ts`): real catalog everywhere; sample vendors/prices only where `SAMPLE_DATA=allowed` (dev).
 
-## Environments (dev vs prod)
+### Environments (dev vs prod)
 
 | | Local (your laptop) | Production (Vercel) |
 |---|---|---|
@@ -104,110 +175,24 @@ lib/
 | Data | Real catalog + **sample** vendors/prices for testing | **Real data only** |
 | Sample data | Allowed (`SAMPLE_DATA=allowed` set on the dev deployment) | Refused: `admin:seedSamples` throws |
 
-Run locally (two terminals):
-
-```powershell
-npx convex dev      # syncs convex/ functions to the DEV deployment as you edit
-npm run dev         # http://localhost:3000, reads from the DEV database
-```
-
 Useful commands:
 
 ```powershell
 npx convex run admin:seed                 # real catalog (dev)
 npx convex run admin:seedSamples          # sample vendors + placeholder prices (dev only)
 npx convex run admin:seed --prod          # real catalog (prod)
-npx convex run admin:purgeSampleData --prod   # remove any sample/placeholder data from prod
+npx convex run admin:purgeSampleData --prod   # remove sample/placeholder data from prod
 npx convex run admin:grantAdmin '{"userId":"<account id>"}' --prod
 npx convex deploy                          # deploy functions to PROD
-```
-
-Brand name lives in `lib/brand.ts`.
-
-## Convex Backend
-
-The repo includes a complete Convex backend (same pattern as finance-tracker):
-
-- **Schema** (`convex/schema.ts`): tables `listings`, `leads`, `chatMessages` with indexes.
-- **Queries/Mutations** (`convex/listings.ts`, `convex/leads.ts`): list listings, create/list leads with validation and rate-limiting.
-- **Seed** (`convex/seed.ts`): inserts the 6 demo listings from `lib/data.ts`.
-- **Generated types** (`convex/_generated/`): run `npx convex codegen` after any schema/function change.
-
-### Local development (full stack)
-
-```powershell
-# Terminal 1: start the Convex dev backend (provisions a local deployment)
-npx convex dev
-
-# Terminal 2: start the Next.js dev server
-npm run dev
-```
-
-The first `npx convex dev` run will prompt to create/select a project (uses team `kevzo8`, project `oneminers`) and writes `CONVEX_DEPLOYMENT` and `NEXT_PUBLIC_CONVEX_URL` to `.env.local`. After that, the lead API route will automatically persist leads to Convex in addition to logging and optional webhook.
-
-### Seed the database
-
-```powershell
-npx convex run api.seed.seedListings
 ```
 
 ### Verify the backend
 
 ```powershell
-# List all listings
 npx convex run api.listings.list
-
-# Create a test lead
 npx convex run api.leads.create --args '{"name":"Test","email":"test@example.com","interest":"Hosting"}'
-
-# List leads (internal function: CLI and dashboard only, never public)
-npx convex run leads:list
+npx convex run leads:list   # internal: CLI and dashboard only
 ```
-
-### Production deployment
-
-1. Run `npx convex deploy` (creates a production deployment).
-2. Copy the generated `NEXT_PUBLIC_CONVEX_URL` to your hosting provider (Vercel, etc.).
-3. The site will then persist leads and can serve listings from Convex.
-
-## Free data sources you can add
-
-All are public APIs with generous free tiers — just add the API key to `.env.local` and wire into the existing API routes.
-
-| Data | API | Free tier | Integration point |
-|------|-----|-----------|-------------------|
-| **Bitcoin network** (hashrate, difficulty, height, fees, price) | mempool.space + CoinGecko | Unlimited | `/api/network` ✅ done |
-| **Miner profitability** (ASIC hashrate, power, efficiency, daily profit) | Hashrate Index API | 1,000 req/day | Replace `lib/data.ts` miners |
-| **Coin prices / market data** | CoinGecko API | 10–50 req/sec | Ticker, calculator |
-| **Coin prices / market data** | CoinMarketCap API | 333 req/day | Ticker, calculator |
-| **Lightning Network stats** | Amboss / 1ML API | Free | New "Lightning" section |
-| **Mining pool stats** (hashrate, blocks, payouts) | Luxor / Foundry / Antpool APIs | Varies | Miner table |
-| **Difficulty adjustment estimates** | mempool.space `/v1/difficulty-adjustment` | Unlimited | Calculator |
-| **BTC fees history** | mempool.space `/v1/fees/mempool-blocks` | Unlimited | Fee estimator UI |
-| **Exchange rates (fiat)** | exchangerate.host / Frankfurter | Unlimited | Multi-currency calculator |
-
-**Quick integration example** (Hashrate Index miners):
-```typescript
-// lib/miners.ts
-export async function getLiveMiners() {
-  const res = await fetch('https://api.hashrateindex.com/v1/hardware', {
-    headers: { Authorization: `Bearer ${process.env.HASHRATE_INDEX_KEY}` },
-    next: { revalidate: 3600 },
-  });
-  return res.json();
-}
-```
-
-## Useful free endpoints (no key required)
-
-- **mempool.space**: `https://mempool.space/api/v1/difficulty`, `/v1/mining/hashrate`, `/blocks/tip/height`, `/v1/fees/recommended`
-- **CoinGecko**: `https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd`
-- **exchangerate.host**: `https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP`
-- **Blockchain.com**: `https://api.blockchain.info/charts/hash-rate?timespan=5years&format=json`
-
-## Footnotes & attribution
-
-All live data sources and design references are documented in the footer with links. The demo uses mock data for listings/miners — replace with real APIs when ready.
 
 ## Deploy
 
@@ -217,8 +202,19 @@ Vercel is the fastest path:
 npx vercel
 ```
 
-Add the environment variables in the Vercel dashboard. The site also deploys cleanly to any Node host with `npm run build && npm start`.
+Set the environment variables in the Vercel dashboard (see `.env.example`):
 
-## Demo disclaimer
+- `NEXT_PUBLIC_SITE_URL` — canonical origin used by sitemap, robots and embed links
+- `NEXT_PUBLIC_CONVEX_URL` — Convex deployment URL
+- `OPENAI_API_KEY` / `OPENAI_BASE_URL` / `OPENAI_MODEL` — optional assistant model
+- `LEADS_WEBHOOK_URL` — optional lead forwarding
 
-All listings, power rates, miner profits, and market prices are illustrative demo data. Nothing here is investment advice, and no real inventory or customer data is included.
+The site also deploys cleanly to any Node host with `npm run build && npm start`.
+
+## Data policy
+
+Miner specs come from manufacturer announcements (±5% tolerance). Prices and offers come from sellers; listings marked **Sample** are placeholders until real sellers join. Production runs real data only. All listings, power rates, miner profits and market prices are informational, not investment advice.
+
+## Footnotes & attribution
+
+Live sources and design references are linked in the site footer.

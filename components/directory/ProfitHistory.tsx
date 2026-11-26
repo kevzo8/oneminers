@@ -1,8 +1,9 @@
 "use client";
 
+import { useMoney } from "@/lib/useMoney";
 import { useMemo, useState } from "react";
 import { LineChart } from "lucide-react";
-import { dailyProfit, formatUsd } from "@/lib/economics";
+import { dailyProfit } from "@/lib/economics";
 import { useMiningSettings } from "@/lib/useMiningSettings";
 
 type Point = { t: number; incomeUsd: number };
@@ -16,6 +17,7 @@ const RANGES = [
 /** Profit per day over time, from our own hourly snapshots. Recalculated with the visitor's power price. */
 export default function ProfitHistory({ points, powerW }: { points: Point[]; powerW: number }) {
   const [settings] = useMiningSettings();
+  const money = useMoney();
   const [days, setDays] = useState(30);
   const [hover, setHover] = useState<number | null>(null);
 
@@ -32,7 +34,7 @@ export default function ProfitHistory({ points, powerW }: { points: Point[]; pow
       <h2 className="flex items-center gap-2 text-lg font-bold text-ink">
         <LineChart className="h-5 w-5 text-accent" /> Profit history
       </h2>
-      <div className="inline-flex rounded-full border border-line bg-white/[0.03] p-1">
+      <div className="inline-flex rounded-full border border-line bg-panel-soft p-1">
         {RANGES.map((range) => (
           <button
             key={range.label}
@@ -80,14 +82,14 @@ export default function ProfitHistory({ points, powerW }: { points: Point[]; pow
     <div className="surface rounded-2xl p-5">
       {header}
       <div className="mt-3 flex items-baseline gap-3">
-        <span className={`text-2xl font-bold tabular-nums ${active.profit >= 0 ? "text-accent" : "text-red-400"}`}>{formatUsd(active.profit)}</span>
+        <span className={`text-2xl font-bold tabular-nums ${active.profit >= 0 ? "text-accent" : "text-red-400"}`}>{money(active.profit)}</span>
         <span className="text-xs text-muted">
           {new Date(active.t).toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}
         </span>
         {hover === null ? (
           <span className={`text-xs font-semibold ${change >= 0 ? "text-accent" : "text-red-400"}`}>
             {change >= 0 ? "+" : ""}
-            {formatUsd(change)} over this period
+            {money(change)} over this period
           </span>
         ) : null}
       </div>

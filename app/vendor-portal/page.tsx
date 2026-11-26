@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import ConvexAuthClient from "@/components/portal/ConvexAuthClient";
 import SellerPortal from "@/components/portal/SellerPortal";
 import { Breadcrumbs, PageShell } from "@/components/directory/ui";
-import { loadDirectory } from "@/lib/directory";
-import { formatHashrate } from "@/lib/economics";
+import type { PortalMiner } from "@/components/portal/ModelPicker";
+import { loadDirectory, revenuesFor } from "@/lib/directory";
+import { formatEfficiency, formatHashrate } from "@/lib/economics";
+import { getMarket } from "@/lib/market";
 
 export const metadata: Metadata = {
   title: "Seller portal",
@@ -13,22 +15,39 @@ export const metadata: Metadata = {
 
 export const revalidate = 300;
 
-export default async function VendorPortalPage() {
-  const dir = await loadDirectory();
-  const miners = dir.miners
+export default async function VendorPortalPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const [query, dir, market] = await Promise.all([searchParams, loadDirectory(), getMarket()]);
+  const initialMode = query.mode === "signup" ? "signUp" : "signIn";
+  const miners: PortalMiner[] = dir.miners
     .map((miner) => ({
       slug: miner.slug,
-      label: `${miner.manufacturer} ${miner.model} · ${formatHashrate(miner.hashrate, miner.unit)}`,
+      name: `${miner.manufacturer} ${miner.model}`,
+      manufacturer: miner.manufacturer,
+      hashrate: formatHashrate(miner.hashrate, miner.unit),
+      powerW: miner.powerW,
+      efficiency: formatEfficiency(miner.powerW, miner.hashrate, miner.unit),
+      algorithm: miner.algorithm,
+      cooling: miner.cooling,
+      release: miner.release,
+      coins: revenuesFor(miner, market)
+        .filter((coin) => !coin.caution)
+        .slice(0, 3)
+        .map((coin) => coin.tag),
       refPrice: miner.refPrice,
+      market: miner.priceRange,
     }))
-    .sort((a, b) => a.label.localeCompare(b.label));
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <PageShell>
       <div className="mx-auto w-full max-w-7xl space-y-6 px-5 sm:px-8">
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Seller portal" }]} />
         <ConvexAuthClient>
-          <SellerPortal miners={miners} />
+          <SellerPortal miners={miners} initialMode={initialMode} />
         </ConvexAuthClient>
       </div>
     </PageShell>

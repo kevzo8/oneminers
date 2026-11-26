@@ -1,20 +1,25 @@
 "use client";
 
+import { useMoney } from "@/lib/useMoney";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowDownWideNarrow, Search, X } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, Search, SlidersHorizontal, Star, X } from "lucide-react";
+import { useWatchlist } from "@/lib/useWatchlist";
 import {
   COIN_COLORS,
   dailyProfit,
   formatEfficiency,
   formatHashrate,
-  formatUsd,
+  hashrateToHs,
   roiDays,
   type Algorithm,
   type HashUnit,
 } from "@/lib/economics";
 import { useMiningSettings } from "@/lib/useMiningSettings";
-import { MinerGlyph } from "./ui";
+import { coinColor } from "@/lib/coinIcons";
+import { CoinIcon, CoinStack } from "./CoinIcon";
+import MultiSelect from "./MultiSelect";
+import { MakerMark } from "./MakerMark";
 import type { Category, Cooling } from "@/lib/catalog";
 
 export type MinerRow = {
@@ -27,21 +32,70 @@ export type MinerRow = {
   powerW: number;
   cooling: Cooling;
   category: Category;
-  release: number;
-  topCoin: { tag: string; name: string; usdPerDay: number } | null;
+  release?: number;
+  topCoin: { tag: string; name: string; usdPerDay: number; caution?: "illiquid" | "dominant" } | null;
+  /** Sound coins this miner can mine, primary coin first, for the coin-logo stack. */
+  coinTags: string[];
   bestPrice: number | null;
   offerCount: number;
 };
 
-type SortKey = "profit" | "roi" | "price" | "newest" | "power";
+type SortKey = "model" | "release" | "hashrate" | "power" | "coin" | "price" | "roi" | "profit";
+type SortDir = "asc" | "desc";
+type Sort = { key: SortKey; dir: SortDir };
 
-const SORTS: { key: SortKey; label: string }[] = [
-  { key: "profit", label: "Profit / day" },
-  { key: "roi", label: "Fastest ROI" },
-  { key: "price", label: "Lowest price" },
-  { key: "newest", label: "Newest" },
-  { key: "power", label: "Lowest power" },
-];
+/** First click direction for each column: biggest/newest first for specs, cheapest/fastest first for cost. */
+const DEFAULT_SORT_DIR: Record<SortKey, SortDir> = {
+  model: "asc",
+  release: "desc",
+  hashrate: "desc",
+  power: "asc",
+  coin: "asc",
+  price: "asc",
+  roi: "asc",
+  profit: "desc",
+};
+
+function compareNullable(a: number | null, b: number | null, direction: number) {
+  if (a === null && b === null) return 0;
+  if (a === null) return 1;
+  if (b === null) return -1;
+  return (a - b) * direction;
+}
+
+function SortHeader({
+  label,
+  sortKey,
+  sort,
+  onSort,
+  align = "left",
+}: {
+  label: string;
+  sortKey: SortKey;
+  sort: Sort;
+  onSort: (key: SortKey) => void;
+  align?: "left" | "right";
+}) {
+  const active = sort.key === sortKey;
+  const Icon = active ? (sort.dir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+  return (
+    <th
+      className={`px-4 py-3 font-semibold ${align === "right" ? "text-right" : "text-left"}`}
+      aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}
+    >
+      <button
+        type="button"
+        onClick={() => onSort(sortKey)}
+        className={`flex w-full items-center gap-1 uppercase tracking-[0.1em] transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+          align === "right" ? "justify-end" : "justify-start"
+        } ${active ? "text-ink" : ""}`}
+      >
+        {label}
+        <Icon className={`h-3 w-3 shrink-0 ${active ? "text-accent" : "opacity-40"}`} aria-hidden="true" />
+      </button>
+    </th>
+  );
+}
 
 function Pill({
   active,
@@ -57,7 +111,7 @@ function Pill({
       type="button"
       onClick={onClick}
       className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
-        active ? "border-aqua/40 bg-aqua/15 text-aqua" : "border-line bg-white/[0.03] text-muted hover:border-white/20 hover:text-ink"
+        active ? "border-aqua/40 bg-aqua/15 text-aqua" : "border-line bg-panel-soft text-muted hover:border-white/20 hover:text-ink"
       }`}
     >
       {children}
@@ -66,16 +120,25 @@ function Pill({
 }
 
 export function CoinChip({ tag }: { tag: string }) {
-  const color = COIN_COLORS[tag] ?? "#93a1ad";
+  const color = COIN_COLORS[tag] ?? coinColor(tag);
   return (
     <span
       className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wide"
       style={{ borderColor: `${color}55`, background: `${color}1a`, color }}
     >
-      <span className="h-1.5 w-1.5 rounded-full" style={{ background: color }} />
+      <CoinIcon tag={tag} size={12} />
       {tag}
     </span>
   );
+}
+
+/** Price per rated hash unit, e.g. $18/TH or $12/kSol. */
+function pricePerUnit(price: number, value: number, unit: string) {
+  if (!(value > 0)) return null;
+  const per = price / value;
+  const label = unit.replace("/s", "");
+  const digits = per >= 100 ? 0 : per >= 10 ? 0 : per >= 1 ? 1 : 2;
+  return `$${per.toLocaleString("en-US", { maximumFractionDigits: digits })}/${label}`;
 }
 
 export default function MinerExplorer({
@@ -88,56 +151,137 @@ export default function MinerExplorer({
   algorithms: Algorithm[];
 }) {
   const [settings] = useMiningSettings();
+  const money = useMoney();
   const [query, setQuery] = useState("");
-  const [algorithm, setAlgorithm] = useState<Algorithm | "All">("All");
-  const [maker, setMaker] = useState<string>("All");
-  const [cooling, setCooling] = useState<Cooling | "All">("All");
-  const [category, setCategory] = useState<Category | "All">("All");
-  const [sort, setSort] = useState<SortKey>("profit");
+  const [algorithm, setAlgorithm] = useState<Algorithm[]>([]);
+  const [maker, setMaker] = useState<string[]>([]);
+  const [cooling, setCooling] = useState<Cooling[]>([]);
+  const [category, setCategory] = useState<Category[]>([]);
+  const [sort, setSort] = useState<Sort>({ key: "profit", dir: "desc" });
+  const [coin, setCoin] = useState<string[]>([]);
+  const [watchOnly, setWatchOnly] = useState(false);
+  const [watchlist, toggleWatch] = useWatchlist();
+  const [limit, setLimit] = useState(50);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+
+  function toggleIn<T>(list: T[], value: T) {
+    return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
+  }
+
+  function toggleSort(key: SortKey) {
+    setSort((current) =>
+      current.key === key
+        ? { key, dir: current.dir === "asc" ? "desc" : "asc" }
+        : { key, dir: DEFAULT_SORT_DIR[key] }
+    );
+  }
 
   const computed = useMemo(
     () =>
       rows.map((row) => {
         const profit = dailyProfit(row.topCoin?.usdPerDay ?? 0, row.powerW, settings).profit;
-        return { ...row, profit, roi: row.bestPrice ? roiDays(row.bestPrice, profit) : null };
+        return {
+          ...row,
+          profit,
+          roi: row.bestPrice ? roiDays(row.bestPrice, profit) : null,
+          hashrateHs: hashrateToHs(row.hashrate, row.unit),
+          unitPrice: row.bestPrice ? pricePerUnit(row.bestPrice, row.hashrate, row.unit) : null,
+        };
       }),
     [rows, settings]
+  );
+
+  const counts = useMemo(() => {
+    const algo = new Map<string, number>();
+    const makers = new Map<string, number>();
+    const coins = new Map<string, number>();
+    const cool = new Map<string, number>();
+    const types = new Map<string, number>();
+    for (const row of computed) {
+      algo.set(row.algorithm, (algo.get(row.algorithm) ?? 0) + 1);
+      makers.set(row.manufacturer, (makers.get(row.manufacturer) ?? 0) + 1);
+      if (row.topCoin) coins.set(row.topCoin.tag, (coins.get(row.topCoin.tag) ?? 0) + 1);
+      cool.set(row.cooling, (cool.get(row.cooling) ?? 0) + 1);
+      types.set(row.category, (types.get(row.category) ?? 0) + 1);
+    }
+    return { algo, makers, coins, cool, types };
+  }, [computed]);
+
+  const coinTags = useMemo(
+    () => [...counts.coins.entries()].sort((a, b) => b[1] - a[1]).map(([tag]) => tag),
+    [counts]
   );
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     const filtered = computed.filter(
       (row) =>
-        (algorithm === "All" || row.algorithm === algorithm) &&
-        (maker === "All" || row.manufacturer === maker) &&
-        (cooling === "All" || row.cooling === cooling) &&
-        (category === "All" || row.category === category) &&
+        (algorithm.length === 0 || algorithm.includes(row.algorithm)) &&
+        (maker.length === 0 || maker.includes(row.manufacturer)) &&
+        (cooling.length === 0 || cooling.includes(row.cooling)) &&
+        (category.length === 0 || category.includes(row.category)) &&
+        (coin.length === 0 || Boolean(row.topCoin && coin.includes(row.topCoin.tag))) &&
+        (!watchOnly || watchlist.includes(row.slug)) &&
         (!q || `${row.manufacturer} ${row.model} ${row.algorithm} ${row.topCoin?.tag ?? ""}`.toLowerCase().includes(q))
     );
     const sorted = [...filtered];
+    const direction = sort.dir === "asc" ? 1 : -1;
     sorted.sort((a, b) => {
-      switch (sort) {
-        case "roi":
-          return (a.roi ?? Number.POSITIVE_INFINITY) - (b.roi ?? Number.POSITIVE_INFINITY);
-        case "price":
-          return (a.bestPrice ?? Number.POSITIVE_INFINITY) - (b.bestPrice ?? Number.POSITIVE_INFINITY);
-        case "newest":
-          return b.release - a.release || b.profit - a.profit;
-        case "power":
-          return a.powerW - b.powerW;
-        default:
-          return b.profit - a.profit;
+      // Miners whose income comes from a thinly traded coin sort after the rest on money columns.
+      if (sort.key === "profit" || sort.key === "roi") {
+        const flag = Number(Boolean(a.topCoin?.caution)) - Number(Boolean(b.topCoin?.caution));
+        if (flag) return flag;
       }
+      let diff: number;
+      switch (sort.key) {
+        case "model":
+          diff = a.model.localeCompare(b.model);
+          break;
+        case "release":
+          diff = (a.release ?? 0) - (b.release ?? 0);
+          break;
+        case "hashrate":
+          diff = a.hashrateHs - b.hashrateHs;
+          break;
+        case "power":
+          diff = a.powerW - b.powerW;
+          break;
+        case "coin": {
+          const aTag = a.topCoin?.tag ?? "";
+          const bTag = b.topCoin?.tag ?? "";
+          if (!aTag || !bTag) {
+            if (!aTag && !bTag) return b.profit - a.profit;
+            return aTag ? -1 : 1;
+          }
+          diff = aTag.localeCompare(bTag);
+          break;
+        }
+        case "price":
+          return compareNullable(a.bestPrice, b.bestPrice, direction) || b.profit - a.profit;
+        case "roi":
+          return compareNullable(a.roi, b.roi, direction) || b.profit - a.profit;
+        default:
+          diff = a.profit - b.profit;
+      }
+      return diff !== 0 ? diff * direction : b.profit - a.profit;
     });
     return sorted;
-  }, [computed, query, algorithm, maker, cooling, category, sort]);
+  }, [computed, query, algorithm, maker, cooling, category, coin, watchOnly, watchlist, sort]);
 
-  const filtersActive = query || algorithm !== "All" || maker !== "All" || cooling !== "All" || category !== "All";
+  const filtersActive = Boolean(query || algorithm.length || maker.length || cooling.length || category.length || coin.length || watchOnly);
+  const activeFilterCount = [
+    algorithm.length > 0,
+    maker.length > 0,
+    coin.length > 0,
+    cooling.length > 0,
+    category.length > 0,
+    watchOnly,
+  ].filter(Boolean).length;
 
   return (
-    <div className="space-y-4">
-      <div className="surface space-y-3 rounded-2xl p-4">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div className="space-y-2.5">
+      <div className="surface rounded-2xl p-2.5 sm:p-3">
+        <div className="flex items-center gap-1.5">
           <label className="relative flex-1 lg:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
             <input
@@ -149,72 +293,153 @@ export default function MinerExplorer({
               aria-label="Search miners"
             />
           </label>
-          <div className="flex items-center gap-2">
-            <ArrowDownWideNarrow className="h-4 w-4 text-muted" aria-hidden="true" />
-            <select
-              value={sort}
-              onChange={(event) => setSort(event.target.value as SortKey)}
-              className="input w-auto py-2 text-sm"
-              aria-label="Sort miners"
-            >
-              {SORTS.map((option) => (
-                <option key={option.key} value={option.key} className="bg-[#0b1016]">
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((value) => !value)}
+            className={`btn-ghost shrink-0 px-2.5 py-1.5 text-xs ${activeFilterCount ? "border-accent/40 text-accent" : ""}`}
+            aria-expanded={filtersOpen}
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" />
+            Filters{activeFilterCount ? ` (${activeFilterCount})` : ""}
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
+          </button>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="mr-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Algorithm</span>
-          <Pill active={algorithm === "All"} onClick={() => setAlgorithm("All")}>
-            All
-          </Pill>
-          {algorithms.map((algo) => (
-            <Pill key={algo} active={algorithm === algo} onClick={() => setAlgorithm(algo)}>
-              {algo}
+        <div className={`${filtersOpen ? "mt-2 block" : "hidden"} space-y-2`}>
+          <div className="flex items-center gap-1.5 sm:hidden">
+            <MultiSelect
+              value={algorithm}
+              options={algorithms.map((algo) => ({ value: algo, label: algo, count: counts.algo.get(algo) ?? 0 }))}
+              onChange={setAlgorithm}
+              label="Algorithm"
+              allLabel="All algos"
+              className="w-36 shrink-0 sm:w-40"
+            />
+            <MultiSelect
+              value={maker}
+              options={manufacturers.map((name) => ({ value: name, label: name, count: counts.makers.get(name) ?? 0 }))}
+              onChange={setMaker}
+              label="Manufacturer"
+              allLabel="All makers"
+              className="w-36 shrink-0 sm:w-40"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-1.5 sm:hidden">
+            <MultiSelect
+              value={coin}
+              options={coinTags.map((tag) => ({ value: tag, label: tag, count: counts.coins.get(tag) ?? 0 }))}
+              onChange={setCoin}
+              label="Coin"
+              allLabel="All coins"
+              className="w-full"
+            />
+            <MultiSelect
+              value={cooling}
+              options={[
+                { value: "Air" as const, label: "Air", count: counts.cool.get("Air") ?? 0 },
+                { value: "Hydro" as const, label: "Hydro", count: counts.cool.get("Hydro") ?? 0 },
+                { value: "Immersion" as const, label: "Immersion", count: counts.cool.get("Immersion") ?? 0 },
+              ]}
+              onChange={setCooling}
+              label="Cooling"
+              allLabel="All cooling"
+              className="w-full"
+            />
+            <MultiSelect
+              value={category}
+              options={[
+                { value: "Industrial" as const, label: "Industrial", count: counts.types.get("Industrial") ?? 0 },
+                { value: "Home" as const, label: "Home", count: counts.types.get("Home") ?? 0 },
+              ]}
+              onChange={setCategory}
+              label="Type"
+              allLabel="All types"
+              className="w-full"
+            />
+            <button
+              type="button"
+              onClick={() => setWatchOnly((value) => !value)}
+              className={`btn-ghost w-full py-1.5 text-xs ${watchOnly ? "border-accent/40 text-accent" : ""}`}
+            >
+              <Star className={`h-3 w-3 ${watchOnly ? "fill-current" : ""}`} /> Watchlist ({watchlist.length})
+            </button>
+          </div>
+
+          <div className="hidden flex-wrap items-center gap-1 sm:flex">
+            <span className="mr-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Coin</span>
+            <Pill active={coin.length === 0} onClick={() => setCoin([])}>
+              All
             </Pill>
-          ))}
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span className="mr-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Maker</span>
-          <Pill active={maker === "All"} onClick={() => setMaker("All")}>
-            All
-          </Pill>
-          {manufacturers.map((name) => (
-            <Pill key={name} active={maker === name} onClick={() => setMaker(name)}>
-              {name}
+            {coinTags.map((tag) => (
+              <Pill key={tag} active={coin.includes(tag)} onClick={() => setCoin((current) => toggleIn(current, tag))}>
+                <span className="inline-flex items-center gap-1">
+                  <CoinIcon tag={tag} size={12} />
+                  {tag} <span className="text-muted/70">({counts.coins.get(tag) ?? 0})</span>
+                </span>
+              </Pill>
+            ))}
+            <span className="mx-1 h-4 w-px bg-line" aria-hidden="true" />
+            <Pill active={watchOnly} onClick={() => setWatchOnly((value) => !value)}>
+              <span className="inline-flex items-center gap-1">
+                <Star className={`h-3 w-3 ${watchOnly ? "fill-current" : ""}`} /> Watchlist ({watchlist.length})
+              </span>
             </Pill>
-          ))}
-          <span className="ml-3 mr-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Cooling</span>
-          {(["All", "Air", "Hydro", "Immersion"] as const).map((value) => (
-            <Pill key={value} active={cooling === value} onClick={() => setCooling(value)}>
-              {value}
+          </div>
+          <div className="hidden flex-wrap items-center gap-1 sm:flex">
+            <MultiSelect
+              value={algorithm}
+              options={algorithms.map((algo) => ({ value: algo, label: algo, count: counts.algo.get(algo) ?? 0 }))}
+              onChange={setAlgorithm}
+              label="Algorithm"
+              allLabel="All algos"
+              className="w-36"
+            />
+            <MultiSelect
+              value={maker}
+              options={manufacturers.map((name) => ({ value: name, label: name, count: counts.makers.get(name) ?? 0 }))}
+              onChange={setMaker}
+              label="Manufacturer"
+              allLabel="All makers"
+              className="w-36"
+            />
+            <span className="ml-3 mr-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Cooling</span>
+            <Pill active={cooling.length === 0} onClick={() => setCooling([])}>
+              All
             </Pill>
-          ))}
-          <span className="ml-3 mr-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Type</span>
-          {(["All", "Industrial", "Home"] as const).map((value) => (
-            <Pill key={value} active={category === value} onClick={() => setCategory(value)}>
-              {value}
+            {(["Air", "Hydro", "Immersion"] as const).map((value) => (
+              <Pill key={value} active={cooling.includes(value)} onClick={() => setCooling((current) => toggleIn(current, value))}>
+                {value} <span className="text-muted/70">({counts.cool.get(value) ?? 0})</span>
+              </Pill>
+            ))}
+            <span className="ml-3 mr-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Type</span>
+            <Pill active={category.length === 0} onClick={() => setCategory([])}>
+              All
             </Pill>
-          ))}
+            {(["Industrial", "Home"] as const).map((value) => (
+              <Pill key={value} active={category.includes(value)} onClick={() => setCategory((current) => toggleIn(current, value))}>
+                {value} <span className="text-muted/70">({counts.types.get(value) ?? 0})</span>
+              </Pill>
+            ))}
+          </div>
         </div>
       </div>
 
       <div className="flex items-center justify-between px-1 text-xs text-muted">
         <span>
-          Showing <strong className="text-ink">{visible.length}</strong> of {rows.length} miners
+          Showing <strong className="text-ink">{Math.min(limit, visible.length)}</strong> of {visible.length} matching ({rows.length} miners)
         </span>
         {filtersActive ? (
           <button
             type="button"
             onClick={() => {
               setQuery("");
-              setAlgorithm("All");
-              setMaker("All");
-              setCooling("All");
-              setCategory("All");
+              setAlgorithm([]);
+              setMaker([]);
+              setCooling([]);
+              setCategory([]);
+              setCoin([]);
+              setWatchOnly(false);
             }}
             className="inline-flex items-center gap-1 font-semibold text-ink hover:text-accent"
           >
@@ -228,22 +453,33 @@ export default function MinerExplorer({
           <table className="w-full min-w-[920px] border-collapse text-left">
             <thead>
               <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
-                <th className="px-4 py-3 font-semibold">Miner</th>
-                <th className="px-4 py-3 font-semibold">Release</th>
-                <th className="px-4 py-3 font-semibold">Hashrate</th>
-                <th className="px-4 py-3 font-semibold">Power</th>
-                <th className="px-4 py-3 font-semibold">Top coin</th>
-                <th className="px-4 py-3 text-right font-semibold">Best price</th>
-                <th className="px-4 py-3 text-right font-semibold">ROI</th>
-                <th className="px-4 py-3 text-right font-semibold">Profit / day</th>
+                <th className="w-10 py-3 pl-4" aria-label="Watchlist" />
+                <SortHeader label="Miner" sortKey="model" sort={sort} onSort={toggleSort} />
+                <SortHeader label="Release" sortKey="release" sort={sort} onSort={toggleSort} />
+                <SortHeader label="Hashrate" sortKey="hashrate" sort={sort} onSort={toggleSort} />
+                <SortHeader label="Power" sortKey="power" sort={sort} onSort={toggleSort} />
+                <SortHeader label="Top coin" sortKey="coin" sort={sort} onSort={toggleSort} />
+                <SortHeader label="Best price" sortKey="price" sort={sort} onSort={toggleSort} align="right" />
+                <SortHeader label="ROI" sortKey="roi" sort={sort} onSort={toggleSort} align="right" />
+                <SortHeader label="Profit / day" sortKey="profit" sort={sort} onSort={toggleSort} align="right" />
               </tr>
             </thead>
             <tbody>
-              {visible.map((row) => (
-                <tr key={row.slug} className="group border-b border-line/60 transition-colors last:border-0 hover:bg-white/[0.03]">
+              {visible.slice(0, limit).map((row) => (
+                <tr key={row.slug} className="group border-b border-line/60 transition-colors last:border-0 hover:bg-panel-soft">
+                  <td className="py-3 pl-4">
+                    <button
+                      type="button"
+                      onClick={() => toggleWatch(row.slug)}
+                      className={`grid h-7 w-7 place-items-center rounded-full transition-colors ${watchlist.includes(row.slug) ? "text-amber" : "text-muted/50 hover:text-amber"}`}
+                      aria-label={watchlist.includes(row.slug) ? `Remove ${row.model} from watchlist` : `Add ${row.model} to watchlist`}
+                    >
+                      <Star className={`h-4 w-4 ${watchlist.includes(row.slug) ? "fill-current" : ""}`} />
+                    </button>
+                  </td>
                   <td className="px-4 py-3">
                     <Link href={`/miners/${row.slug}`} className="flex items-center gap-3">
-                      <MinerGlyph manufacturer={row.manufacturer} algorithm={row.algorithm} cooling={row.cooling} size="sm" />
+                      <MakerMark manufacturer={row.manufacturer} size="sm" />
                       <span>
                         <span className="block text-sm font-semibold text-ink transition-colors group-hover:text-accent">
                           {row.model}
@@ -255,20 +491,36 @@ export default function MinerExplorer({
                       </span>
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-xs tabular-nums text-muted">{row.release}</td>
+                  <td className="px-4 py-3 text-xs tabular-nums text-muted">{row.release ?? "—"}</td>
                   <td className="px-4 py-3 text-xs font-semibold tabular-nums text-ink">{formatHashrate(row.hashrate, row.unit)}</td>
                   <td className="px-4 py-3 text-xs tabular-nums text-muted">
                     {row.powerW.toLocaleString("en-US")} W
                     <span className="block text-[10px] text-muted/70">{formatEfficiency(row.powerW, row.hashrate, row.unit)}</span>
                   </td>
                   <td className="px-4 py-3">
-                    {row.topCoin ? <CoinChip tag={row.topCoin.tag} /> : <span className="text-xs text-muted">—</span>}
+                    {row.topCoin ? (
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <CoinStack tags={row.coinTags.length ? row.coinTags : [row.topCoin.tag]} max={2} />
+                        <span className="text-[10px] font-bold text-ink">{row.topCoin.tag}</span>
+                        {row.topCoin.caution ? (
+                          <span
+                            className="rounded border border-amber/30 bg-amber/10 px-1 py-px text-[9px] font-bold uppercase text-amber"
+                            title={row.topCoin.caution === "dominant" ? "This miner would be more than 5% of the coin's network, so this income isn't realistic." : "This coin trades under $100k a day, so mined coins may be hard to sell at this price."}
+                          >
+                            {row.topCoin.caution === "dominant" ? "Network too small" : "Low liquidity"}
+                          </span>
+                        ) : null}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted">—</span>
+                    )}
                     <span className="mt-1 block text-[10px] text-muted/70">{row.algorithm}</span>
                   </td>
                   <td className="px-4 py-3 text-right text-xs tabular-nums text-ink">
-                    {row.bestPrice ? formatUsd(row.bestPrice, 0) : "—"}
+                    {row.bestPrice ? money(row.bestPrice, 0) : "—"}
                     <span className="block text-[10px] text-muted/70">
                       {row.offerCount} offer{row.offerCount === 1 ? "" : "s"}
+                      {row.unitPrice ? ` · ${row.unitPrice}` : ""}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">
@@ -276,15 +528,15 @@ export default function MinerExplorer({
                   </td>
                   <td className="px-4 py-3 text-right">
                     <span className={`text-sm font-bold tabular-nums ${row.profit >= 0 ? "text-accent" : "text-red-400"}`}>
-                      {formatUsd(row.profit)}
+                      {money(row.profit)}
                     </span>
                   </td>
                 </tr>
               ))}
               {visible.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-12 text-center text-sm text-muted">
-                    No miners match these filters.
+                  <td colSpan={9} className="px-4 py-12 text-center text-sm text-muted">
+                    {watchOnly && watchlist.length === 0 ? "Your watchlist is empty. Tap the star next to a miner to add it." : "No miners match these filters."}
                   </td>
                 </tr>
               ) : null}
@@ -292,6 +544,13 @@ export default function MinerExplorer({
           </table>
         </div>
       </div>
+      {visible.length > limit ? (
+        <div className="flex justify-center">
+          <button type="button" onClick={() => setLimit((value) => value + 50)} className="btn-ghost px-6 py-2.5 text-sm">
+            Show 50 more ({visible.length - limit} left)
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

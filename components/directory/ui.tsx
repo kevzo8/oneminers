@@ -81,7 +81,7 @@ export function MinerGlyph({
   const id = `g-${manufacturer}-${size}`.replace(/\W/g, "");
   const box = size === "sm" ? "h-10 w-10 rounded-xl" : size === "lg" ? "h-56 w-full rounded-3xl" : "h-24 w-full rounded-2xl";
   return (
-    <div className={`relative grid place-items-center overflow-hidden border border-line bg-white/[0.03] ${box}`}>
+    <div className={`relative grid place-items-center overflow-hidden border border-line bg-panel-soft ${box}`}>
       <svg viewBox="0 0 120 80" className={size === "sm" ? "h-7 w-7" : "h-4/5 w-4/5"} aria-hidden="true">
         <defs>
           <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
@@ -120,9 +120,9 @@ export function MinerGlyph({
 
 const TIER_STYLES: Record<VendorTier, string> = {
   Gold: "border-amber/40 bg-amber/10 text-amber",
-  Silver: "border-white/25 bg-white/[0.06] text-ink",
+  Silver: "border-white/25 bg-panel-soft text-ink",
   Bronze: "border-orange-400/30 bg-orange-400/10 text-orange-300",
-  Free: "border-line bg-white/[0.03] text-muted",
+  Free: "border-line bg-panel-soft text-muted",
 };
 
 export function TierBadge({ tier }: { tier: VendorTier }) {
@@ -159,7 +159,7 @@ export function VerifiedBadge({ verified, partner }: { verified: boolean; partne
 export function Flag({ code, label }: { code: string; label?: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-xs text-muted" title={COUNTRY_NAMES[code] ?? code}>
-      <span className="rounded border border-line bg-white/[0.05] px-1 py-px font-mono text-[9px] font-bold tracking-wider text-ink">
+      <span className="rounded border border-line bg-panel-soft px-1 py-px font-mono text-[9px] font-bold tracking-wider text-ink">
         {code}
       </span>
       {label && label !== code ? label : null}

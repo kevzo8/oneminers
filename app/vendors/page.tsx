@@ -52,7 +52,7 @@ export default async function VendorsPage() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <span className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-white/[0.04] text-sm font-bold text-accent">
+                    <span className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-panel-soft text-sm font-bold text-accent">
                       {vendor.name
                         .split(" ")
                         .slice(0, 2)
@@ -66,7 +66,7 @@ export default async function VendorsPage() {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <TierBadge tier={vendor.tier} />
-                    {vendor.sample ? <span className="rounded-full border border-line bg-white/[0.04] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
+                    {vendor.sample ? <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
                   </div>
                 </div>
                 <p className="line-clamp-2 text-xs leading-relaxed text-muted">{vendor.about}</p>

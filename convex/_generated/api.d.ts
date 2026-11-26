@@ -10,6 +10,7 @@
 
 import type * as admin from "../admin.js";
 import type * as auth from "../auth.js";
+import type * as backpow from "../backpow.js";
 import type * as chat from "../chat.js";
 import type * as crons from "../crons.js";
 import type * as directory from "../directory.js";
@@ -28,6 +29,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
   auth: typeof auth;
+  backpow: typeof backpow;
   chat: typeof chat;
   crons: typeof crons;
   directory: typeof directory;

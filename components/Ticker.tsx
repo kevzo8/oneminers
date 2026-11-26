@@ -1,4 +1,5 @@
 import { TrendingDown, TrendingUp } from "lucide-react";
+import { CoinIcon } from "@/components/directory/CoinIcon";
 import { formatCoinPrice } from "@/lib/format";
 import { getMarket } from "@/lib/market";
 
@@ -35,19 +36,20 @@ async function getPrices(): Promise<{ coins: Coin[]; source: string }> {
     // fall back to the mining feed below
   }
 
-  // Fallback: prices from the WhatToMine feed the directory uses (no 24h change available).
+  // Fallback: prices from the BackPoW network data the directory uses (no 24h change available).
   const market = await getMarket();
   const coins = COINS.flatMap((coin) => {
     const net = market.coins.find((entry) => entry.tag === coin.symbol);
     return net ? [{ symbol: coin.symbol, price: net.priceUsd, change: null }] : [];
   });
-  return { coins, source: "WhatToMine" };
+  return { coins, source: "BackPoW" };
 }
 
 function CoinRow({ symbol, price, change }: Coin) {
   const up = (change ?? 0) >= 0;
   return (
     <div className="flex shrink-0 items-center gap-2.5 border-r border-line/60 px-5 py-3">
+      <CoinIcon tag={symbol} size={16} />
       <span className="text-xs font-bold tracking-wide text-ink">{symbol}</span>
       <span className="text-xs tabular-nums text-muted">{formatCoinPrice(price)}</span>
       {change === null ? null : (

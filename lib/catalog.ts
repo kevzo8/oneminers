@@ -2,7 +2,7 @@
 // Specs follow manufacturer announcements (verify before purchase). Vendor names other than
 // OneMiners and every generated price/offer are placeholder (sample) data until sellers join.
 
-import type { Algorithm, HashUnit } from "./economics";
+import type { Algorithm, HashUnit, MinerCoin } from "./economics";
 
 export type Cooling = "Air" | "Hydro" | "Immersion";
 export type Category = "Industrial" | "Home";
@@ -17,10 +17,17 @@ export type MinerModel = {
   powerW: number;
   cooling: Cooling;
   category: Category;
-  release: number;
-  /** Illustrative reference price in USD, used to generate sample offers. */
+  /** Release year, when a source publishes it. */
+  release?: number;
+  /** Reference price in USD (market median when known); used for seller defaults and sample offers. */
   refPrice: number;
   aka?: string;
+  /** Per-coin hashrate and power from BackPoW. */
+  coins?: MinerCoin[];
+  /** BackPoW market price range for this model. */
+  priceRange?: { min: number; max: number; median: number; count: number; condition: string; estimated: boolean };
+  backpowSlug?: string;
+  source?: "manual" | "backpow";
 };
 
 function m(
@@ -52,17 +59,15 @@ export const MINERS: MinerModel[] = [
   m("Bitmain", "Antminer S21 Pro", "SHA-256", 234, "TH/s", 3510, "Air", 2024, 3700),
   m("Bitmain", "Antminer S21+", "SHA-256", 216, "TH/s", 3564, "Air", 2025, 3200),
   m("Bitmain", "Antminer S21", "SHA-256", 200, "TH/s", 3500, "Air", 2024, 2800),
-  m("Bitmain", "Antminer T21", "SHA-256", 190, "TH/s", 3610, "Air", 2023, 2100),
+  m("Bitmain", "Antminer T21", "SHA-256", 190, "TH/s", 3610, "Air", 2024, 2100),
   m("Bitmain", "Antminer S19 XP", "SHA-256", 140, "TH/s", 3010, "Air", 2022, 1500),
   m("Bitmain", "Antminer S19k Pro", "SHA-256", 120, "TH/s", 2760, "Air", 2023, 1100),
   m("Bitmain", "Antminer S19j Pro", "SHA-256", 104, "TH/s", 3068, "Air", 2021, 500),
   // SHA-256 · MicroBT
   m("MicroBT", "WhatsMiner M63S", "SHA-256", 390, "TH/s", 7215, "Hydro", 2023, 5800),
   m("MicroBT", "WhatsMiner M66S", "SHA-256", 298, "TH/s", 5513, "Immersion", 2023, 4800),
-  m("MicroBT", "WhatsMiner M60S", "SHA-256", 186, "TH/s", 3441, "Air", 2023, 3000),
   m("MicroBT", "WhatsMiner M60", "SHA-256", 172, "TH/s", 3422, "Air", 2023, 2600),
   m("MicroBT", "WhatsMiner M50S", "SHA-256", 126, "TH/s", 3276, "Air", 2022, 900),
-  m("MicroBT", "WhatsMiner M30S++", "SHA-256", 112, "TH/s", 3472, "Air", 2020, 500),
   // SHA-256 · Canaan and home miners
   m("Canaan", "Avalon A1566", "SHA-256", 185, "TH/s", 3420, "Air", 2024, 2900),
   m("Canaan", "Avalon A1466", "SHA-256", 150, "TH/s", 3230, "Air", 2023, 1900),
@@ -71,8 +76,7 @@ export const MINERS: MinerModel[] = [
   // Scrypt (LTC + DOGE)
   m("Bitmain", "Antminer L9", "Scrypt", 16, "GH/s", 3360, "Air", 2024, 7500),
   m("Bitmain", "Antminer L7", "Scrypt", 9.5, "GH/s", 3425, "Air", 2021, 2400),
-  m("ElphaPex", "DG1+", "Scrypt", 14, "GH/s", 3920, "Air", 2024, 6200),
-  m("ElphaPex", "DG Home 1", "Scrypt", 2.1, "GH/s", 620, "Air", 2025, 1500, "Home"),
+  m("ElphaPex", "DG Home 1", "Scrypt", 2.1, "GH/s", 620, "Air", 2024, 1500, "Home"),
   // kHeavyHash (Kaspa)
   m("Bitmain", "Antminer KS5 Pro", "kHeavyHash", 21, "TH/s", 3150, "Air", 2024, 3500),
   m("Bitmain", "Antminer KS3", "kHeavyHash", 9.4, "TH/s", 3500, "Air", 2023, 1200),
@@ -81,12 +85,12 @@ export const MINERS: MinerModel[] = [
   m("IceRiver", "KS0 Ultra", "kHeavyHash", 400, "GH/s", 100, "Air", 2024, 250, "Home"),
   m("Goldshell", "E-KA1M", "kHeavyHash", 5.5, "TH/s", 1800, "Air", 2024, 1100),
   // Equihash (Zcash)
-  m("Bitmain", "Antminer Z15 Pro", "Equihash", 840, "kSol/s", 2780, "Air", 2024, 5199),
-  m("Bitmain", "Antminer Z15", "Equihash", 420, "kSol/s", 1510, "Air", 2023, 1500),
+  m("Bitmain", "Antminer Z15 Pro", "Equihash", 840, "kSol/s", 2780, "Air", 2023, 5199),
+  m("Bitmain", "Antminer Z15", "Equihash", 420, "kSol/s", 1510, "Air", 2020, 1500),
   // Other algorithms
-  m("Bitmain", "Antminer E9 Pro", "Etchash", 3.68, "GH/s", 2200, "Air", 2022, 1300),
+  m("Bitmain", "Antminer E9 Pro", "Etchash", 3.68, "GH/s", 2200, "Air", 2023, 1300),
   m("Bitmain", "Antminer D9", "X11", 1770, "GH/s", 2839, "Air", 2023, 2500),
-  m("Bitmain", "Antminer K7", "Eaglesong", 63.5, "TH/s", 3080, "Air", 2022, 700),
+  m("Bitmain", "Antminer K7", "Eaglesong", 63.5, "TH/s", 3080, "Air", 2023, 700),
 ];
 
 // ---------------------------------------------------------------------------
@@ -292,7 +296,7 @@ function buildOffers(): Offer[] {
       const carries = vendor.slug === "oneminers" ? miner.category === "Industrial" && roll < 0.85 : roll < 0.6;
       if (!carries) continue;
 
-      const old = miner.release <= 2022;
+      const old = (miner.release ?? 9999) <= 2022;
       const factor = 0.9 + hash(`${vendor.slug}:${miner.slug}:price`) * 0.25;
       const price = Math.max(80, Math.round((miner.refPrice * factor) / 10) * 10);
       const stockRoll = hash(`${miner.slug}:${vendor.slug}:stock`);

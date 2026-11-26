@@ -1,10 +1,11 @@
+import type { Metadata } from "next";
 import AiDesk, { type AiExample } from "@/components/AiDesk";
-import ChatWidget from "@/components/ChatWidget";
 import Hero from "@/components/Hero";
-import HostingSection from "@/components/HostingSection";
+import HostingTeaser from "@/components/HostingTeaser";
 import HowItWorks from "@/components/HowItWorks";
 import LeadForm from "@/components/LeadForm";
 import LiveNetwork from "@/components/LiveNetwork";
+import MarketPulse from "@/components/MarketPulse";
 import ProfitCalculator, { type CalculatorMiner } from "@/components/ProfitCalculator";
 import SiteFooter from "@/components/SiteFooter";
 import SiteHeader from "@/components/SiteHeader";
@@ -15,8 +16,20 @@ import { algorithmsOf, allRows, loadDirectory, manufacturersOf, revenuesFor } fr
 import { DEFAULT_SETTINGS, dailyProfit, formatHashrate, formatUsd } from "@/lib/economics";
 import { HOSTING_SITES, LOWEST_HOSTING_RATE } from "@/lib/hosting";
 import { getMarket } from "@/lib/market";
+import { BRAND } from "@/lib/brand";
 
 export const revalidate = 600;
+
+export const metadata: Metadata = {
+  title: `${BRAND.name}: ${BRAND.tagline}`,
+  description: BRAND.description,
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: `${BRAND.name}: ${BRAND.tagline}`,
+    description: BRAND.description,
+    url: "/",
+  },
+};
 
 const HOME_RATE = 0.22;
 
@@ -63,24 +76,24 @@ export default async function HomePage() {
       <SiteHeader />
       <main>
         <Hero />
-        <Ticker />
-        <section id="miners" className="relative scroll-mt-20 py-8">
-          <div className="mx-auto w-full max-w-7xl space-y-4 px-5 sm:px-8">
+        <section id="miners" className="relative scroll-mt-20 py-4">
+          <div className="mx-auto w-full max-w-7xl space-y-3 px-5 sm:px-8">
             <SettingsBar />
             <MinerExplorer rows={allRows(dir, market)} manufacturers={manufacturersOf(dir)} algorithms={algorithmsOf(dir)} />
           </div>
         </section>
+        <MarketPulse />
+        <Ticker />
         <div className="py-6">
           <LiveNetwork />
         </div>
-        <HostingSection />
+        <HostingTeaser />
         <HowItWorks />
         {best ? <AiDesk example={example} /> : null}
         <ProfitCalculator miners={calculatorMiners} />
         <LeadForm />
       </main>
       <SiteFooter />
-      <ChatWidget />
     </div>
   );
 }

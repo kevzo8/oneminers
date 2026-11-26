@@ -1,12 +1,12 @@
 "use client";
 
+import { useMoney } from "@/lib/useMoney";
 import { useMemo, useState } from "react";
 import { Minus, Plus, Zap } from "lucide-react";
 import {
   breakEvenElectricity,
   dailyProfit,
   formatCoins,
-  formatUsd,
   roiDays,
   type CoinRevenue,
 } from "@/lib/economics";
@@ -21,11 +21,12 @@ const PERIODS = [
 
 export function ProfitHeadline({ powerW, revenues }: { powerW: number; revenues: CoinRevenue[] }) {
   const [settings] = useMiningSettings();
+  const money = useMoney();
   const top = revenues[0];
   const profit = dailyProfit(top?.usdPerDay ?? 0, powerW, settings).profit;
   return (
     <span className={`text-3xl font-bold tabular-nums ${profit >= 0 ? "text-accent" : "text-red-400"}`}>
-      {formatUsd(profit)}
+      {money(profit)}
       <span className="ml-1 text-sm font-medium text-muted">/day</span>
     </span>
   );
@@ -41,6 +42,7 @@ export default function ProfitPanel({
   bestPrice: number | null;
 }) {
   const [settings] = useMiningSettings();
+  const money = useMoney();
   const [coinTag, setCoinTag] = useState(revenues[0]?.tag ?? "");
   const [quantity, setQuantity] = useState(1);
 
@@ -61,7 +63,7 @@ export default function ProfitPanel({
         <h2 className="text-lg font-bold text-ink">Profitability</h2>
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-muted">Qty</span>
-          <div className="flex items-center rounded-full border border-line bg-white/[0.03]">
+          <div className="flex items-center rounded-full border border-line bg-panel-soft">
             <button
               type="button"
               onClick={() => setQuantity((value) => Math.max(1, value - 1))}
@@ -126,7 +128,7 @@ export default function ProfitPanel({
                 <td className="py-2.5 text-xs text-muted">{line.label}</td>
                 {PERIODS.map((period) => (
                   <td key={period.label} className={`py-2.5 text-right tabular-nums ${line.tone}`}>
-                    {formatUsd(line.value * period.days * quantity)}
+                    {money(line.value * period.days * quantity)}
                   </td>
                 ))}
               </tr>
@@ -140,7 +142,7 @@ export default function ProfitPanel({
                     key={period.label}
                     className={`py-3 text-right font-bold tabular-nums ${value >= 0 ? "text-accent" : "text-red-400"}`}
                   >
-                    {formatUsd(value)}
+                    {money(value)}
                   </td>
                 );
               })}
@@ -150,19 +152,19 @@ export default function ProfitPanel({
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-line bg-white/[0.02] p-3">
+        <div className="rounded-xl border border-line bg-panel-soft p-3">
           <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Mined / day</div>
           <div className="mt-1 text-sm font-bold tabular-nums text-ink">
             {formatCoins((revenue?.coinsPerDay ?? 0) * quantity)} {revenue?.merged ? "LTC + DOGE" : revenue?.tag}
           </div>
         </div>
-        <div className="rounded-xl border border-line bg-white/[0.02] p-3">
+        <div className="rounded-xl border border-line bg-panel-soft p-3">
           <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">
             <Zap className="h-3 w-3 text-amber" /> Break-even power
           </div>
           <div className="mt-1 text-sm font-bold tabular-nums text-ink">${breakEven.toFixed(3)}/kWh</div>
         </div>
-        <div className="rounded-xl border border-line bg-white/[0.02] p-3">
+        <div className="rounded-xl border border-line bg-panel-soft p-3">
           <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">ROI at best price</div>
           <div className="mt-1 text-sm font-bold tabular-nums text-ink">{roi ? `${roi.toLocaleString("en-US")} days` : "Not profitable"}</div>
         </div>
@@ -177,6 +179,7 @@ export default function ProfitPanel({
 
 export function MineableCoins({ powerW, revenues }: { powerW: number; revenues: CoinRevenue[] }) {
   const [settings] = useMiningSettings();
+  const money = useMoney();
   return (
     <div className="surface overflow-hidden rounded-2xl">
       <table className="w-full text-sm">
@@ -189,7 +192,7 @@ export function MineableCoins({ powerW, revenues }: { powerW: number; revenues: 
           </tr>
         </thead>
         <tbody>
-          {revenues.map((row) => {
+          {revenues.slice(0, 10).map((row) => {
             const profit = dailyProfit(row.usdPerDay, powerW, settings).profit;
             return (
               <tr key={row.tag} className="border-b border-line/60 last:border-0">
@@ -197,14 +200,19 @@ export function MineableCoins({ powerW, revenues }: { powerW: number; revenues: 
                   <div className="flex items-center gap-2">
                     <CoinChip tag={row.tag} />
                     <span className="text-xs text-muted">{row.name}</span>
+                    {row.caution ? (
+                      <span className="rounded border border-amber/30 bg-amber/10 px-1 py-px text-[9px] font-bold uppercase text-amber">
+                        {row.caution === "dominant" ? "Network too small" : "Low liquidity"}
+                      </span>
+                    ) : null}
                   </div>
                 </td>
                 <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">
                   {row.merged ? "merged" : `${formatCoins(row.coinsPerDay)} ${row.tag}`}
                 </td>
-                <td className="px-4 py-3 text-right text-xs tabular-nums text-ink">{formatUsd(row.usdPerDay)}</td>
+                <td className="px-4 py-3 text-right text-xs tabular-nums text-ink">{money(row.usdPerDay)}</td>
                 <td className={`px-4 py-3 text-right text-sm font-bold tabular-nums ${profit >= 0 ? "text-accent" : "text-red-400"}`}>
-                  {formatUsd(profit)}
+                  {money(profit)}
                 </td>
               </tr>
             );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, LogIn, UserPlus } from "lucide-react";
 import {
   useSignInWithUsernamePassword,
@@ -24,8 +24,15 @@ const MESSAGES: Record<string, string> = {
   OTHER_ERROR: "Something went wrong. Check your connection and try again.",
 };
 
-export default function SignInPanel({ intro }: { intro?: React.ReactNode }) {
-  const [mode, setMode] = useState<"signIn" | "signUp">("signUp");
+export default function SignInPanel({
+  intro,
+  initialMode = "signIn",
+}: {
+  intro?: React.ReactNode;
+  initialMode?: "signIn" | "signUp";
+}) {
+  const [mode, setMode] = useState<"signIn" | "signUp">(initialMode);
+  useEffect(() => setMode(initialMode), [initialMode]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -47,8 +54,8 @@ export default function SignInPanel({ intro }: { intro?: React.ReactNode }) {
     <div className="mx-auto grid max-w-4xl gap-8 lg:grid-cols-2 lg:items-center">
       <div>{intro}</div>
       <form onSubmit={submit} className="surface-strong space-y-4 rounded-3xl p-6">
-        <div className="inline-flex rounded-full border border-line bg-white/[0.03] p-1">
-          {(["signUp", "signIn"] as const).map((value) => (
+        <div className="inline-flex rounded-full border border-line bg-panel-soft p-1">
+          {(["signIn", "signUp"] as const).map((value) => (
             <button
               key={value}
               type="button"
@@ -90,13 +97,46 @@ export default function SignInPanel({ intro }: { intro?: React.ReactNode }) {
             disabled={pending}
             className="input mt-1.5"
           />
-          {mode === "signUp" ? <span className="mt-1 block text-[11px] text-muted/70">At least 10 characters.</span> : null}
+          <span className={`mt-1 block text-[11px] ${mode === "signUp" ? "text-muted/70" : "invisible"}`}>
+            At least 10 characters.
+          </span>
         </label>
         {error ? <p className="text-xs text-red-300">{error}</p> : null}
         <button type="submit" disabled={pending} className="btn-primary w-full px-5 py-3 text-sm disabled:opacity-60">
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : mode === "signUp" ? <UserPlus className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
           {mode === "signUp" ? "Create seller account" : "Sign in"}
         </button>
+        <p className="text-center text-xs text-muted">
+          {mode === "signIn" ? (
+            <>
+              No account yet?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("signUp");
+                  setError("");
+                }}
+                className="font-semibold text-accent hover:underline"
+              >
+                Create account
+              </button>
+            </>
+          ) : (
+            <>
+              Already have an account?{" "}
+              <button
+                type="button"
+                onClick={() => {
+                  setMode("signIn");
+                  setError("");
+                }}
+                className="font-semibold text-accent hover:underline"
+              >
+                Sign in
+              </button>
+            </>
+          )}
+        </p>
       </form>
     </div>
   );

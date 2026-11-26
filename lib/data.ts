@@ -5,8 +5,9 @@ export const navLinks = [
   { label: "Coins", href: "/coins" },
   { label: "Compare", href: "/compare" },
   { label: "Vendors", href: "/vendors" },
-  { label: "Hosting", href: "/#hosting" },
-  { label: "Sell miners", href: "/sell" },
+  { label: "Hosting", href: "/hosting" },
+  { label: "Rankings", href: "/rankings" },
+  { label: "Seller Portal", href: "/vendor-portal" },
 ];
 
 export const chatSuggestions = [

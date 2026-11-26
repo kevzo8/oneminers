@@ -54,7 +54,7 @@ export default async function VendorPage({ params }: Params) {
         <section className="surface rounded-3xl p-6 sm:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex items-start gap-4">
-              <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-line bg-white/[0.04] text-xl font-bold text-accent">
+              <span className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border border-line bg-panel-soft text-xl font-bold text-accent">
                 {vendor.name
                   .split(" ")
                   .slice(0, 2)
@@ -65,7 +65,7 @@ export default async function VendorPage({ params }: Params) {
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-3xl font-bold tracking-tight text-ink">{vendor.name}</h1>
                   <TierBadge tier={vendor.tier} />
-                  {vendor.sample ? <span className="rounded-full border border-line bg-white/[0.04] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
+                  {vendor.sample ? <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <Flag code={vendor.countryCode} label={vendor.country} />
@@ -94,7 +94,7 @@ export default async function VendorPage({ params }: Params) {
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {facts.map((fact) => (
-              <div key={fact.label} className="rounded-xl border border-line bg-white/[0.02] p-3">
+              <div key={fact.label} className="rounded-xl border border-line bg-panel-soft p-3">
                 <fact.icon className="h-4 w-4 text-aqua" />
                 <div className="mt-2 text-sm font-semibold text-ink">{fact.value}</div>
                 <div className="text-[10px] uppercase tracking-[0.1em] text-muted">{fact.label}</div>
@@ -125,7 +125,7 @@ export default async function VendorPage({ params }: Params) {
                 </thead>
                 <tbody>
                   {listings.map(({ offer, miner }) => (
-                    <tr key={offer.id} className="border-b border-line/60 last:border-0 hover:bg-white/[0.02]">
+                    <tr key={offer.id} className="border-b border-line/60 last:border-0 hover:bg-panel-soft">
                       <td className="px-4 py-3">
                         <Link href={`/miners/${miner.slug}`} className="flex items-center gap-3">
                           <MinerGlyph manufacturer={miner.manufacturer} algorithm={miner.algorithm} cooling={miner.cooling} size="sm" />

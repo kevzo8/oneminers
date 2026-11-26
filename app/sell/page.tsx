@@ -6,7 +6,7 @@ import { Breadcrumbs, PageShell } from "@/components/directory/ui";
 export const metadata: Metadata = {
   title: "List your company: sell ASIC miners to qualified buyers",
   description:
-    "Launch promo: list your miners free for 6 months, then $100/month with no commission. Cancel anytime. Your listings go live as soon as you add them.",
+    "Launch promo: list your miners free for 6 months, then we contact you about continuing. No commission and no payment details required. Your listings go live as soon as you add them.",
 };
 
 const steps = [
@@ -27,7 +27,7 @@ const benefits = [
 const faqs = [
   {
     q: "What does it cost?",
-    a: "During the launch promo, nothing for the first 6 months. After that it's $100 per month per company, with no commission on sales. Cancel anytime; your listings simply go offline at the end of the paid month.",
+    a: "During the launch promo, listings are free for the first 6 months. After that we contact you about continuing — there are no payment details to provide and no commission on sales. Cancel anytime; your listings simply go offline.",
   },
   {
     q: "Why do you ask for a partner link?",
@@ -83,7 +83,7 @@ export default function SellPage() {
                 </div>
               </div>
               <ul className="mt-5 grid gap-2 sm:grid-cols-2">
-                {["No commission on sales", "Cancel anytime", "Listings live immediately", "No card during the promo"].map((item) => (
+                {["No commission on sales", "Cancel anytime", "Listings live immediately", "No payment details required"].map((item) => (
                   <li key={item} className="flex items-center gap-2 text-sm text-ink">
                     <Check className="h-4 w-4 text-accent" />
                     {item}
@@ -110,10 +110,10 @@ export default function SellPage() {
                 Create a seller account, add your company and your miners. Your listings appear on the matching miner pages
                 as soon as you save them.
               </p>
-              <Link href="/vendor-portal" className="btn-primary mt-6 w-full px-5 py-3 text-sm">
+              <Link href="/vendor-portal?mode=signup" className="btn-primary mt-6 w-full px-5 py-3 text-sm">
                 Create seller account
               </Link>
-              <Link href="/vendor-portal" className="btn-ghost mt-2 w-full px-5 py-3 text-sm">
+              <Link href="/vendor-portal?mode=signin" className="btn-ghost mt-2 w-full px-5 py-3 text-sm">
                 I already have an account
               </Link>
               <p className="mt-4 text-center text-[11px] text-muted/70">No card needed during the promo. Cancel anytime.</p>

@@ -99,11 +99,11 @@ If asked about a listed miner without details here, give its page /miners and sa
 Vendors:
 ${vendors}
 
-Hosting provider listed on the directory: ${HOSTING_PROVIDER} (oneminers.com). Published sites: ${HOSTING_SITES.map((site) => `${site.name} ${(site.rate * 100).toFixed(1)}¢/kWh`).join(", ")}. Compare per miner on /#hosting.
+Hosting provider listed on the directory: ${HOSTING_PROVIDER} (oneminers.com). Published sites: ${HOSTING_SITES.map((site) => `${site.name} ${(site.rate * 100).toFixed(1)}¢/kWh`).join(", ")}. Compare per miner on /hosting.
 
 Selling on this directory (/sell): launch promo, the first 6 months are free, then $100/month, no commission, cancel anytime. Listings go live as soon as they're added. Sellers add a partner link to oneminers.com on their site within 14 days (checked automatically). Seller portal: /vendor-portal.
 
-Other pages: all miners /miners, vendors /vendors, profit calculator /#calculator, hosting comparison by site /#hosting, contact /#contact.`;
+Other pages: profitability table /#miners, rankings /rankings, compare /compare, coins /coins, data and history /data, glossary /glossary, widgets /widgets, hashrate converter /tools/hashrate-converter, vendors /vendors, calculator /#calculator, hosting comparison /hosting, report an issue /report, contact /#contact.`;
 }
 
 function findMiner(rows: RankedRow[], q: string) {
@@ -163,7 +163,7 @@ export function answerFromKnowledge(messages: ChatMessage[], dir: Directory, mar
   }
 
   if (/(site|land|marketplace|lease|mw)/.test(q)) {
-    return `Listed hosting sites: ${HOSTING_SITES.map((site) => site.name).join(", ")}, from 3.6¢/kWh. Compare a miner's profit at each site on /#hosting.`;
+    return `Listed hosting sites: ${HOSTING_SITES.map((site) => site.name).join(", ")}, from 3.6¢/kWh. Compare a miner's profit at each site on /hosting.`;
   }
 
   if (/(hi|hello|hey|good (morning|afternoon|evening))/.test(q)) {

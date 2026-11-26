@@ -1,10 +1,12 @@
 "use client";
 
+import { useMoney } from "@/lib/useMoney";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowUpRight, Calculator, Cpu, Gauge, Hash, Percent, Zap } from "lucide-react";
-import { breakEvenElectricity, formatUsd, type HashUnit } from "@/lib/economics";
+import { breakEvenElectricity, type HashUnit } from "@/lib/economics";
 import { HOSTING_SITES } from "@/lib/hosting";
+import SearchSelect from "./directory/SearchSelect";
 
 export type CalculatorMiner = {
   slug: string;
@@ -55,6 +57,7 @@ function NumberField({
 }
 
 export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[] }) {
+  const money = useMoney();
   const first = miners[0];
   const [slug, setSlug] = useState(first?.slug ?? "");
   const miner = miners.find((item) => item.slug === slug) ?? first;
@@ -99,18 +102,18 @@ export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[]
               Start from any miner&apos;s live earnings, then adjust hashrate, power, electricity, pool fee and quantity.
             </p>
 
-            <label className="mt-6 block">
+            <div className="mt-6 block">
               <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">
                 <Cpu className="h-3 w-3" /> Miner
               </span>
-              <select value={slug} onChange={(event) => pick(event.target.value)} className="input mt-1.5 py-2.5 text-sm">
-                {miners.map((item) => (
-                  <option key={item.slug} value={item.slug} className="bg-[#0b1016]">
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+              <SearchSelect
+                value={slug}
+                options={miners.map((item) => ({ value: item.slug, label: item.label }))}
+                onChange={pick}
+                label="Miner"
+                className="mt-1.5 w-full"
+              />
+            </div>
 
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               <NumberField icon={Gauge} label="Hashrate" suffix={miner.unit} value={hashrate} onChange={setHashrate} step={0.1} />
@@ -127,7 +130,7 @@ export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[]
                   key={site.id}
                   type="button"
                   onClick={() => setCents(Number((site.rate * 100).toFixed(1)))}
-                  className="rounded-full border border-line bg-white/[0.03] px-3 py-1.5 text-[11px] font-semibold text-muted transition-colors hover:border-accent/40 hover:text-accent"
+                  className="rounded-full border border-line bg-panel-soft px-3 py-1.5 text-[11px] font-semibold text-muted transition-colors hover:border-accent/40 hover:text-accent"
                 >
                   {site.name} · {(site.rate * 100).toFixed(1)}¢
                 </button>
@@ -158,10 +161,10 @@ export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[]
             <div className="mt-6">
               <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">Net per day</div>
               <div className={`mt-1 text-5xl font-bold tracking-tight tabular-nums ${positive ? "text-ink" : "text-red-300"}`}>
-                {formatUsd(result.net)}
+                {money(result.net)}
               </div>
               <div className="mt-1 text-xs text-muted">
-                {formatUsd(result.net * 30, 0)} per month · {formatUsd(result.net * 365, 0)} per year
+                {money(result.net * 30, 0)} per month · {money(result.net * 365, 0)} per year
               </div>
             </div>
 
@@ -174,9 +177,9 @@ export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[]
                 <div key={row.label}>
                   <div className="flex items-center justify-between text-muted">
                     <span>{row.label}</span>
-                    <span className="font-semibold tabular-nums text-ink">{formatUsd(row.value)}</span>
+                    <span className="font-semibold tabular-nums text-ink">{money(row.value)}</span>
                   </div>
-                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-white/[0.06]">
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-panel-soft">
                     <div className={`h-full rounded-full bg-gradient-to-r ${row.bar}`} style={{ width: `${Math.min(100, Math.max(0, row.width))}%` }} />
                   </div>
                 </div>

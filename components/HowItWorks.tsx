@@ -1,5 +1,20 @@
 import Link from "next/link";
-import { ArrowUpRight, BarChart3, Server, ShoppingCart, Store } from "lucide-react";
+import {
+  ArrowUpRight,
+  BarChart3,
+  BookOpen,
+  Bot,
+  Calculator,
+  Coins,
+  Cpu,
+  Database,
+  FileText,
+  LayoutGrid,
+  Server,
+  ShoppingCart,
+  Store,
+  Trophy,
+} from "lucide-react";
 
 const steps = [
   {
@@ -7,24 +22,42 @@ const steps = [
     step: "01",
     title: "Compare",
     body: "Live income, electricity cost, ROI and efficiency for every miner, at your power price or at a hosting rate.",
+    href: "/compare",
   },
   {
     icon: ShoppingCart,
     step: "02",
     title: "Buy",
     body: "See every seller's price, stock, warranty and shipping for the model you want. Buy directly from the seller.",
+    href: "/vendors",
   },
   {
     icon: Server,
     step: "03",
     title: "Host",
     body: "Ship it straight to a data center from 3.6¢/kWh. It's installed, monitored and paid out to your wallet.",
+    href: "/hosting",
   },
+];
+
+const features = [
+  { icon: Cpu, title: "ASIC directory", body: "All 624 miners, sortable by profit, price and efficiency.", href: "/miners" },
+  { icon: Coins, title: "Coins", body: "Price, network hashrate and rewards for every mineable coin.", href: "/coins" },
+  { icon: Trophy, title: "Rankings", body: "Live, transparent scores across every algorithm and brand.", href: "/rankings" },
+  { icon: Server, title: "Hosting", body: "Compare miner profit at every hosting site, from 3.6¢/kWh.", href: "/hosting" },
+  { icon: Database, title: "Data sources", body: "Where every number comes from and how it is checked.", href: "/data" },
+  { icon: Calculator, title: "Calculators", body: "Hashrate conversion and power-cost modelling.", href: "#calculator" },
+  { icon: BookOpen, title: "Glossary", body: "Plain-English definitions of mining terms.", href: "/glossary" },
+  { icon: Bot, title: "AI assistant", body: "Ask in plain words and get answers from live data.", href: "#assistant" },
+  { icon: Store, title: "Seller portal", body: "Manage your listings, prices and company profile.", href: "/vendor-portal" },
+  { icon: LayoutGrid, title: "Widgets", body: "Embed live miner data on your own site.", href: "/widgets" },
+  { icon: FileText, title: "Quality report", body: "Data provenance, coverage and known limitations.", href: "/report" },
+  { icon: ShoppingCart, title: "Sell miners", body: "List your stock and reach buyers directly.", href: "/sell" },
 ];
 
 export default function HowItWorks() {
   return (
-    <section className="relative border-y border-line bg-white/[0.012] py-20 sm:py-24">
+    <section id="how-it-works" className="relative scroll-mt-20 border-y border-line bg-white/[0.012] py-20 sm:py-24">
       <div className="mx-auto w-full max-w-7xl px-5 sm:px-8">
         <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
           <div>
@@ -53,16 +86,46 @@ export default function HowItWorks() {
             {steps.map((step) => {
               const Icon = step.icon;
               return (
-                <div key={step.step} className="surface card-lift rounded-2xl p-5">
+                <Link key={step.step} href={step.href} className="surface card-lift group rounded-2xl p-5">
                   <div className="flex items-center justify-between">
-                    <span className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-white/[0.04]">
+                    <span className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-panel-soft">
                       <Icon className="h-4 w-4 text-accent" />
                     </span>
-                    <span className="font-mono text-[11px] font-semibold text-muted/70">{step.step}</span>
+                    <span className="flex items-center gap-1.5 font-mono text-[11px] font-semibold text-muted/70">
+                      {step.step}
+                      <ArrowUpRight className="h-3.5 w-3.5 transition-colors group-hover:text-accent" />
+                    </span>
                   </div>
                   <h3 className="mt-4 text-sm font-bold text-ink">{step.title}</h3>
                   <p className="mt-1.5 text-[11px] leading-relaxed text-muted">{step.body}</p>
-                </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        <div id="tools" className="mt-12 scroll-mt-20 border-t border-line pt-8">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <div className="chip text-aqua">Explore NowMining</div>
+              <h3 className="mt-2 text-xl font-bold tracking-tight text-ink sm:text-2xl">Every tool, in one place</h3>
+            </div>
+            <p className="text-[11px] text-muted">Jump straight to any page or tool.</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {features.map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <Link key={feature.title} href={feature.href} className="surface card-lift group rounded-2xl p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-panel-soft">
+                      <Icon className="h-4 w-4 text-aqua" />
+                    </span>
+                    <ArrowUpRight className="h-3.5 w-3.5 text-muted transition-colors group-hover:text-accent" />
+                  </div>
+                  <h4 className="mt-3 text-sm font-bold text-ink">{feature.title}</h4>
+                  <p className="mt-1 text-[11px] leading-relaxed text-muted">{feature.body}</p>
+                </Link>
               );
             })}
           </div>

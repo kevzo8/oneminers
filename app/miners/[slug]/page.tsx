@@ -3,12 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowUpRight, Building2, Cpu, Gauge, MessageSquareQuote, Plug, Server } from "lucide-react";
 import HostingCompare from "@/components/directory/HostingCompare";
+import { HeroSpecs } from "@/components/directory/MinerSpecs";
 import OffersTable from "@/components/directory/OffersTable";
 import ProfitHistory from "@/components/directory/ProfitHistory";
 import ProfitPanel, { MineableCoins, ProfitHeadline } from "@/components/directory/ProfitPanel";
 import SettingsBar from "@/components/directory/SettingsBar";
 import { CoinChip } from "@/components/directory/MinerExplorer";
-import { Breadcrumbs, MinerGlyph, PageShell } from "@/components/directory/ui";
+import { MakerMark } from "@/components/directory/MakerMark";
+import { Breadcrumbs, PageShell } from "@/components/directory/ui";
 import { bestPrice, getMiner, loadDirectory, minerIncomeHistory, offerRows, relatedMiners, revenuesFor } from "@/lib/directory";
 import {
   breakEvenElectricity,
@@ -20,6 +22,7 @@ import {
   roiDays,
 } from "@/lib/economics";
 import { getMarket } from "@/lib/market";
+import { getMinerSpecs } from "@/lib/miner-specs";
 
 export const revalidate = 60;
 
@@ -28,7 +31,7 @@ type Params = { params: Promise<{ slug: string }> };
 // Known miners are pre-rendered; miners added later in the admin render on first visit.
 export async function generateStaticParams() {
   const dir = await loadDirectory();
-  return dir.miners.map((miner) => ({ slug: miner.slug }));
+  return dir.miners.filter((miner) => miner.source !== "backpow").map((miner) => ({ slug: miner.slug }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -54,6 +57,7 @@ export default async function MinerPage({ params }: Params) {
   const offers = offerRows(dir, miner.slug);
   const best = bestPrice(dir, miner.slug);
   const related = relatedMiners(dir, miner);
+  const specs = getMinerSpecs(miner.slug);
   const fullName = `${miner.manufacturer} ${miner.model}`;
   const hashrateLabel = formatHashrate(miner.hashrate, miner.unit);
   const efficiency = formatEfficiency(miner.powerW, miner.hashrate, miner.unit);
@@ -63,19 +67,13 @@ export default async function MinerPage({ params }: Params) {
   const breakEven = breakEvenElectricity(top?.usdPerDay ?? 0, miner.powerW, DEFAULT_SETTINGS.poolFee);
   const defaultRoi = best ? roiDays(best, defaultProfit) : null;
   const kwhPerDay = (miner.powerW / 1000) * 24;
-
-  const specs: [string, string][] = [
-    ["Manufacturer", miner.manufacturer],
-    ["Model", miner.model],
-    ["Algorithm", miner.algorithm],
-    ["Hashrate", hashrateLabel],
-    ["Power", `${miner.powerW.toLocaleString("en-US")} W`],
-    ["Efficiency", efficiency],
-    ["Cooling", miner.cooling],
-    ["Category", miner.category],
-    ["Release", String(miner.release)],
-    ["Energy / day", `${kwhPerDay.toFixed(1)} kWh`],
-  ];
+  const dailyPowerCost = kwhPerDay * DEFAULT_SETTINGS.electricity;
+  const warrantyMonths = offers.length
+    ? {
+        min: Math.min(...offers.map((offer) => offer.warrantyMonths)),
+        max: Math.max(...offers.map((offer) => offer.warrantyMonths)),
+      }
+    : null;
 
   const faqs = [
     {
@@ -131,19 +129,23 @@ export default async function MinerPage({ params }: Params) {
           ]}
         />
 
-        <section className="grid gap-6 lg:grid-cols-[1.1fr_1fr] [&>*]:min-w-0">
-          <div className="surface rounded-3xl p-6">
-            <MinerGlyph manufacturer={miner.manufacturer} algorithm={miner.algorithm} cooling={miner.cooling} size="lg" />
+        <section className="grid items-start gap-6 lg:grid-cols-[1.1fr_1fr] [&>*]:min-w-0">
+          <div className="flex flex-col gap-6">
+            <div className="surface rounded-3xl p-6">
+            <HeroSpecs miner={miner} specs={specs} />
             <div className="mt-5 flex flex-wrap items-center gap-2">
               <span className="chip">{miner.algorithm}</span>
               <span className="chip">{miner.cooling}</span>
-              <span className="chip">{miner.release}</span>
+              {!specs?.releaseDate ? <span className="chip">{miner.release}</span> : null}
               {top ? <CoinChip tag={top.tag} /> : null}
             </div>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-              {miner.manufacturer} <span className="text-gradient">{miner.model}</span>
-              <span className="mt-1 block text-lg font-semibold text-muted">{hashrateLabel}</span>
-            </h1>
+            <div className="mt-4 flex items-start gap-3">
+              <MakerMark manufacturer={miner.manufacturer} size="lg" />
+              <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+                {miner.manufacturer} <span className="text-gradient">{miner.model}</span>
+                <span className="mt-1 block text-lg font-semibold text-muted">{hashrateLabel}</span>
+              </h1>
+            </div>
             <div className="mt-4">
               <ProfitHeadline powerW={miner.powerW} revenues={revenues} />
             </div>
@@ -153,12 +155,44 @@ export default async function MinerPage({ params }: Params) {
                 { icon: Plug, label: "Power", value: `${miner.powerW.toLocaleString("en-US")} W` },
                 { icon: Gauge, label: "Efficiency", value: efficiency },
               ].map((item) => (
-                <div key={item.label} className="rounded-xl border border-line bg-white/[0.02] p-3">
+                <div key={item.label} className="rounded-xl border border-line bg-panel-soft p-3">
                   <item.icon className="h-4 w-4 text-aqua" />
                   <div className="mt-2 text-sm font-bold tabular-nums text-ink">{item.value}</div>
                   <div className="text-[10px] uppercase tracking-[0.1em] text-muted">{item.label}</div>
                 </div>
               ))}
+            </div>
+            </div>
+
+            <div>
+              <h2 className="mb-3 text-lg font-bold text-ink">Cost to run</h2>
+              <div className="surface rounded-2xl p-5">
+                <dl className="grid grid-cols-2 gap-3">
+                  {[
+                    { label: "Electricity / day", value: formatUsd(dailyPowerCost) },
+                    { label: "Electricity / month", value: formatUsd(dailyPowerCost * 30) },
+                    { label: "Electricity / year", value: formatUsd(dailyPowerCost * 365, 0) },
+                    { label: "Break-even power", value: `$${breakEven.toFixed(3)}/kWh` },
+                    {
+                      label: "Listed warranty",
+                      value: warrantyMonths
+                        ? warrantyMonths.min === warrantyMonths.max
+                          ? `${warrantyMonths.min} months`
+                          : `${warrantyMonths.min}–${warrantyMonths.max} months`
+                        : "—",
+                    },
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-xl border border-line bg-panel-soft p-3">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">{item.label}</dt>
+                      <dd className="mt-1 text-sm font-bold tabular-nums text-ink">{item.value}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className="mt-3 text-[11px] leading-relaxed text-muted/70">
+                  At ${DEFAULT_SETTINGS.electricity.toFixed(2)}/kWh. Adjust your power price in the settings bar beside this card;
+                  hosting plans start at 3.6¢/kWh.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -169,7 +203,7 @@ export default async function MinerPage({ params }: Params) {
                   <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Best price</div>
                   <div className="mt-1 text-3xl font-bold tabular-nums text-ink">{best ? formatUsd(best, 0) : "—"}</div>
                   <div className="mt-1 text-xs text-muted">
-                    {offers.length} offer{offers.length === 1 ? "" : "s"} from {new Set(offers.map((o) => o.vendorSlug)).size} vendors
+                    {offers.length} offer{offers.length === 1 ? "" : "s"} from {new Set(offers.map((o) => o.vendorSlug)).size} vendor{new Set(offers.map((o) => o.vendorSlug)).size === 1 ? "" : "s"}
                   </div>
                 </div>
                 <a href="#offers" className="btn-primary px-4 py-2 text-sm">
@@ -177,17 +211,17 @@ export default async function MinerPage({ params }: Params) {
                   <ArrowUpRight className="h-4 w-4" />
                 </a>
               </div>
-              <div className="mt-5 grid gap-2 sm:grid-cols-2">
-                <a href="/#contact" className="btn-ghost px-4 py-2.5 text-xs">
-                  <MessageSquareQuote className="h-4 w-4" />
-                  Request a bulk quote
+              <div className="mt-5 grid gap-2 sm:grid-cols-3">
+                <a href="/#contact" className="btn-ghost w-full min-h-11 px-2.5 py-2.5 text-[11px] leading-tight">
+                  <MessageSquareQuote className="h-4 w-4 shrink-0" />
+                  <span className="text-center">Request a bulk quote</span>
                 </a>
-                <Link href={`/compare?m=${miner.slug}`} className="btn-ghost px-4 py-2.5 text-xs sm:col-span-2">
-                  Compare with other miners
+                <Link href={`/compare?m=${miner.slug}`} className="btn-ghost w-full min-h-11 px-2.5 py-2.5 text-[11px] leading-tight">
+                  <span className="text-center">Compare with other miners</span>
                 </Link>
-                <a href={miner.category === "Industrial" ? "#hosting" : "https://oneminers.com/pages/hosting-centers"} className="btn-ghost px-4 py-2.5 text-xs">
-                  <Server className="h-4 w-4" />
-                  Host it from 3.6¢/kWh
+                <a href={miner.category === "Industrial" ? `/hosting?miner=${miner.slug}` : "/hosting"} className="btn-ghost w-full min-h-11 px-2.5 py-2.5 text-[11px] leading-tight">
+                  <Server className="h-4 w-4 shrink-0" />
+                  <span className="text-center">Host it from 3.6¢/kWh</span>
                 </a>
               </div>
             </div>
@@ -198,25 +232,9 @@ export default async function MinerPage({ params }: Params) {
 
         <ProfitHistory points={history} powerW={miner.powerW} />
 
-        <section className="grid gap-6 lg:grid-cols-2 [&>*]:min-w-0">
-          <div>
-            <h2 className="mb-3 text-lg font-bold text-ink">Specifications</h2>
-            <div className="surface overflow-hidden rounded-2xl">
-              <dl>
-                {specs.map(([label, value]) => (
-                  <div key={label} className="flex items-center justify-between border-b border-line/60 px-4 py-2.5 last:border-0">
-                    <dt className="text-xs text-muted">{label}</dt>
-                    <dd className="text-xs font-semibold text-ink">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-            <p className="mt-2 text-[11px] text-muted/70">Specs per manufacturer announcement, ±5% tolerance. Verify with the vendor before buying.</p>
-          </div>
-          <div>
-            <h2 className="mb-3 text-lg font-bold text-ink">Mineable coins</h2>
-            <MineableCoins powerW={miner.powerW} revenues={revenues} />
-          </div>
+        <section className="[&>*]:min-w-0">
+          <h2 className="mb-3 text-lg font-bold text-ink">Mineable coins</h2>
+          <MineableCoins powerW={miner.powerW} revenues={revenues} />
         </section>
 
         <section id="offers" className="scroll-mt-24">
@@ -275,7 +293,7 @@ export default async function MinerPage({ params }: Params) {
                   href={`/miners/${other.slug}`}
                   className="surface card-lift flex items-center gap-3 rounded-2xl p-3"
                 >
-                  <MinerGlyph manufacturer={other.manufacturer} algorithm={other.algorithm} cooling={other.cooling} size="sm" />
+                  <MakerMark manufacturer={other.manufacturer} size="sm" />
                   <span className="flex-1">
                     <span className="block text-sm font-semibold text-ink">{other.model}</span>
                     <span className="block text-[11px] text-muted">

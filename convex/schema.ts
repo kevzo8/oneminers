@@ -1,16 +1,9 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-export const vAlgorithm = v.union(
-  v.literal("SHA-256"),
-  v.literal("Scrypt"),
-  v.literal("kHeavyHash"),
-  v.literal("Equihash"),
-  v.literal("Etchash"),
-  v.literal("X11"),
-  v.literal("Eaglesong")
-);
-export const vUnit = v.union(v.literal("TH/s"), v.literal("GH/s"), v.literal("MH/s"), v.literal("kSol/s"));
+// Algorithms and units come from the data source (BackPoW), so they are open strings.
+export const vAlgorithm = v.string();
+export const vUnit = v.string();
 export const vCooling = v.union(v.literal("Air"), v.literal("Hydro"), v.literal("Immersion"));
 export const vCategory = v.union(v.literal("Industrial"), v.literal("Home"));
 export const vTier = v.union(v.literal("Gold"), v.literal("Silver"), v.literal("Bronze"), v.literal("Free"));
@@ -35,12 +28,38 @@ export default defineSchema({
     powerW: v.number(),
     cooling: vCooling,
     category: vCategory,
-    release: v.number(),
+    release: v.optional(v.number()),
     refPrice: v.number(),
     active: v.boolean(),
+    // BackPoW data: per-coin hashrate/power and the market price range.
+    source: v.optional(v.union(v.literal("manual"), v.literal("backpow"))),
+    backpowSlug: v.optional(v.string()),
+    coins: v.optional(v.array(v.object({ coinId: v.string(), hashrateHs: v.number(), watts: v.number() }))),
+    priceRange: v.optional(
+      v.object({ min: v.number(), max: v.number(), median: v.number(), count: v.number(), condition: v.string(), estimated: v.boolean() })
+    ),
+    updatedAt: v.optional(v.number()),
   })
     .index("by_slug", ["slug"])
-    .index("by_active", ["active"]),
+    .index("by_active", ["active"])
+    .index("by_backpow", ["backpowSlug"]),
+
+  // Coin network state from BackPoW (refreshed hourly): what every miner's income is computed from.
+  coins: defineTable({
+    coinId: v.string(),
+    tag: v.string(),
+    name: v.string(),
+    algorithm: v.string(),
+    nethashHs: v.number(),
+    blockTimeSec: v.number(),
+    blockReward: v.number(),
+    priceUsd: v.number(),
+    priceConfidence: v.optional(v.string()),
+    marketCapUsd: v.optional(v.number()),
+    volume24hUsd: v.optional(v.number()),
+    history: v.array(v.object({ date: v.string(), priceUsd: v.number(), nethashHs: v.number() })),
+    updatedAt: v.number(),
+  }).index("by_coinId", ["coinId"]),
 
   // Companies selling miners. Sellers create and edit their own; admins approve them.
   vendors: defineTable({

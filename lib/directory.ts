@@ -14,8 +14,23 @@ export type Directory = {
   source: "database" | "built-in";
 };
 
+/** Sample vendors and their offers are a development aid; production shows real listings only. */
+function allowSamples() {
+  return process.env.NODE_ENV === "development";
+}
+
 export function builtInDirectory(): Directory {
-  return { miners: MINERS, vendors: VENDORS, offers: OFFERS, source: "built-in" };
+  if (allowSamples()) return { miners: MINERS, vendors: VENDORS, offers: OFFERS, source: "built-in" };
+  // Outside development the fallback carries real data only: every built-in offer is a generated
+  // placeholder price (including OneMiners'), so none of them may be shown.
+  return { miners: MINERS, vendors: VENDORS.filter((vendor) => !vendor.sample), offers: [], source: "built-in" };
+}
+
+/** Vendors created by QA or seeding runs must never reach the public directory. */
+const TEST_VENDOR = /^(qa|test)(?:[-_ ]|$)/i;
+
+function isTestVendor(vendor: { slug: string; name: string }) {
+  return TEST_VENDOR.test(vendor.slug) || TEST_VENDOR.test(vendor.name);
 }
 
 /** Loaded once per request (React cache), from Convex when configured. */
@@ -26,10 +41,14 @@ export const loadDirectory = cache(async (): Promise<Directory> => {
     const [{ ConvexHttpClient }, { api }] = await Promise.all([import("convex/browser"), import("@/convex/_generated/api")]);
     const data = await new ConvexHttpClient(url).query(api.directory.snapshot, {});
     if (!data.miners.length) return builtInDirectory();
+    const vendors = data.vendors
+      .filter((vendor) => !isTestVendor(vendor) && (allowSamples() || !vendor.sample))
+      .map(({ _id, ...vendor }) => vendor);
+    const visibleVendors = new Set(vendors.map((vendor) => vendor.slug));
     return {
       miners: data.miners,
-      vendors: data.vendors.map(({ _id, ...vendor }) => vendor),
-      offers: data.offers,
+      vendors,
+      offers: data.offers.filter((offer) => visibleVendors.has(offer.vendorSlug)),
       source: "database",
     };
   } catch (err) {
@@ -37,6 +56,26 @@ export const loadDirectory = cache(async (): Promise<Directory> => {
     return builtInDirectory();
   }
 });
+
+export type NetworkPoint = { t: number; btcUsd: number; btcHashrateEh: number; hashpricePerPh: number };
+
+/** Bitcoin network history from our own hourly snapshots: price, hashrate and hashprice ($/PH/day). */
+export async function bitcoinNetworkHistory(days = 90): Promise<NetworkPoint[]> {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!url) return [];
+  try {
+    const [{ ConvexHttpClient }, { api }] = await Promise.all([import("convex/browser"), import("@/convex/_generated/api")]);
+    const rows = await new ConvexHttpClient(url).query(api.directory.marketHistory, { days });
+    return rows.flatMap((row) => {
+      const btc = row.coins.find((coin) => coin.tag === "Bitcoin" || coin.tag === "BTC");
+      if (!btc) return [];
+      const perPhPerDay = (1e15 / btc.nethashHs) * (86_400 / btc.blockTimeSec) * btc.blockReward * btc.priceUsd;
+      return [{ t: row.takenAt, btcUsd: btc.priceUsd, btcHashrateEh: btc.nethashHs / 1e18, hashpricePerPh: perPhPerDay }];
+    });
+  } catch {
+    return [];
+  }
+}
 
 export type HistoryPoint = { t: number; incomeUsd: number };
 
@@ -50,7 +89,8 @@ export async function minerIncomeHistory(miner: MinerModel, current: MarketSnaps
   try {
     const [{ ConvexHttpClient }, { api }] = await Promise.all([import("convex/browser"), import("@/convex/_generated/api")]);
     const rows = await new ConvexHttpClient(url).query(api.directory.marketHistory, { days });
-    const meta = new Map(current.coins.map((coin) => [coin.tag, coin]));
+    // Snapshots store BackPoW coin ids (older ones stored tickers); accept either.
+    const meta = new Map(current.coins.flatMap((coin) => [[coin.id, coin] as const, [coin.tag, coin] as const]));
     return rows.map((row) => {
       const coins = row.coins.flatMap((coin) => {
         const known = meta.get(coin.tag);
@@ -99,11 +139,12 @@ export function algorithmsOf(dir: Directory): Algorithm[] {
 }
 
 export function revenuesFor(miner: MinerModel, market: MarketSnapshot) {
-  return minerRevenues(hashrateToHs(miner.hashrate, miner.unit), miner.algorithm, market);
+  return minerRevenues(miner, market);
 }
 
 export function toRow(dir: Directory, miner: MinerModel, market: MarketSnapshot): MinerRow {
-  const top = revenuesFor(miner, market)[0];
+  const revenues = revenuesFor(miner, market);
+  const top = revenues[0];
   return {
     slug: miner.slug,
     manufacturer: miner.manufacturer,
@@ -115,7 +156,8 @@ export function toRow(dir: Directory, miner: MinerModel, market: MarketSnapshot)
     cooling: miner.cooling,
     category: miner.category,
     release: miner.release,
-    topCoin: top ? { tag: top.tag, name: top.name, usdPerDay: top.usdPerDay } : null,
+    topCoin: top ? { tag: top.tag, name: top.name, usdPerDay: top.usdPerDay, caution: top.caution } : null,
+    coinTags: revenues.filter((revenue) => !revenue.caution).slice(0, 4).map((revenue) => revenue.tag),
     bestPrice: bestPrice(dir, miner.slug),
     offerCount: offersForMiner(dir, miner.slug).length,
   };

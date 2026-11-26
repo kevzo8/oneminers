@@ -1,90 +1,46 @@
-# Welcome to your Convex functions directory!
+# Convex backend
 
-Write your Convex functions here.
-See https://docs.convex.dev/functions for more.
+Database, auth, scheduled jobs and seller flows for NowMining. The frontend reads through `lib/directory.ts`, which uses Convex when `NEXT_PUBLIC_CONVEX_URL` is set and falls back to the bundled catalog otherwise.
 
-A query function that takes two arguments looks like:
+## Tables (`schema.ts`)
 
-```ts
-// functions.js
-import { query } from "./_generated/server";
-import { v } from "convex/values";
+| Table | Purpose |
+|---|---|
+| `users` | Seller/admin roles; credentials and sessions are in the Convex Auth components |
+| `miners` | ASIC catalog (slug, specs, release year, reference price) |
+| `vendors` | Seller companies, plans, verification and partner-link state |
+| `offers` | One vendor price per miner (price, shipping, condition, availability) |
+| `marketSnapshots` | Hourly network snapshots used for profit-history charts |
+| `leads` | Contact, report and newsletter submissions |
+| `chatMessages` | Assistant conversation history per browser session |
 
-export const myQueryFunction = query({
-  // Validators for arguments.
-  args: {
-    first: v.number(),
-    second: v.string(),
-  },
+## Functions
 
-  // Function implementation.
-  handler: async (ctx, args) => {
-    // Read the database as many times as you need here.
-    // See https://docs.convex.dev/database/reading-data.
-    const documents = await ctx.db.query("tablename").collect();
+| Module | Highlights |
+|---|---|
+| `directory.ts` | Public `snapshot` (miners, public vendors, offers) and `marketHistory` |
+| `backpow.ts` | Imports coin network data (hourly) and the full ASIC catalog with specs and market price ranges (daily) from BackPoW |
+| `market.ts` | `takeSnapshot` (hourly, from the `coins` table), `backfillFromHistory`, `clearLegacySnapshots` |
+| `leads.ts` | Validated lead creation; listing is internal |
+| `chat.ts` | Assistant message persistence |
+| `seller.ts` | Seller onboarding, company and offer management, listing plan |
+| `partnerLink.ts` | Server-side check (and weekly re-check) of the required backlink |
+| `admin.ts` | Seeding, sample-data guard, purge and admin grants |
 
-    // Arguments passed from the client are properties of the args object.
-    console.log(args.first, args.second);
+## Scheduled jobs (`crons.ts`)
 
-    // Write arbitrary JavaScript here: filter, aggregate, build derived data,
-    // remove non-public properties, or create new objects.
-    return documents;
-  },
-});
+- Hourly `market.takeSnapshot` — builds our own price, hashrate, reward and block-time history.
+- Weekly `partnerLink.recheckAll` — verifies sellers still link to `oneminers.com`.
+
+## Commands
+
+```powershell
+npx convex dev                              # sync to the dev deployment
+npx convex deploy                           # deploy functions to prod
+npx convex run admin:seed                   # real miner catalog (dev)
+npx convex run admin:seedSamples            # sample vendors/prices (dev only, SAMPLE_DATA=allowed)
+npx convex run admin:purgeSampleData --prod # remove sample data from prod
+npx convex run admin:grantAdmin '{"userId":"<account id>"}' --prod
 ```
 
-Using this query function in a React component looks like:
-
-```ts
-const data = useQuery(api.functions.myQueryFunction, {
-  first: 10,
-  second: "hello",
-});
-```
-
-A mutation function looks like:
-
-```ts
-// functions.js
-import { mutation } from "./_generated/server";
-import { v } from "convex/values";
-
-export const myMutationFunction = mutation({
-  // Validators for arguments.
-  args: {
-    first: v.string(),
-    second: v.string(),
-  },
-
-  // Function implementation.
-  handler: async (ctx, args) => {
-    // Insert or modify documents in the database here.
-    // Mutations can also read from the database like queries.
-    // See https://docs.convex.dev/database/writing-data.
-    const message = { body: args.first, author: args.second };
-    const id = await ctx.db.insert("messages", message);
-
-    // Optionally, return a value from your mutation.
-    return await ctx.db.get(id);
-  },
-});
-```
-
-Using this mutation function in a React component looks like:
-
-```ts
-const mutation = useMutation(api.functions.myMutationFunction);
-function handleButtonPress() {
-  // fire and forget, the most common way to use mutations
-  mutation({ first: "Hello!", second: "me" });
-  // OR
-  // use the result once the mutation has completed
-  mutation({ first: "Hello!", second: "me" }).then((result) =>
-    console.log(result),
-  );
-}
-```
-
-Use the Convex CLI to push your functions to a deployment. See everything
-the Convex CLI can do by running `npx convex -h` in your project root
-directory. To learn more, launch the docs with `npx convex docs`.
+See the root `README.md` for the full dev/prod environment table.

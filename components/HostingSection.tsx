@@ -1,16 +1,17 @@
 import { ShieldCheck, Smartphone, Wrench } from "lucide-react";
 import HostingCompare from "@/components/directory/HostingCompare";
+import RiskDisclaimer from "@/components/directory/RiskDisclaimer";
 import SettingsBar from "@/components/directory/SettingsBar";
 import { hostableMiners, loadDirectory } from "@/lib/directory";
 import { HOSTING_PROVIDER, HOSTING_SITES, LOWEST_HOSTING_RATE, TOTAL_HOSTING_MW } from "@/lib/hosting";
 import { getMarket } from "@/lib/market";
 
-export default async function HostingSection() {
+export default async function HostingSection({ fixedSlug }: { fixedSlug?: string } = {}) {
   const [dir, market] = await Promise.all([loadDirectory(), getMarket()]);
   const miners = hostableMiners(dir, market, LOWEST_HOSTING_RATE);
 
   return (
-    <section id="hosting" className="relative scroll-mt-20 py-20 sm:py-28">
+    <section id="hosting" className="relative scroll-mt-20 py-6 sm:py-10">
       <div className="mx-auto w-full max-w-7xl space-y-8 px-5 sm:px-8">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
@@ -36,7 +37,8 @@ export default async function HostingSection() {
           </div>
         </div>
         <SettingsBar />
-        <HostingCompare miners={miners} />
+        <HostingCompare miners={miners} fixedSlug={fixedSlug} />
+        <RiskDisclaimer />
       </div>
     </section>
   );

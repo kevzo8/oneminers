@@ -1,7 +1,8 @@
 import { ConvexError, v } from "convex/values";
-import { internalMutation, mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query, type MutationCtx } from "./_generated/server";
 import { requireAdmin } from "./users";
 import { vAlgorithm, vCategory, vCooling, vTier, vUnit } from "./schema";
+import type { Doc } from "./_generated/dataModel";
 import { MINERS, OFFERS, VENDORS } from "../lib/catalog";
 
 /** Everything the admin screen needs. */
@@ -54,16 +55,36 @@ const minerFields = {
   active: v.boolean(),
 };
 
+type MinerInput = Omit<Doc<"miners">, "_id" | "_creationTime">;
+
+async function writeMiner(ctx: MutationCtx, miner: MinerInput) {
+  if (!/^[a-z0-9-]{3,90}$/.test(miner.slug)) throw new ConvexError("Slug: lowercase letters, numbers and dashes.");
+  if (!(miner.hashrate > 0 && miner.powerW > 0)) throw new ConvexError("Hashrate and power must be positive.");
+  const existing = await ctx.db.query("miners").withIndex("by_slug", (q) => q.eq("slug", miner.slug)).unique();
+  if (existing) await ctx.db.patch(existing._id, miner);
+  else await ctx.db.insert("miners", miner);
+  return !existing;
+}
+
 /** Add or edit a miner model (matched by slug). */
 export const upsertMiner = mutation({
   args: minerFields,
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
-    if (!/^[a-z0-9-]{3,90}$/.test(args.slug)) throw new ConvexError("Slug: lowercase letters, numbers and dashes.");
-    if (!(args.hashrate > 0 && args.powerW > 0)) throw new ConvexError("Hashrate and power must be positive.");
-    const existing = await ctx.db.query("miners").withIndex("by_slug", (q) => q.eq("slug", args.slug)).unique();
-    if (existing) await ctx.db.patch(existing._id, args);
-    else await ctx.db.insert("miners", args);
+    await writeMiner(ctx, args);
+  },
+});
+
+/** Bulk add/update models from an admin CSV import. */
+export const importMiners = mutation({
+  args: { miners: v.array(v.object(minerFields)) },
+  handler: async (ctx, { miners }) => {
+    await requireAdmin(ctx);
+    let created = 0;
+    for (const miner of miners) {
+      if (await writeMiner(ctx, miner)) created += 1;
+    }
+    return { total: miners.length, created, updated: miners.length - created };
   },
 });
 

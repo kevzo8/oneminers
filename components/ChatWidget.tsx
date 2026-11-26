@@ -106,7 +106,7 @@ export default function ChatWidget() {
         type="button"
         onClick={() => setOpen((value) => !value)}
         className={`fixed bottom-6 right-6 z-[100] grid h-14 w-14 place-items-center rounded-full shadow-2xl transition-transform hover:scale-105 ${
-          open ? "bg-white text-[#05070a]" : "bg-accent text-[#08120a] pulse-ring"
+          open ? "bg-white text-on-accent" : "bg-accent text-on-accent pulse-ring"
         }`}
         aria-label={open ? "Close assistant" : "Open assistant"}
         aria-expanded={open}
@@ -115,7 +115,7 @@ export default function ChatWidget() {
       </button>
 
       {open ? (
-        <div className="fixed bottom-20 right-6 z-50 flex max-h-[min(560px,calc(100vh-10rem))] w-[calc(100vw-3rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-line bg-[#080d12]/95 shadow-2xl backdrop-blur-2xl">
+        <div className="fixed bottom-20 right-6 z-50 flex max-h-[min(560px,calc(100vh-10rem))] w-[calc(100vw-3rem)] max-w-sm flex-col overflow-hidden rounded-2xl border border-line bg-surface-solid/95 shadow-2xl backdrop-blur-2xl">
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <div className="flex items-center gap-2.5">
               <span className="relative grid h-8 w-8 place-items-center rounded-xl bg-accent/10">
@@ -131,7 +131,7 @@ export default function ChatWidget() {
             <button
               type="button"
               onClick={startNewChat}
-              className="grid h-8 w-8 place-items-center rounded-full text-muted transition-colors hover:bg-white/[0.06] hover:text-ink"
+              className="grid h-8 w-8 place-items-center rounded-full text-muted transition-colors hover:bg-panel-soft hover:text-ink"
               aria-label="Start a new chat"
               title="New chat"
             >
@@ -140,7 +140,7 @@ export default function ChatWidget() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="grid h-8 w-8 place-items-center rounded-full text-muted transition-colors hover:bg-white/[0.06] hover:text-ink"
+              className="grid h-8 w-8 place-items-center rounded-full text-muted transition-colors hover:bg-panel-soft hover:text-ink"
               aria-label="Close assistant"
             >
               <X className="h-4 w-4" />
@@ -157,8 +157,8 @@ export default function ChatWidget() {
                 <div
                   className={`max-w-[85%] whitespace-pre-line rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed ${
                     message.role === "user"
-                      ? "rounded-br-md bg-accent text-[#08120a]"
-                      : "rounded-bl-md border border-line bg-white/[0.04] text-ink"
+                      ? "rounded-br-md bg-accent text-on-accent"
+                      : "rounded-bl-md border border-line bg-panel-soft text-ink"
                   }`}
                 >
                   {message.content}
@@ -168,7 +168,7 @@ export default function ChatWidget() {
 
             {busy ? (
               <div className="flex justify-start">
-                <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-md border border-line bg-white/[0.04] px-4 py-3">
+                <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-md border border-line bg-panel-soft px-4 py-3">
                   <span className="typing-dot h-1.5 w-1.5 rounded-full bg-accent" />
                   <span className="typing-dot h-1.5 w-1.5 rounded-full bg-accent" />
                   <span className="typing-dot h-1.5 w-1.5 rounded-full bg-accent" />
@@ -190,7 +190,7 @@ export default function ChatWidget() {
                       key={suggestion}
                       type="button"
                       onClick={() => send(suggestion)}
-                      className="rounded-full border border-line bg-white/[0.03] px-2.5 py-1.5 text-[10px] font-medium text-muted transition-colors hover:border-accent/40 hover:text-accent"
+                      className="rounded-full border border-line bg-panel-soft px-2.5 py-1.5 text-[10px] font-medium text-muted transition-colors hover:border-accent/40 hover:text-accent"
                     >
                       {suggestion}
                     </button>
@@ -207,7 +207,7 @@ export default function ChatWidget() {
             }}
             className="border-t border-line p-3"
           >
-            <div className="flex items-center gap-2 rounded-xl border border-line bg-white/[0.04] px-3 py-2 focus-within:border-accent/40">
+            <div className="flex items-center gap-2 rounded-xl border border-line bg-panel-soft px-3 py-2 focus-within:border-accent/40">
               <input
                 ref={inputRef}
                 value={input}
@@ -219,7 +219,7 @@ export default function ChatWidget() {
               <button
                 type="submit"
                 disabled={busy || !input.trim()}
-                className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-accent text-[#08120a] transition-opacity disabled:opacity-40"
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-accent text-on-accent transition-opacity disabled:opacity-40"
                 aria-label="Send message"
               >
                 <ArrowUp className="h-4 w-4" />

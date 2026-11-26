@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Activity, Database, Store } from "lucide-react";
 import MinerExplorer from "@/components/directory/MinerExplorer";
+import RiskDisclaimer from "@/components/directory/RiskDisclaimer";
 import SettingsBar from "@/components/directory/SettingsBar";
 import { Breadcrumbs, PageShell } from "@/components/directory/ui";
 import { algorithmsOf, allRows, loadDirectory, manufacturersOf } from "@/lib/directory";
@@ -62,10 +63,11 @@ export default async function MinersPage() {
         <MinerExplorer rows={rows} manufacturers={manufacturersOf(dir)} algorithms={algorithmsOf(dir)} />
 
         <p className="text-[11px] leading-relaxed text-muted/70">
-          Network data {market.source === "live" ? "live from WhatToMine" : "from a saved snapshot (live feed unavailable)"}
+          Network data {market.source === "live" ? <>from <a href="https://backpow.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">BackPoW</a></> : "from a saved snapshot (live feed unavailable)"}
           , updated {updated} UTC. BTC ${market.btcUsd.toLocaleString("en-US", { maximumFractionDigits: 0 })}. Income
-          assumes today&apos;s difficulty and prices. Prices come from each seller; listings marked Sample are placeholders. Not investment advice.
+          assumes today&apos;s difficulty and prices. Seller prices come from each seller; market ranges from BackPoW.
         </p>
+        <RiskDisclaimer />
       </div>
     </PageShell>
   );

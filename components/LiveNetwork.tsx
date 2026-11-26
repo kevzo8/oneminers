@@ -46,7 +46,7 @@ function StatRow({ icon, label, value, trend, trendUp }: { icon: React.ReactNode
 
 function FeePill({ label, value, isFastest }: { label: string; value: number; isFastest?: boolean }) {
   return (
-    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${isFastest ? "border-accent/30 bg-accent/10 text-accent" : "border-line bg-white/[0.03] text-muted"}`}>
+    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${isFastest ? "border-accent/30 bg-accent/10 text-accent" : "border-line bg-panel-soft text-muted"}`}>
       {label} {value}
     </span>
   );
@@ -98,7 +98,7 @@ export default function LiveNetwork() {
         </div>
         <div className="mt-2 grid grid-cols-2 gap-1.5 text-xs">
           {[1,2,3,4,5,6].map((i) => (
-            <div key={i} className="rounded-xl border border-line bg-white/[0.02] p-2">
+            <div key={i} className="rounded-xl border border-line bg-panel-soft p-2">
               <div className="h-2 w-3/4 bg-white/5 rounded animate-pulse" />
               <div className="mt-0.5 h-4 w-full bg-white/5 rounded animate-pulse" />
             </div>
@@ -136,7 +136,7 @@ export default function LiveNetwork() {
         <StatRow icon={<span className="h-3 w-3 text-red-400">😱</span>} label="Fear & Greed" value={data.fearGreed ? `${data.fearGreed.value} (${data.fearGreed.classification})` : "—"} />
       </div>
 
-      <div className="rounded-xl border border-line bg-white/[0.02] p-2">
+      <div className="rounded-xl border border-line bg-panel-soft p-2">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-[9px] font-semibold uppercase tracking-[0.06em] text-muted">Mempool</span>
           <span className="text-[9px] text-muted/60">{data.mempoolSize ? `${(data.mempoolSize / 1e6).toFixed(1)}M vB` : "—"}</span>
@@ -145,16 +145,16 @@ export default function LiveNetwork() {
           {data.fees && (
             <>
               <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent">⚡ {data.fees.fastestFee}</span>
-              <span className="rounded-full border border-line bg-white/[0.03] px-2 py-0.5 text-[10px] text-muted">30m {data.fees.halfHourFee}</span>
-              <span className="rounded-full border border-line bg-white/[0.03] px-2 py-0.5 text-[10px] text-muted">1h {data.fees.hourFee}</span>
-              <span className="rounded-full border border-line bg-white/[0.03] px-2 py-0.5 text-[10px] text-muted">eco {data.fees.economyFee}</span>
+              <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[10px] text-muted">30m {data.fees.halfHourFee}</span>
+              <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[10px] text-muted">1h {data.fees.hourFee}</span>
+              <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[10px] text-muted">eco {data.fees.economyFee}</span>
             </>
           )}
         </div>
       </div>
 
       {data.nextDifficultyAdjustment && (
-        <div className="mt-2 rounded-xl border border-line bg-white/[0.02] p-2">
+        <div className="mt-2 rounded-xl border border-line bg-panel-soft p-2">
           <div className="flex items-center justify-between text-[9px] text-muted">
             <span>Next difficulty adjustment</span>
             <span>{data.nextDifficultyAdjustment.blocksRemaining} blocks · ~{data.nextDifficultyAdjustment.estimatedDate}</span>

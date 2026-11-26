@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Check, Clock, Mail, Send } from "lucide-react";
+import SearchSelect from "./directory/SearchSelect";
 
 type State = "idle" | "sending" | "sent" | "error";
 
@@ -49,7 +50,7 @@ export default function LeadForm() {
               </p>
 
               <div className="mt-7 space-y-3">
-                <div className="flex items-center gap-3 rounded-xl border border-line bg-white/[0.03] px-4 py-3">
+                <div className="flex items-center gap-3 rounded-xl border border-line bg-panel-soft px-4 py-3">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-violet/10">
                     <Clock className="h-4 w-4 text-violet-300" />
                   </span>
@@ -58,7 +59,7 @@ export default function LeadForm() {
                     <div className="text-sm font-semibold text-ink">Usually within one business day</div>
                   </div>
                 </div>
-                <a href="/sell" className="flex items-center gap-3 rounded-xl border border-line bg-white/[0.03] px-4 py-3 transition-colors hover:border-accent/30">
+                <a href="/sell" className="flex items-center gap-3 rounded-xl border border-line bg-panel-soft px-4 py-3 transition-colors hover:border-accent/30">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-accent/10">
                     <Mail className="h-4 w-4 text-accent" />
                   </span>
@@ -121,17 +122,13 @@ export default function LeadForm() {
 
                 <label className="grid gap-1.5">
                   <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Interested in</span>
-                  <select
+                  <SearchSelect<string>
                     value={form.interest}
-                    onChange={(event) => setForm({ ...form, interest: event.target.value })}
-                    className="input"
-                  >
-                    <option>Buying miners</option>
-                    <option>Hosting</option>
-                    <option>Buying and hosting</option>
-                    <option>Selling on the directory</option>
-                    <option>Something else</option>
-                  </select>
+                    options={["Buying miners", "Hosting", "Buying and hosting", "Selling on the directory", "Something else"]}
+                    onChange={(interest) => setForm({ ...form, interest })}
+                    label="Interest"
+                    className="w-full"
+                  />
                 </label>
 
                 <label className="grid gap-1.5">

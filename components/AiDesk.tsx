@@ -25,7 +25,7 @@ export type AiExample = { question: string; answer: string; followUp: string; fo
 
 export default function AiDesk({ example }: { example: AiExample }) {
   return (
-    <section className="relative py-20 sm:py-24">
+    <section id="assistant" className="relative scroll-mt-20 py-20 sm:py-24">
       <div className="mx-auto grid w-full max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
           <div className="chip text-accent">AI mining assistant</div>
@@ -40,7 +40,7 @@ export default function AiDesk({ example }: { example: AiExample }) {
             {features.map((feature) => {
               const Icon = feature.icon;
               return (
-                <div key={feature.title} className="flex gap-3 rounded-xl border border-line bg-white/[0.02] px-4 py-3">
+                <div key={feature.title} className="flex gap-3 rounded-xl border border-line bg-panel-soft px-4 py-3">
                   <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-accent/10">
                     <Icon className="h-4 w-4 text-accent" />
                   </span>
@@ -90,8 +90,8 @@ export default function AiDesk({ example }: { example: AiExample }) {
                 <div
                   className={
                     message.role === "user"
-                      ? "max-w-[82%] rounded-2xl rounded-br-md bg-accent px-3.5 py-2.5 text-xs font-medium leading-relaxed text-[#08120a]"
-                      : "max-w-[86%] rounded-2xl rounded-bl-md border border-line bg-white/[0.04] px-3.5 py-2.5 text-xs leading-relaxed text-ink"
+                      ? "max-w-[82%] rounded-2xl rounded-br-md bg-accent px-3.5 py-2.5 text-xs font-medium leading-relaxed text-on-accent"
+                      : "max-w-[86%] rounded-2xl rounded-bl-md border border-line bg-panel-soft px-3.5 py-2.5 text-xs leading-relaxed text-ink"
                   }
                 >
                   {message.text}
@@ -103,11 +103,11 @@ export default function AiDesk({ example }: { example: AiExample }) {
           <button
             type="button"
             onClick={() => window.dispatchEvent(new Event("oneminers:open-chat"))}
-            className="mt-4 flex w-full items-center gap-2 rounded-xl border border-line bg-white/[0.03] px-3 py-2.5 text-left hover:border-accent/30"
+            className="mt-4 flex w-full items-center gap-2 rounded-xl border border-line bg-panel-soft px-3 py-2.5 text-left hover:border-accent/30"
           >
             <span className="text-[11px] text-muted/70">Ask about miners, prices, hosting…</span>
             <span className="ml-auto grid h-6 w-6 place-items-center rounded-md bg-accent/90">
-              <ArrowUpRight className="h-3.5 w-3.5 text-[#08120a]" />
+              <ArrowUpRight className="h-3.5 w-3.5 text-on-accent" />
             </span>
           </button>
           <p className="mt-3 text-center text-[9px] text-muted/60">Example built from today&apos;s live numbers · not investment advice</p>

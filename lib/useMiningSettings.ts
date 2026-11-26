@@ -16,6 +16,7 @@ function read(): MiningSettings {
     return {
       electricity: Number.isFinite(electricity) && electricity >= 0 ? electricity : DEFAULT_SETTINGS.electricity,
       poolFee: Number.isFinite(poolFee) && poolFee >= 0 && poolFee < 100 ? poolFee : DEFAULT_SETTINGS.poolFee,
+      currency: typeof parsed.currency === "string" && /^[A-Z]{3}$/.test(parsed.currency) ? parsed.currency : "USD",
     };
   } catch {
     return DEFAULT_SETTINGS;

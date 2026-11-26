@@ -1,11 +1,13 @@
 "use client";
 
+import { useMoney } from "@/lib/useMoney";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { ArrowUpRight, Clock, Info, Star } from "lucide-react";
-import { dailyProfit, formatUsd, roiDays, type HashUnit } from "@/lib/economics";
+import { dailyProfit, roiDays, type HashUnit } from "@/lib/economics";
 import { useMiningSettings } from "@/lib/useMiningSettings";
 import type { Offer, Vendor } from "@/lib/catalog";
+import SearchSelect from "./SearchSelect";
 import { Flag, TierBadge, VerifiedBadge } from "./ui";
 
 export type OfferRow = Offer & {
@@ -40,6 +42,7 @@ export default function OffersTable({
   revenueUsd: number;
 }) {
   const [settings] = useMiningSettings();
+  const money = useMoney();
   const [mode, setMode] = useState<"price" | "recommended">("price");
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [condition, setCondition] = useState<"All" | "New" | "Refurbished">("All");
@@ -70,7 +73,7 @@ export default function OffersTable({
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="inline-flex rounded-full border border-line bg-white/[0.03] p-1">
+        <div className="inline-flex rounded-full border border-line bg-panel-soft p-1">
           {(["price", "recommended"] as const).map((value) => (
             <button
               key={value}
@@ -85,19 +88,27 @@ export default function OffersTable({
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-3">
-        <select value={condition} onChange={(event) => setCondition(event.target.value as typeof condition)} className="input w-auto py-1.5 text-xs" aria-label="Condition">
-          <option value="All" className="bg-[#0b1016]">New and refurbished</option>
-          <option value="New" className="bg-[#0b1016]">New only</option>
-          <option value="Refurbished" className="bg-[#0b1016]">Refurbished only</option>
-        </select>
-        <select value={country} onChange={(event) => setCountry(event.target.value)} className="input w-auto py-1.5 text-xs" aria-label="Ships from">
-          <option value="All" className="bg-[#0b1016]">Ships from anywhere</option>
-          {countries.map((code) => (
-            <option key={code} value={code} className="bg-[#0b1016]">
-              Ships from {code}
-            </option>
-          ))}
-        </select>
+        <SearchSelect
+          value={condition}
+          options={[
+            { value: "All", label: "New and refurbished" },
+            { value: "New", label: "New only" },
+            { value: "Refurbished", label: "Refurbished only" },
+          ]}
+          onChange={(value) => setCondition(value as typeof condition)}
+          label="Condition"
+          className="w-44"
+        />
+        <SearchSelect
+          value={country}
+          options={[
+            { value: "All", label: "Ships from anywhere" },
+            ...countries.map((code) => ({ value: code, label: `Ships from ${code}` })),
+          ]}
+          onChange={setCountry}
+          label="Ships from"
+          className="w-40"
+        />
         <label className="inline-flex cursor-pointer items-center gap-2 text-xs text-muted">
           <input
             type="checkbox"
@@ -130,14 +141,14 @@ export default function OffersTable({
                 const total = row.price + row.shipping;
                 const roi = roiDays(total, profit);
                 return (
-                  <tr key={row.id} className="border-b border-line/60 last:border-0 hover:bg-white/[0.02]">
+                  <tr key={row.id} className="border-b border-line/60 last:border-0 hover:bg-panel-soft">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         <Link href={`/vendors/${row.vendor.slug}`} className="text-sm font-semibold text-ink hover:text-accent">
                           {row.vendor.name}
                         </Link>
                         <TierBadge tier={row.vendor.tier} />
-                        {row.vendor.sample ? <span className="rounded-full border border-line bg-white/[0.04] px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
+                        {row.vendor.sample ? <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
                       </div>
                       <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-muted">
                         <VerifiedBadge verified={row.vendor.verified} partner={row.vendor.partner} />
@@ -181,12 +192,12 @@ export default function OffersTable({
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <span className="text-sm font-bold tabular-nums text-ink">{formatUsd(total, 0)}</span>
+                      <span className="text-sm font-bold tabular-nums text-ink">{money(total, 0)}</span>
                       <span className="block text-[10px] text-muted/70">
-                        {row.shipping ? `incl. ${formatUsd(row.shipping, 0)} shipping` : "free shipping"}
+                        {row.shipping ? `incl. ${money(row.shipping, 0)} shipping` : "free shipping"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{formatUsd(total / hashrate, 2)}</td>
+                    <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{money(total / hashrate, 2)}</td>
                     <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{roi ? `${roi.toLocaleString("en-US")} d` : "Never"}</td>
                     <td className="px-4 py-3 text-right">
                       <a
@@ -218,7 +229,7 @@ export default function OffersTable({
       <p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-muted/70">
         <Info className="mt-0.5 h-3 w-3 shrink-0" />
         &ldquo;Recommended&rdquo; shows paid plans first (Gold, then Silver, then Bronze). A paid plan changes position only, never
-        the price or data shown. Buyers pay sellers directly. Listings marked Sample are placeholders until sellers join.
+        the price or data shown. Buyers pay sellers directly.{offers.some((offer) => offer.vendor.sample) ? " Listings marked Sample are placeholders until sellers join." : ""}
       </p>
     </div>
   );

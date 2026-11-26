@@ -24,9 +24,13 @@ import { ConvexError } from "convex/values";
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import SignInPanel from "./SignInPanel";
+import SearchSelect from "../directory/SearchSelect";
+import PartnerBadgeCard from "../directory/PartnerBadgeCard";
 import { COUNTRIES } from "./countries";
 
-export type PortalMiner = { slug: string; label: string; refPrice: number };
+import ModelPicker, { ModelSpecs, type PortalMiner } from "./ModelPicker";
+
+export type { PortalMiner };
 
 type Stock = "In stock" | "Pre-order" | "Out of stock";
 type Condition = "New" | "Refurbished";
@@ -42,6 +46,8 @@ function refreshPublic(paths: string[]) {
 
 const GRACE_DAYS = 14;
 
+const suggestedPrice = (miner: PortalMiner) => miner.market?.median ?? miner.refPrice;
+
 function errorText(err: unknown) {
   if (err instanceof ConvexError) return typeof err.data === "string" ? err.data : JSON.stringify(err.data);
   const message = err instanceof Error ? err.message : String(err);
@@ -49,7 +55,13 @@ function errorText(err: unknown) {
   return message.replace(/^\[.*?\]\s*/, "").replace(/^Uncaught Error:\s*/, "").split("\n")[0].replace(/\s+at .*$/, "");
 }
 
-export default function SellerPortal({ miners }: { miners: PortalMiner[] }) {
+export default function SellerPortal({
+  miners,
+  initialMode,
+}: {
+  miners: PortalMiner[];
+  initialMode?: "signIn" | "signUp";
+}) {
   const { isLoading, isAuthenticated } = useConvexAuth();
 
   if (isLoading) {
@@ -71,7 +83,7 @@ export default function SellerPortal({ miners }: { miners: PortalMiner[] }) {
             </h1>
             <ul className="mt-6 space-y-3 text-sm text-muted">
               {[
-                "Launch promo: first 6 months free, then $100/month. No commission, cancel anytime",
+                "Launch promo: first 6 months free, then we contact you about continuing. No commission, cancel anytime",
                 "Your prices on every matching miner page, with live ROI",
                 "Add listings one by one or import a CSV",
                 "Listings go live as soon as you add them",
@@ -84,6 +96,7 @@ export default function SellerPortal({ miners }: { miners: PortalMiner[] }) {
             </ul>
           </>
         }
+        initialMode={initialMode}
       />
     );
   }
@@ -199,22 +212,19 @@ function CompanyForm({ vendor, onDone }: { vendor?: Doc<"vendors">; onDone?: () 
       <div className="grid gap-4 sm:grid-cols-2">
         {input("name", "Company name", { required: true, placeholder: "Acme Mining Supply Ltd." })}
         {input("website", "Website", { required: true, type: "url", placeholder: "https://" })}
-        <label className="block">
+        <div className="block">
           <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Country</span>
-          <select
-            required
+          <SearchSelect
             value={form.countryCode}
-            onChange={(event) => setForm({ ...form, countryCode: event.target.value })}
-            className="input mt-1.5"
-          >
-            <option value="" className="bg-[#0b1016]">Choose…</option>
-            {COUNTRIES.map(([code, name]) => (
-              <option key={code} value={code} className="bg-[#0b1016]">
-                {name}
-              </option>
-            ))}
-          </select>
-        </label>
+            options={[
+              { value: "", label: "Choose…" },
+              ...COUNTRIES.map(([code, name]) => ({ value: code, label: name })),
+            ]}
+            onChange={(value) => setForm({ ...form, countryCode: value })}
+            label="Country"
+            className="mt-1.5 w-full"
+          />
+        </div>
         {input("contactEmail", "Contact email (not public)", { required: true, type: "email" })}
         {input("payments", "Payment methods (comma separated)")}
         {input("warrantyMonths", "Warranty (months)", { type: "number", min: 0, max: 120 })}
@@ -360,7 +370,7 @@ function PlanCard({ vendor, daysLeft }: { vendor: Doc<"vendors">; daysLeft: numb
       <div className="flex items-start justify-between">
         <div>
           <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Plan</div>
-          <div className="mt-1 text-xl font-bold text-ink">{daysLeft > 0 ? "Launch promo · 6 months free" : vendor.canceled ? "Canceled" : "Listing plan · $100/month"}</div>
+          <div className="mt-1 text-xl font-bold text-ink">{daysLeft > 0 ? "Launch promo · 6 months free" : vendor.canceled ? "Canceled" : "Contact us to continue"}</div>
         </div>
         <span
           className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] ${
@@ -372,7 +382,7 @@ function PlanCard({ vendor, daysLeft }: { vendor: Doc<"vendors">; daysLeft: numb
       </div>
       {daysLeft > 0 ? (
         <>
-          <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/[0.06]">
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-panel-soft">
             <div className="h-full rounded-full bg-gradient-to-r from-accent to-aqua" style={{ width: `${progress}%` }} />
           </div>
           <p className="mt-2 text-xs text-muted">
@@ -383,7 +393,7 @@ function PlanCard({ vendor, daysLeft }: { vendor: Doc<"vendors">; daysLeft: numb
       <p className="mt-3 text-sm text-muted">
         {vendor.canceled
           ? `Your listings go offline after ${trialEnd}. No charges.`
-          : `Then $100/month with no commission. Card billing is set up before ${trialEnd}; nothing is charged during the free period.`}
+          : `After the promo we'll contact you about continuing. No card is required and nothing is charged automatically.`}
       </p>
       <button
         type="button"
@@ -411,9 +421,10 @@ function PartnerLinkCard({ vendor }: { vendor: Doc<"vendors"> }) {
   const [error, setError] = useState("");
 
   return (
-    <div className="surface rounded-2xl p-5">
-      <div className="flex items-center gap-2">
-        <Link2 className="h-4 w-4 text-aqua" />
+    <>
+      <div className="surface rounded-2xl p-5">
+        <div className="flex items-center gap-2">
+          <Link2 className="h-4 w-4 text-aqua" />
         <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Partner link</div>
       </div>
       <p className="mt-2 text-sm text-muted">
@@ -459,7 +470,9 @@ function PartnerLinkCard({ vendor }: { vendor: Doc<"vendors"> }) {
           <p className="mt-1 text-[10px] text-muted/70">Last checked {new Date(vendor.partnerLinkCheckedAt).toLocaleString("en-US")}</p>
         ) : null}
       </div>
-    </div>
+      </div>
+      <PartnerBadgeCard />
+    </>
   );
 }
 
@@ -502,6 +515,7 @@ function ListingsCard({ offers, miners, live, vendorSlug }: { offers: Doc<"offer
   const [csv, setCsv] = useState("");
   const [csvResult, setCsvResult] = useState("");
   const minerMap = useMemo(() => new Map(miners.map((miner) => [miner.slug, miner])), [miners]);
+  const csvExample = useMemo(() => miners.filter((miner) => suggestedPrice(miner) > 0).slice(0, 2), [miners]);
 
   // Keep saved rows in sync with the database, but don't drop unsaved new rows.
   useEffect(() => {
@@ -518,7 +532,7 @@ function ListingsCard({ offers, miners, live, vendorSlug }: { offers: Doc<"offer
       {
         key: `new-${Math.random().toString(36).slice(2)}`,
         minerSlug: miner.slug,
-        price: String(miner.refPrice),
+        price: suggestedPrice(miner) ? String(suggestedPrice(miner)) : "",
         shipping: "0",
         availability: "In stock",
         condition: "New",
@@ -530,6 +544,14 @@ function ListingsCard({ offers, miners, live, vendorSlug }: { offers: Doc<"offer
   }
 
   const edit = (key: string, patch: Partial<Draft>) => setDrafts((current) => current.map((draft) => (draft.key === key ? { ...draft, ...patch } : draft)));
+
+  /** Switch model; if the price was empty or still the old model's suggestion, suggest the new model's market price. */
+  function chooseModel(draft: Draft, miner: PortalMiner) {
+    const previous = minerMap.get(draft.minerSlug);
+    const suggested = previous ? String(suggestedPrice(previous)) : "";
+    const keepPrice = draft.price !== "" && draft.price !== "0" && draft.price !== suggested;
+    edit(draft.key, { minerSlug: miner.slug, ...(keepPrice ? {} : { price: suggestedPrice(miner) ? String(suggestedPrice(miner)) : "" }) });
+  }
 
   async function save(draft: Draft) {
     setSavingKey(draft.key);
@@ -616,7 +638,8 @@ function ListingsCard({ offers, miners, live, vendorSlug }: { offers: Doc<"offer
             onChange={(event) => setCsv(event.target.value)}
             rows={4}
             className="input resize-none font-mono text-xs"
-            placeholder={`${miners[0]?.slug},${miners[0]?.refPrice},In stock,0,US\n${miners[1]?.slug},${miners[1]?.refPrice},Pre-order,150,HK`}
+            placeholder={`${csvExample[0]?.slug},${csvExample[0] ? suggestedPrice(csvExample[0]) : ""},In stock,0,US
+${csvExample[1]?.slug},${csvExample[1] ? suggestedPrice(csvExample[1]) : ""},Pre-order,150,HK`}
           />
           <div className="flex items-center gap-3">
             <button type="button" onClick={runImport} disabled={!csv.trim()} className="btn-primary px-4 py-2 text-xs disabled:opacity-60">
@@ -656,14 +679,10 @@ function ListingsCard({ offers, miners, live, vendorSlug }: { offers: Doc<"offer
               return (
                 <tr key={draft.key} className="border-b border-line/60 align-top last:border-0">
                   <td className="px-4 py-2.5">
-                    <select value={draft.minerSlug} onChange={(event) => edit(draft.key, { minerSlug: event.target.value })} className="input py-2 text-xs" aria-label="Model">
-                      {miners.map((miner) => (
-                        <option key={miner.slug} value={miner.slug} className="bg-[#0b1016]">
-                          {miner.label}
-                        </option>
-                      ))}
-                      {!minerMap.has(draft.minerSlug) ? <option value={draft.minerSlug}>{draft.minerSlug} (retired)</option> : null}
-                    </select>
+                    <ModelPicker miners={miners} value={draft.minerSlug} onChange={(miner) => chooseModel(draft, miner)} />
+                    {minerMap.get(draft.minerSlug) ? (
+                      <ModelSpecs miner={minerMap.get(draft.minerSlug)!} price={draft.price} onUsePrice={(price) => edit(draft.key, { price: String(price) })} />
+                    ) : null}
                     {rowError[draft.key] ? <p className="mt-1 text-[11px] text-red-300">{rowError[draft.key]}</p> : null}
                   </td>
                   <td className="px-4 py-2.5">
@@ -673,31 +692,31 @@ function ListingsCard({ offers, miners, live, vendorSlug }: { offers: Doc<"offer
                     <input type="number" min={0} value={draft.shipping} onChange={(event) => edit(draft.key, { shipping: event.target.value })} className="input w-20 py-2 text-xs tabular-nums" aria-label="Shipping" />
                   </td>
                   <td className="px-4 py-2.5">
-                    <select value={draft.availability} onChange={(event) => edit(draft.key, { availability: event.target.value as Stock })} className="input py-2 text-xs" aria-label="Stock">
-                      {(["In stock", "Pre-order", "Out of stock"] as const).map((value) => (
-                        <option key={value} className="bg-[#0b1016]">
-                          {value}
-                        </option>
-                      ))}
-                    </select>
+                    <SearchSelect
+                      value={draft.availability}
+                      options={["In stock", "Pre-order", "Out of stock"] as const}
+                      onChange={(value) => edit(draft.key, { availability: value as Stock })}
+                      label="Stock"
+                      className="w-28"
+                    />
                   </td>
                   <td className="px-4 py-2.5">
-                    <select value={draft.condition} onChange={(event) => edit(draft.key, { condition: event.target.value as Condition })} className="input py-2 text-xs" aria-label="Condition">
-                      {(["New", "Refurbished"] as const).map((value) => (
-                        <option key={value} className="bg-[#0b1016]">
-                          {value}
-                        </option>
-                      ))}
-                    </select>
+                    <SearchSelect
+                      value={draft.condition}
+                      options={["New", "Refurbished"] as const}
+                      onChange={(value) => edit(draft.key, { condition: value as Condition })}
+                      label="Condition"
+                      className="w-24"
+                    />
                   </td>
                   <td className="px-4 py-2.5">
-                    <select value={draft.shipsFrom} onChange={(event) => edit(draft.key, { shipsFrom: event.target.value })} className="input w-24 py-2 text-xs" aria-label="Ships from">
-                      {COUNTRIES.map(([code]) => (
-                        <option key={code} value={code} className="bg-[#0b1016]">
-                          {code}
-                        </option>
-                      ))}
-                    </select>
+                    <SearchSelect
+                      value={draft.shipsFrom}
+                      options={COUNTRIES.map(([code, name]) => ({ value: code, label: name }))}
+                      onChange={(value) => edit(draft.key, { shipsFrom: value })}
+                      label="Ships from"
+                      className="w-32"
+                    />
                   </td>
                   <td className="px-4 py-2.5">
                     <input type="checkbox" checked={draft.psuIncluded} onChange={(event) => edit(draft.key, { psuIncluded: event.target.checked })} className="mt-2 h-4 w-4 accent-[#b9ff66]" aria-label="PSU included" />
@@ -724,7 +743,7 @@ function ListingsCard({ offers, miners, live, vendorSlug }: { offers: Doc<"offer
                           refreshPublic(["/", "/miners", `/miners/${draft.minerSlug}`, "/vendors", `/vendors/${vendorSlug}`]);
                         }
                       }}
-                      className="ml-1 inline-grid h-8 w-8 place-items-center rounded-full text-muted hover:bg-white/[0.06] hover:text-red-300"
+                      className="ml-1 inline-grid h-8 w-8 place-items-center rounded-full text-muted hover:bg-panel-soft hover:text-red-300"
                       aria-label="Delete listing"
                     >
                       <Trash2 className="h-4 w-4" />

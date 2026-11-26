@@ -4,11 +4,16 @@ import type { Doc } from "./_generated/dataModel";
 
 export const PARTNER_GRACE_DAYS = 14;
 
+/** Vendors created by QA or seeding runs must never reach the public directory. */
+const TEST_VENDOR = /^(qa|test)(?:[-_ ]|$)/i;
+
 /**
  * Listings go public as soon as a seller adds them. A seller is hidden only when an admin rejects
  * it, or when its partner link still isn't verified after the grace period.
  */
 export function isPublicVendor(vendor: Doc<"vendors">, now: number) {
+  if (TEST_VENDOR.test(vendor.slug) || TEST_VENDOR.test(vendor.name)) return false;
+  if (vendor.sample && process.env.SAMPLE_DATA !== "allowed") return false;
   if (vendor.status === "rejected") return false;
   if (!vendor.ownerId) return vendor.status === "approved"; // added by the team
   if (vendor.partnerLinkStatus === "found") return true;
@@ -81,6 +86,15 @@ export const snapshot = query({
       vendors: vendors.map(publicVendor),
       offers,
     };
+  },
+});
+
+/** Every coin's current network state (BackPoW), with its 30-day daily history. */
+export const marketCoins = query({
+  args: {},
+  handler: async (ctx) => {
+    const coins = await ctx.db.query("coins").take(500);
+    return coins.map(({ _id, _creationTime, ...coin }) => coin);
   },
 });
 

@@ -1,16 +1,48 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
-import { CheckCircle2, Loader2, Plus, Save, ShieldAlert, Trash2, XCircle } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, CheckCircle2, Download, Loader2, Plus, Save, Search, ShieldAlert, Trash2, Upload, XCircle } from "lucide-react";
 import { ConvexError } from "convex/values";
 import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
+import type { Algorithm, HashUnit } from "@/lib/economics";
+import type { Category, Cooling } from "@/lib/catalog";
 import SignInPanel from "./SignInPanel";
+import SearchSelect from "../directory/SearchSelect";
+import { downloadCsv, parseCsv, toCsv } from "@/lib/csv";
 
 type Tier = "Gold" | "Silver" | "Bronze" | "Free";
 type Status = "pending" | "approved" | "rejected";
+type VendorRowData = Doc<"vendors"> & { offerCount: number };
+type SortDir = "asc" | "desc";
+
+function SortHeader({
+  label,
+  active,
+  dir,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  dir: SortDir;
+  onClick: () => void;
+}) {
+  const Icon = active ? (dir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
+  return (
+    <th className="px-4 py-3 font-semibold">
+      <button
+        type="button"
+        onClick={onClick}
+        className={`inline-flex items-center gap-1 uppercase tracking-[0.1em] hover:text-ink ${active ? "text-ink" : ""}`}
+      >
+        {label}
+        <Icon className={`h-3 w-3 ${active ? "text-accent" : "opacity-40"}`} aria-hidden="true" />
+      </button>
+    </th>
+  );
+}
 
 function errorText(err: unknown) {
   if (err instanceof ConvexError) return typeof err.data === "string" ? err.data : JSON.stringify(err.data);
@@ -88,37 +120,150 @@ function Admin() {
         ) : null}
       </div>
 
-      <section>
-        <h2 className="mb-3 text-lg font-bold text-ink">Vendors</h2>
-        <div className="surface overflow-x-auto rounded-2xl">
-          <table className="w-full min-w-[1000px] text-left">
-            <thead>
-              <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
-                <th className="px-4 py-3 font-semibold">Vendor</th>
-                <th className="px-4 py-3 font-semibold">Contact</th>
-                <th className="px-4 py-3 font-semibold">Partner link</th>
-                <th className="px-4 py-3 font-semibold">Offers</th>
-                <th className="px-4 py-3 font-semibold">Status</th>
-                <th className="px-4 py-3 font-semibold">Tier</th>
-                <th className="px-4 py-3 font-semibold">Verified</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {[...pending, ...data.vendors.filter((vendor) => vendor.status !== "pending")].map((vendor) => (
-                <VendorRow key={vendor._id} vendor={vendor} />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+      <VendorsSection vendors={data.vendors} />
 
       <MinersSection miners={data.miners} />
     </div>
   );
 }
 
-function VendorRow({ vendor }: { vendor: Doc<"vendors"> & { offerCount: number } }) {
+function VendorsSection({ vendors }: { vendors: VendorRowData[] }) {
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState<Status | "All">("All");
+  const [tier, setTier] = useState<Tier | "All">("All");
+  const [listed, setListed] = useState<"All" | "Yes" | "No">("All");
+  const [sort, setSort] = useState<{ key: "name" | "offers" | "status" | "tier"; dir: SortDir }>({ key: "status", dir: "asc" });
+
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const filtered = vendors.filter((vendor) => {
+      const haystack = [vendor.name, vendor.website, vendor.countryCode, vendor.contactEmail ?? "", vendor.about ?? "", vendor.status, vendor.tier, vendor.partnerLinkStatus ?? ""].join(" ").toLowerCase();
+      return (
+        (!q || haystack.includes(q)) &&
+        (status === "All" || vendor.status === status) &&
+        (tier === "All" || vendor.tier === tier) &&
+        (listed === "All" || (listed === "Yes" ? vendor.offerCount > 0 : vendor.offerCount === 0))
+      );
+    });
+    const direction = sort.dir === "asc" ? 1 : -1;
+    return [...filtered].sort((a, b) => {
+      if (sort.key === "offers") return (a.offerCount - b.offerCount) * direction;
+      return String(a[sort.key] ?? "").localeCompare(String(b[sort.key] ?? "")) * direction;
+    });
+  }, [vendors, query, status, tier, listed, sort]);
+
+  function toggleSort(key: typeof sort.key) {
+    setSort((current) => (current.key === key ? { key, dir: current.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
+  }
+
+  function exportVendors() {
+    const columns = [
+      "name",
+      "website",
+      "countryCode",
+      "contactEmail",
+      "status",
+      "tier",
+      "verified",
+      "offerCount",
+      "partnerLinkStatus",
+      "partnerLinkUrl",
+      "payments",
+      "warrantyMonths",
+      "about",
+      "sample",
+    ];
+    downloadCsv(`nowmining-vendors-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows as unknown as Record<string, unknown>[], columns));
+  }
+
+  return (
+    <section className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-lg font-bold text-ink">Vendors</h2>
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] text-muted">
+            {rows.length} of {vendors.length}
+          </span>
+          <button type="button" onClick={exportVendors} className="btn-ghost px-3 py-1.5 text-xs">
+            <Download className="h-3.5 w-3.5" /> Export CSV
+          </button>
+        </div>
+      </div>
+      <div className="surface flex flex-wrap items-center gap-2 rounded-2xl p-3">
+        <label className="relative min-w-[220px] flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search name, website, country, email, notes…"
+            className="input"
+            style={{ paddingLeft: "2.25rem" }}
+            aria-label="Search vendors"
+          />
+        </label>
+        <SearchSelect
+          value={status}
+          options={[
+            { value: "All", label: "All statuses" },
+            { value: "pending", label: "Pending" },
+            { value: "approved", label: "Approved" },
+            { value: "rejected", label: "Rejected" },
+          ]}
+          onChange={setStatus}
+          label="Status"
+          className="w-36"
+        />
+        <SearchSelect
+          value={tier}
+          options={[
+            { value: "All", label: "All tiers" },
+            { value: "Gold", label: "Gold" },
+            { value: "Silver", label: "Silver" },
+            { value: "Bronze", label: "Bronze" },
+            { value: "Free", label: "Free" },
+          ]}
+          onChange={setTier}
+          label="Tier"
+          className="w-32"
+        />
+        <SearchSelect
+          value={listed}
+          options={[
+            { value: "All", label: "Any listings" },
+            { value: "Yes", label: "Listed" },
+            { value: "No", label: "No listings" },
+          ]}
+          onChange={setListed}
+          label="Listings"
+          className="w-36"
+        />
+      </div>
+      <div className="surface overflow-x-auto rounded-2xl">
+        <table className="w-full min-w-[1000px] text-left">
+          <thead>
+            <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
+              <SortHeader label="Vendor" active={sort.key === "name"} dir={sort.dir} onClick={() => toggleSort("name")} />
+              <th className="px-4 py-3 font-semibold">Contact</th>
+              <th className="px-4 py-3 font-semibold">Partner link</th>
+              <SortHeader label="Offers" active={sort.key === "offers"} dir={sort.dir} onClick={() => toggleSort("offers")} />
+              <SortHeader label="Status" active={sort.key === "status"} dir={sort.dir} onClick={() => toggleSort("status")} />
+              <SortHeader label="Tier" active={sort.key === "tier"} dir={sort.dir} onClick={() => toggleSort("tier")} />
+              <th className="px-4 py-3 font-semibold">Verified</th>
+              <th className="px-4 py-3" />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((vendor) => (
+              <VendorRow key={vendor._id} vendor={vendor} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function VendorRow({ vendor }: { vendor: VendorRowData }) {
   const setReview = useMutation(api.admin.setVendorReview);
   const [status, setStatus] = useState<Status>(vendor.status);
   const [tier, setTier] = useState<Tier>(vendor.tier);
@@ -162,22 +307,22 @@ function VendorRow({ vendor }: { vendor: Doc<"vendors"> & { offerCount: number }
       </td>
       <td className="px-4 py-3 text-xs tabular-nums text-ink">{vendor.offerCount}</td>
       <td className="px-4 py-3">
-        <select value={status} onChange={(event) => setStatus(event.target.value as Status)} className="input py-1.5 text-xs">
-          {(["pending", "approved", "rejected"] as const).map((value) => (
-            <option key={value} className="bg-[#0b1016]">
-              {value}
-            </option>
-          ))}
-        </select>
+        <SearchSelect
+          value={status}
+          options={["pending", "approved", "rejected"] as const}
+          onChange={(value) => setStatus(value as Status)}
+          label="Review status"
+          className="w-28"
+        />
       </td>
       <td className="px-4 py-3">
-        <select value={tier} onChange={(event) => setTier(event.target.value as Tier)} className="input py-1.5 text-xs">
-          {(["Free", "Bronze", "Silver", "Gold"] as const).map((value) => (
-            <option key={value} className="bg-[#0b1016]">
-              {value}
-            </option>
-          ))}
-        </select>
+        <SearchSelect
+          value={tier}
+          options={["Free", "Bronze", "Silver", "Gold"] as const}
+          onChange={(value) => setTier(value as Tier)}
+          label="Tier"
+          className="w-24"
+        />
       </td>
       <td className="px-4 py-3">
         <input type="checkbox" checked={verified} onChange={(event) => setVerified(event.target.checked)} className="mt-2 h-4 w-4 accent-[#b9ff66]" aria-label="Verified" />
@@ -220,10 +365,20 @@ const EMPTY_MINER = {
 
 function MinersSection({ miners }: { miners: Doc<"miners">[] }) {
   const upsertMiner = useMutation(api.admin.upsertMiner);
+  const importMiners = useMutation(api.admin.importMiners);
+  const fileRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState(EMPTY_MINER);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
+  const [importing, setImporting] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [query, setQuery] = useState("");
+  const [algorithm, setAlgorithm] = useState("All");
+  const [cooling, setCooling] = useState("All");
+  const [category, setCategory] = useState("All");
+  const [unit, setUnit] = useState("All");
+  const [listed, setListed] = useState<"All" | "Yes" | "No">("All");
+  const [sort, setSort] = useState<{ key: "name" | "algorithm" | "hashrate" | "power" | "listed"; dir: SortDir }>({ key: "name", dir: "asc" });
 
   function editMiner(miner: Doc<"miners">) {
     setForm({ ...miner, hashrate: String(miner.hashrate), powerW: String(miner.powerW), release: String(miner.release), refPrice: String(miner.refPrice) });
@@ -268,16 +423,16 @@ function MinersSection({ miners }: { miners: Doc<"miners">[] }) {
   }
 
   const select = (key: keyof typeof EMPTY_MINER, label: string, options: string[]) => (
-    <label className="block">
+    <div className="block">
       <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">{label}</span>
-      <select value={String(form[key])} onChange={(event) => setForm({ ...form, [key]: event.target.value })} className="input mt-1 py-2 text-sm">
-        {options.map((option) => (
-          <option key={option} className="bg-[#0b1016]">
-            {option}
-          </option>
-        ))}
-      </select>
-    </label>
+      <SearchSelect<string>
+        value={String(form[key])}
+        options={options}
+        onChange={(value) => setForm({ ...form, [key]: value })}
+        label={label}
+        className="mt-1 w-full"
+      />
+    </div>
   );
   const text = (key: keyof typeof EMPTY_MINER, label: string, type = "text") => (
     <label className="block">
@@ -286,14 +441,101 @@ function MinersSection({ miners }: { miners: Doc<"miners">[] }) {
     </label>
   );
 
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const filtered = miners.filter((miner) => {
+      const haystack = [miner.manufacturer, miner.model, miner.slug, miner.algorithm, miner.unit, miner.cooling, miner.category].join(" ").toLowerCase();
+      return (
+        (!q || haystack.includes(q)) &&
+        (algorithm === "All" || miner.algorithm === algorithm) &&
+        (cooling === "All" || miner.cooling === cooling) &&
+        (category === "All" || miner.category === category) &&
+        (unit === "All" || miner.unit === unit) &&
+        (listed === "All" || (listed === "Yes" ? miner.active : !miner.active))
+      );
+    });
+    const direction = sort.dir === "asc" ? 1 : -1;
+    return [...filtered].sort((a, b) => {
+      if (sort.key === "hashrate") return (a.hashrate - b.hashrate) * direction;
+      if (sort.key === "power") return (a.powerW - b.powerW) * direction;
+      if (sort.key === "listed") return (Number(a.active) - Number(b.active)) * direction;
+      if (sort.key === "algorithm") return a.algorithm.localeCompare(b.algorithm) * direction;
+      return `${a.manufacturer} ${a.model}`.localeCompare(`${b.manufacturer} ${b.model}`) * direction;
+    });
+  }, [miners, query, algorithm, cooling, category, unit, listed, sort]);
+
+  function toggleSort(key: typeof sort.key) {
+    setSort((current) => (current.key === key ? { key, dir: current.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
+  }
+
+  function exportMiners() {
+    const columns = ["slug", "manufacturer", "model", "algorithm", "hashrate", "unit", "powerW", "cooling", "category", "release", "refPrice", "active"];
+    downloadCsv(`nowmining-miners-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows as unknown as Record<string, unknown>[], columns));
+  }
+
+  async function importModels(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    setError("");
+    try {
+      const parsed = parseCsv(await file.text());
+      const payload: {
+        slug: string;
+        manufacturer: string;
+        model: string;
+        algorithm: Algorithm;
+        hashrate: number;
+        unit: HashUnit;
+        powerW: number;
+        cooling: Cooling;
+        category: Category;
+        release: number;
+        refPrice: number;
+        active: boolean;
+      }[] = parsed.map((row) => ({
+        slug: (row.slug ?? "").trim(),
+        manufacturer: (row.manufacturer ?? "").trim(),
+        model: (row.model ?? "").trim(),
+        algorithm: (row.algorithm || "SHA-256") as Algorithm,
+        hashrate: Number(row.hashrate),
+        unit: (row.unit || "TH/s") as HashUnit,
+        powerW: Number(row.powerW),
+        cooling: (row.cooling || "Air") as Cooling,
+        category: (row.category || "Industrial") as Category,
+        release: Number(row.release) || new Date().getFullYear(),
+        refPrice: Number(row.refPrice) || 0,
+        active: row.active == null ? true : String(row.active).toLowerCase() === "true",
+      }));
+      if (!payload.length) throw new Error("No data rows found in the CSV.");
+      const result = await importMiners({ miners: payload });
+      setError(`Imported ${result.total} models: ${result.created} created, ${result.updated} updated.`);
+    } catch (err) {
+      setError(errorText(err));
+    } finally {
+      setImporting(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
   return (
     <section id="miner-form">
-      <div className="mb-3 flex items-center justify-between">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-bold text-ink">Miner catalog</h2>
-        <button type="button" onClick={() => { setForm(EMPTY_MINER); setOpen((value) => !value); }} className="btn-primary px-4 py-2 text-xs">
-          <Plus className="h-3.5 w-3.5" /> Add miner
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" onClick={exportMiners} className="btn-ghost px-3 py-2 text-xs">
+            <Download className="h-3.5 w-3.5" /> Export models
+          </button>
+          <button type="button" onClick={() => fileRef.current?.click()} disabled={importing} className="btn-ghost px-3 py-2 text-xs disabled:opacity-50">
+            <Upload className="h-3.5 w-3.5" /> {importing ? "Importing…" : "Import models"}
+          </button>
+          <input ref={fileRef} type="file" accept=".csv,text/csv" onChange={importModels} className="hidden" aria-label="Import models CSV" />
+          <button type="button" onClick={() => { setForm(EMPTY_MINER); setOpen((value) => !value); }} className="btn-primary px-4 py-2 text-xs">
+            <Plus className="h-3.5 w-3.5" /> Add miner
+          </button>
+        </div>
       </div>
+      {error ? <p className="mb-3 text-xs text-muted">{error}</p> : null}
       {open ? (
         <form onSubmit={save} className="surface mb-4 grid gap-3 rounded-2xl p-5 sm:grid-cols-3 lg:grid-cols-6">
           {text("manufacturer", "Manufacturer")}
@@ -319,20 +561,84 @@ function MinersSection({ miners }: { miners: Doc<"miners">[] }) {
           </div>
         </form>
       ) : null}
+      <div className="surface flex flex-wrap items-center gap-2 rounded-2xl p-3">
+        <label className="relative min-w-[220px] flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search manufacturer, model, slug, algo…"
+            className="input"
+            style={{ paddingLeft: "2.25rem" }}
+            aria-label="Search miners"
+          />
+        </label>
+        <SearchSelect
+          value={algorithm}
+          options={[
+            { value: "All", label: "All algorithms" },
+            "SHA-256",
+            "Scrypt",
+            "kHeavyHash",
+            "Equihash",
+            "Etchash",
+            "X11",
+            "Eaglesong",
+          ]}
+          onChange={setAlgorithm}
+          label="Algorithm"
+          className="w-36"
+        />
+        <SearchSelect
+          value={cooling}
+          options={[{ value: "All", label: "All cooling" }, "Air", "Hydro", "Immersion"]}
+          onChange={setCooling}
+          label="Cooling"
+          className="w-32"
+        />
+        <SearchSelect
+          value={category}
+          options={[{ value: "All", label: "All types" }, "Industrial", "Home"]}
+          onChange={setCategory}
+          label="Type"
+          className="w-32"
+        />
+        <SearchSelect
+          value={unit}
+          options={[{ value: "All", label: "All units" }, "TH/s", "GH/s", "MH/s", "kSol/s"]}
+          onChange={setUnit}
+          label="Unit"
+          className="w-32"
+        />
+        <SearchSelect
+          value={listed}
+          options={[
+            { value: "All", label: "Any status" },
+            { value: "Yes", label: "Listed" },
+            { value: "No", label: "Hidden" },
+          ]}
+          onChange={setListed}
+          label="Listing status"
+          className="w-32"
+        />
+        <span className="ml-auto text-[11px] text-muted">
+          {rows.length} of {miners.length}
+        </span>
+      </div>
       <div className="surface overflow-x-auto rounded-2xl">
         <table className="w-full min-w-[760px] text-left">
           <thead>
             <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
-              <th className="px-4 py-3 font-semibold">Miner</th>
-              <th className="px-4 py-3 font-semibold">Algorithm</th>
-              <th className="px-4 py-3 font-semibold">Hashrate</th>
-              <th className="px-4 py-3 font-semibold">Power</th>
-              <th className="px-4 py-3 font-semibold">Listed</th>
+              <SortHeader label="Miner" active={sort.key === "name"} dir={sort.dir} onClick={() => toggleSort("name")} />
+              <SortHeader label="Algorithm" active={sort.key === "algorithm"} dir={sort.dir} onClick={() => toggleSort("algorithm")} />
+              <SortHeader label="Hashrate" active={sort.key === "hashrate"} dir={sort.dir} onClick={() => toggleSort("hashrate")} />
+              <SortHeader label="Power" active={sort.key === "power"} dir={sort.dir} onClick={() => toggleSort("power")} />
+              <SortHeader label="Listed" active={sort.key === "listed"} dir={sort.dir} onClick={() => toggleSort("listed")} />
               <th className="px-4 py-3" />
             </tr>
           </thead>
           <tbody>
-            {miners.map((miner) => (
+            {rows.map((miner) => (
               <tr key={miner._id} className="border-b border-line/60 last:border-0">
                 <td className="px-4 py-2.5 text-sm text-ink">
                   {miner.manufacturer} {miner.model}

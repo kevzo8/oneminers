@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import SearchSelect from "./SearchSelect";
 
 const UNITS = [
   { label: "H/s", factor: 1 },
@@ -31,13 +32,13 @@ export default function HashrateConverter() {
         <h2 className="text-lg font-bold text-ink">Hashrate</h2>
         <div className="flex gap-2">
           <input type="number" min={0} value={value} onChange={(event) => setValue(Number(event.target.value) || 0)} className="input text-lg font-semibold" aria-label="Hashrate value" />
-          <select value={unit} onChange={(event) => setUnit(event.target.value)} className="input w-32" aria-label="Unit">
-            {UNITS.map((u) => (
-              <option key={u.label} className="bg-[#0b1016]">
-                {u.label}
-              </option>
-            ))}
-          </select>
+          <SearchSelect
+            value={unit}
+            options={UNITS.map((u) => u.label)}
+            onChange={setUnit}
+            label="Unit"
+            className="w-32"
+          />
         </div>
         <div className="divide-y divide-line/60 rounded-xl border border-line">
           {UNITS.map((u) => (

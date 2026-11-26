@@ -14,18 +14,18 @@ export type WtmCoin = {
 };
 
 /** WhatToMine coin key -> our coin definition. */
-export const TRACKED: Record<string, { tag: string; name: string; algorithm: Algorithm }> = {
-  Bitcoin: { tag: "BTC", name: "Bitcoin", algorithm: "SHA-256" },
-  BitcoinCash: { tag: "BCH", name: "Bitcoin Cash", algorithm: "SHA-256" },
-  "Fractal Bitcoin": { tag: "FB", name: "Fractal Bitcoin", algorithm: "SHA-256" },
-  eCash: { tag: "XEC", name: "eCash", algorithm: "SHA-256" },
-  Litecoin: { tag: "LTC", name: "Litecoin", algorithm: "Scrypt" },
-  Dogecoin: { tag: "DOGE", name: "Dogecoin", algorithm: "Scrypt" },
-  Kaspa: { tag: "KAS", name: "Kaspa", algorithm: "kHeavyHash" },
-  Zcash: { tag: "ZEC", name: "Zcash", algorithm: "Equihash" },
-  EthereumClassic: { tag: "ETC", name: "Ethereum Classic", algorithm: "Etchash" },
-  Dash: { tag: "DASH", name: "Dash", algorithm: "X11" },
-  Nervos: { tag: "CKB", name: "Nervos", algorithm: "Eaglesong" },
+export const TRACKED: Record<string, { id: string; tag: string; name: string; algorithm: Algorithm }> = {
+  Bitcoin: { id: "Bitcoin", tag: "BTC", name: "Bitcoin", algorithm: "SHA-256" },
+  BitcoinCash: { id: "BitcoinCash", tag: "BCH", name: "Bitcoin Cash", algorithm: "SHA-256" },
+  "Fractal Bitcoin": { id: "Fractal", tag: "FB", name: "Fractal Bitcoin", algorithm: "SHA-256" },
+  eCash: { id: "eCash", tag: "XEC", name: "eCash", algorithm: "SHA-256" },
+  Litecoin: { id: "Litecoin", tag: "LTC", name: "Litecoin", algorithm: "Scrypt" },
+  Dogecoin: { id: "Dogecoin", tag: "DOGE", name: "Dogecoin", algorithm: "Scrypt" },
+  Kaspa: { id: "Kaspa", tag: "KAS", name: "Kaspa", algorithm: "kHeavyHash" },
+  Zcash: { id: "Zcash", tag: "ZEC", name: "Zcash", algorithm: "Equihash" },
+  EthereumClassic: { id: "EthereumClassic", tag: "ETC", name: "Ethereum Classic", algorithm: "Etchash" },
+  Dash: { id: "Dash", tag: "DASH", name: "Dash", algorithm: "X11" },
+  Nervos: { id: "Nervos", tag: "CKB", name: "Nervos", algorithm: "Eaglesong" },
 };
 
 // Snapshot of the same feed taken 25 Nov 2026. Used when the live feed is unreachable.
@@ -50,6 +50,7 @@ export function toNetwork(key: string, raw: Pick<WtmCoin, "block_time" | "block_
   // WhatToMine quotes Bitcoin's rate in USD and every other coin in BTC.
   const priceUsd = key === "Bitcoin" ? raw.exchange_rate : raw.exchange_rate * btcUsd;
   return {
+    id: meta.id,
     tag: meta.tag,
     name: meta.name,
     algorithm: meta.algorithm,
