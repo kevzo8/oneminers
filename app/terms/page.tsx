@@ -3,7 +3,7 @@ import LegalPage from "@/components/directory/LegalPage";
 
 export const metadata: Metadata = {
   title: "Terms and conditions",
-  description: "Terms of use for NowMining's ASIC miner directory, calculators and tools.",
+  description: "Terms of use for MinerPicks's ASIC miner directory, calculators and tools.",
   alternates: { canonical: "/terms" },
 };
 
@@ -11,12 +11,12 @@ export default function TermsPage() {
   return (
     <LegalPage
       title="Terms and conditions"
-      intro="By using NowMining you agree to these terms. If you do not agree, please do not use the site."
+      intro="By using MinerPicks you agree to these terms. If you do not agree, please do not use the site."
       sections={[
         {
           heading: "Informational service",
           paragraphs: [
-            "NowMining is a directory and analysis tool. We are not a seller, broker, exchange, payment processor, hosting provider or investment adviser. Listings, prices and hosting details belong to the sellers and providers who publish them.",
+            "MinerPicks is a directory and analysis tool. We are not a seller, broker, exchange, payment processor, hosting provider or investment adviser. Listings, prices and hosting details belong to the sellers and providers who publish them.",
           ],
         },
         {
@@ -49,7 +49,7 @@ export default function TermsPage() {
         {
           heading: "Limitation of liability",
           paragraphs: [
-            "To the maximum extent permitted by law, NowMining and its contributors are not liable for lost profits, lost data, business interruption or any financial loss arising from use of the site or inability to use it.",
+            "To the maximum extent permitted by law, MinerPicks and its contributors are not liable for lost profits, lost data, business interruption or any financial loss arising from use of the site or inability to use it.",
           ],
         },
         {

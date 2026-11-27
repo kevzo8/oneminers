@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowUpRight, CalendarDays, Clock, CreditCard, Globe, ShieldCheck, Star } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowUpRight, CalendarDays, Clock, CreditCard, Globe, Mail, ShieldAlert, ShieldCheck, Star } from "lucide-react";
 import { Breadcrumbs, Flag, MinerGlyph, PageShell, TierBadge, VerifiedBadge } from "@/components/directory/ui";
-import { getMiner, getVendor, loadDirectory, offersForVendor } from "@/lib/directory";
+import { getMiner, getVendor, loadDirectory, loadVendorPreview, offersForVendor, type VendorPreview } from "@/lib/directory";
 import { formatHashrate, formatUsd } from "@/lib/economics";
 
 export const revalidate = 60;
@@ -18,18 +18,101 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const vendor = getVendor(await loadDirectory(), slug);
-  if (!vendor) return { title: "Vendor not found" };
+  if (!vendor) {
+    const preview = await loadVendorPreview(slug);
+    if (preview) return { title: `${preview.name} (preview)`, description: `Preview of ${preview.name} — not publicly listed yet.` };
+    return { title: "Vendor not found" };
+  }
   return {
     title: `${vendor.name}: ASIC miner prices, stock & reviews`,
     description: `${vendor.name} (${vendor.country}) ASIC miner listings with live prices and availability. ${vendor.about}`,
   };
 }
 
+function VendorPreviewPage({ preview }: { preview: VendorPreview }) {
+  const reason = preview.sample
+    ? "This is a sample vendor used for development demos. No public listings are attached."
+    : preview.status === "rejected"
+      ? "This vendor was not approved. Listings stay hidden."
+      : "This company has signed up but is awaiting review. Prices and listings stay hidden until approval and the partner link is verified.";
+  const website = preview.website.startsWith("http") ? preview.website : null;
+
+  return (
+    <PageShell>
+      <div className="mx-auto w-full max-w-4xl space-y-6 px-5 sm:px-8">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Vendors", href: "/vendors" }, { label: `${preview.name} (preview)` }]} />
+
+        <div className="surface-strong rounded-3xl p-6 sm:p-8">
+          <div className="chip inline-flex text-amber">
+            <AlertCircle className="h-3 w-3" /> Vendor preview · not publicly listed
+          </div>
+
+          <div className="mt-5 flex items-start gap-4">
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl border border-line bg-panel-soft text-lg font-bold text-accent">
+              {preview.name
+                .split(" ")
+                .slice(0, 2)
+                .map((word) => word[0])
+                .join("")}
+            </span>
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="text-3xl font-bold tracking-tight text-ink">{preview.name}</h1>
+                <span className="rounded-full border border-amber/30 bg-amber/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-amber">
+                  {preview.status}
+                </span>
+                {preview.sample ? (
+                  <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">
+                    Sample
+                  </span>
+                ) : null}
+              </div>
+              <div className="mt-2 flex flex-wrap items-center gap-3">
+                <Flag code={preview.countryCode} label={preview.country} />
+                <VerifiedBadge verified={preview.verified} />
+                <TierBadge tier={preview.tier} />
+              </div>
+              {preview.about ? <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">{preview.about}</p> : null}
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-start gap-3 rounded-2xl border border-amber/25 bg-amber/10 p-4 text-sm leading-relaxed text-amber">
+            <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0" />
+            {reason}
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            <Link href="/vendors" className="btn-ghost px-5 py-2.5 text-sm">
+              <ArrowLeft className="h-4 w-4" /> Back to vendors
+            </Link>
+            <Link href="/#contact" className="btn-primary px-5 py-2.5 text-sm">
+              <Mail className="h-4 w-4" /> Ask about this vendor
+            </Link>
+            {website ? (
+              <a href={`${website}?ref=minerpicks-preview`} target="_blank" rel="noopener sponsored" className="btn-ghost px-5 py-2.5 text-sm">
+                <Globe className="h-4 w-4" /> Visit website
+              </a>
+            ) : null}
+          </div>
+
+          <p className="mt-5 text-[11px] text-muted/70">
+            If you own this company, manage the listing in the <Link href="/vendor-portal" className="underline hover:text-ink">Seller Portal</Link>.
+          </p>
+        </div>
+      </div>
+    </PageShell>
+  );
+}
+
 export default async function VendorPage({ params }: Params) {
   const { slug } = await params;
   const dir = await loadDirectory();
   const vendor = getVendor(dir, slug);
-  if (!vendor) notFound();
+  if (!vendor) {
+    const preview = await loadVendorPreview(slug);
+    if (preview) return <VendorPreviewPage preview={preview} />;
+    notFound();
+  }
 
   const listings = offersForVendor(dir, vendor.slug)
     .map((offer) => ({ offer, miner: getMiner(dir, offer.minerSlug) }))

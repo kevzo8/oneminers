@@ -57,7 +57,11 @@ function project(lat: number, lon: number, rotation: number, tilt: number): Poin
   const tiltRad = tilt * RAD;
   const y = baseY * Math.cos(tiltRad) - baseZ * Math.sin(tiltRad);
   const z = baseY * Math.sin(tiltRad) + baseZ * Math.cos(tiltRad);
-  return { x: CX + x * R, y: CY - y * R, z };
+  return {
+    x: Number((CX + x * R).toFixed(2)),
+    y: Number((CY - y * R).toFixed(2)),
+    z: Number(z.toFixed(4)),
+  };
 }
 
 function linePath(coords: [number, number][], rotation: number, tilt: number) {
@@ -146,7 +150,7 @@ export default function HostingGlobe() {
       const lift = R * 0.16;
       arcs.push({
         path: `M${a.x.toFixed(1)},${a.y.toFixed(1)} Q${(mx + (dx / length) * lift).toFixed(1)},${(my + (dy / length) * lift).toFixed(1)} ${b.x.toFixed(1)},${b.y.toFixed(1)}`,
-        opacity: Math.min(a.z, b.z) * 0.22,
+        opacity: Number((Math.min(a.z, b.z) * 0.22).toFixed(3)),
       });
     }
   }
@@ -163,7 +167,7 @@ export default function HostingGlobe() {
       y,
       text: marker.site.globeCode,
       color: marker.index === 0 ? p.accent : p.aqua,
-      opacity: Math.min(1, marker.point.z * 1.4),
+      opacity: Number(Math.min(1, marker.point.z * 1.4).toFixed(2)),
     });
   }
 
@@ -223,9 +227,9 @@ export default function HostingGlobe() {
               key={`land-${index}`}
               cx={point.x}
               cy={point.y}
-              r={0.7 + point.z * 0.8}
+              r={Number((0.7 + point.z * 0.8).toFixed(2))}
               fill={p.land}
-              opacity={0.12 + point.z * 0.42}
+              opacity={Number((0.12 + point.z * 0.42).toFixed(2))}
             />
           ))}
 
@@ -241,15 +245,15 @@ export default function HostingGlobe() {
               const color = index === 0 ? p.accent : p.aqua;
               return (
                 <g key={site.id}>
-                  <circle cx={point.x} cy={point.y} r={7 * glow} fill="none" stroke={color} strokeWidth={1} opacity={point.z * 0.45} />
-                  <circle cx={point.x} cy={point.y} r={3.8} fill={color} opacity={0.45 + point.z * 0.55} />
+                  <circle cx={point.x} cy={point.y} r={Number((7 * glow).toFixed(2))} fill="none" stroke={color} strokeWidth={1} opacity={Number((point.z * 0.45).toFixed(2))} />
+                  <circle cx={point.x} cy={point.y} r={3.8} fill={color} opacity={Number((0.45 + point.z * 0.55).toFixed(2))} />
                 </g>
               );
             })}
           {labels.map((label) => (
             <g key={label.id}>
-              <circle cx={label.x - 3} cy={label.y - 9} r={11} fill={p.sphereDark} opacity={label.opacity * 0.75} />
-              <text x={label.x} y={label.y} fill={label.color} fontSize={10} fontWeight={800} opacity={label.opacity}>
+              <circle cx={label.x - 3} cy={label.y - 9} r={11} fill={p.sphereDark} opacity={Number((label.opacity * 0.75).toFixed(2))} />
+              <text x={label.x} y={label.y} fill={label.color} fontSize={10} fontWeight={800} opacity={Number(label.opacity.toFixed(2))}>
                 {label.text}
               </text>
             </g>

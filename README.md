@@ -1,4 +1,4 @@
-# NowMining — ASIC miner profitability, prices and hosting
+# MinerPicks — ASIC miner profitability, prices and hosting
 
 A live directory of ASIC miners: profitability recalculated from the network every 10 minutes, prices and offers from sellers, hosting rates, and open rankings. Built with Next.js and Convex.
 

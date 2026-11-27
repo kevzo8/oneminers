@@ -6,7 +6,7 @@ import { bestUnit } from "../lib/economics";
 
 // BackPoW — The Proof of Work Oracle (https://backpow.com). Free public JSON; attribution requested.
 const BASE = "https://backpow.com";
-const HEADERS = { "User-Agent": "NowMining/1.0 (+miner directory; attribution: BackPoW)" };
+const HEADERS = { "User-Agent": "MinerPicks/1.0 (+miner directory; attribution: BackPoW)" };
 
 const TICKERS: Record<string, string> = {
   Bitcoin: "BTC",

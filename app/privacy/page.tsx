@@ -3,7 +3,7 @@ import LegalPage from "@/components/directory/LegalPage";
 
 export const metadata: Metadata = {
   title: "Privacy policy",
-  description: "What NowMining stores, why, and how to request deletion.",
+  description: "What MinerPicks stores, why, and how to request deletion.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -11,7 +11,7 @@ export default function PrivacyPage() {
   return (
     <LegalPage
       title="Privacy policy"
-      intro="This page explains what information NowMining stores when you use the directory, contact form or seller portal."
+      intro="This page explains what information MinerPicks stores when you use the directory, contact form or seller portal."
       sections={[
         {
           heading: "Information you provide",

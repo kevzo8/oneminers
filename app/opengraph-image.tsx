@@ -26,7 +26,7 @@ export default function OpengraphImage() {
           <div style={{ width: 18, height: 18, borderRadius: 999, background: "#b9ff66" }} />
           <div style={{ fontSize: 28, letterSpacing: 8, color: "#93a1ad" }}>ASIC MINING DATA</div>
         </div>
-        <div style={{ marginTop: 28, fontSize: 104, lineHeight: 1, fontWeight: 800, letterSpacing: -6 }}>NOWMINING</div>
+        <div style={{ marginTop: 28, fontSize: 104, lineHeight: 1, fontWeight: 800, letterSpacing: -6 }}>MINERPICKS</div>
         <div style={{ marginTop: 26, fontSize: 34, color: "#b9ff66" }}>{BRAND.tagline}</div>
         <div style={{ marginTop: 12, fontSize: 24, color: "#93a1ad" }}>Live profit · seller prices · hosting rates</div>
       </div>

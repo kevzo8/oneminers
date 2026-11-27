@@ -173,7 +173,7 @@ function VendorsSection({ vendors }: { vendors: VendorRowData[] }) {
       "about",
       "sample",
     ];
-    downloadCsv(`nowmining-vendors-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows as unknown as Record<string, unknown>[], columns));
+    downloadCsv(`minerpicks-vendors-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows as unknown as Record<string, unknown>[], columns));
   }
 
   return (
@@ -470,7 +470,7 @@ function MinersSection({ miners }: { miners: Doc<"miners">[] }) {
 
   function exportMiners() {
     const columns = ["slug", "manufacturer", "model", "algorithm", "hashrate", "unit", "powerW", "cooling", "category", "release", "refPrice", "active"];
-    downloadCsv(`nowmining-miners-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows as unknown as Record<string, unknown>[], columns));
+    downloadCsv(`minerpicks-miners-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows as unknown as Record<string, unknown>[], columns));
   }
 
   async function importModels(event: React.ChangeEvent<HTMLInputElement>) {

@@ -3,7 +3,7 @@ import LegalPage from "@/components/directory/LegalPage";
 
 export const metadata: Metadata = {
   title: "Cookie policy",
-  description: "Cookies and local storage used by NowMining.",
+  description: "Cookies and local storage used by MinerPicks.",
   alternates: { canonical: "/cookies" },
 };
 
@@ -11,7 +11,7 @@ export default function CookiesPage() {
   return (
     <LegalPage
       title="Cookie policy"
-      intro="NowMining uses browser storage to keep your settings and sign-in session. We do not currently run advertising or third-party analytics cookies."
+      intro="MinerPicks uses browser storage to keep your settings and sign-in session. We do not currently run advertising or third-party analytics cookies."
       sections={[
         {
           heading: "Strictly necessary storage",

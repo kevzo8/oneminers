@@ -1,13 +1,13 @@
-# NowMining media kit and design guide
+# MinerPicks media kit and design guide
 
-This is the single reference for the brand, palette, typography, component language, icons and voice used across NowMining. Everything described here is implemented in the repo; when in doubt, copy the existing token or component rather than inventing a new value.
+This is the single reference for the brand, palette, typography, component language, icons and voice used across MinerPicks. Everything described here is implemented in the repo; when in doubt, copy the existing token or component rather than inventing a new value.
 
 ## 1. Brand at a glance
 
 | Item | Value |
 | --- | --- |
-| Product name | **NowMining** |
-| Wordmark | `NOW` in ink + `MINING` in accent lime (`lib/brand.ts`) |
+| Product name | **MinerPicks** |
+| Wordmark | `MINER` in ink + `PICKS` in accent lime (`lib/brand.ts`) |
 | Tagline | ASIC miner profitability, prices and hosting |
 | Description | Live profitability for every major ASIC miner, prices from sellers, and hosting rates. Compare miners, find the best price and see what each one earns. |
 | Domain variable | `NEXT_PUBLIC_SITE_URL` (`lib/site.ts`) |
@@ -135,7 +135,7 @@ Use the symbol for favicons, social avatars and app icons. Export PNG/WebP from 
 
 ### Wordmark
 
-Rendered as `NOW` + `MINING` in Inter, bold, wide tracking (`tracking-[0.18em]`), with `MINING` in `#b9ff66`. Keep the two parts together and on one line whenever possible.
+Rendered as `MINER` + `PICKS` in Inter, bold, wide tracking (`tracking-[0.18em]`), with `PICKS` in `#b9ff66`. Keep the two parts together and on one line whenever possible.
 
 **Do:** keep clear space around the mark, use the approved colours, scale proportionally.
 **Don't:** stretch, rotate, add shadows, place on low-contrast backgrounds, recolour, or rebuild it with a different typeface.
@@ -149,7 +149,7 @@ Rendered as `NOW` + `MINING` in Inter, bold, wide tracking (`tracking-[0.18em]`)
 | Generated marks | `lib/makerMarks.ts`, `components/directory/MakerMark.tsx` | Brand-coloured initials for brands without a trustworthy icon. |
 | Abstract miner glyph | `components/directory/ui.tsx` | Used where no product photo exists; coloured by manufacturer, not a product image. |
 | UI icons | `lucide-react` | Consistent 1.5–2px stroke; use `h-3.5`, `h-4`, `h-5` sizes. |
-| Social image | `app/opengraph-image.tsx` | 1200×630 PNG generated at build: black canvas, NOWMINING lockup, tagline. |
+| Social image | `app/opengraph-image.tsx` | 1200×630 PNG generated at build: black canvas, MINERPICKS lockup, tagline. |
 | Hosting globe land dots | `lib/worldDots.ts` | Natural Earth land outlines via `world-atlas` (public domain), sampled to a 4° dot grid. |
 | Partner badge | `components/directory/PartnerBadgeCard.tsx` | Self-contained dofollow HTML snippet for sellers. |
 

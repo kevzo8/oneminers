@@ -3,7 +3,7 @@ import LegalPage from "@/components/directory/LegalPage";
 
 export const metadata: Metadata = {
   title: "How ordering works",
-  description: "How purchases work when you use NowMining's seller listings.",
+  description: "How purchases work when you use MinerPicks's seller listings.",
   alternates: { canonical: "/ordering" },
 };
 
@@ -11,7 +11,7 @@ export default function OrderingPage() {
   return (
     <LegalPage
       title="How ordering works"
-      intro="NowMining helps you find a miner and a seller. We do not take payment or act as the seller of record."
+      intro="MinerPicks helps you find a miner and a seller. We do not take payment or act as the seller of record."
       sections={[
         {
           heading: "The directory is not a shop",

@@ -107,7 +107,7 @@ export default function HowItWorks() {
         <div id="tools" className="mt-12 scroll-mt-20 border-t border-line pt-8">
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <div className="chip text-aqua">Explore NowMining</div>
+              <div className="chip text-aqua">Explore MinerPicks</div>
               <h3 className="mt-2 text-xl font-bold tracking-tight text-ink sm:text-2xl">Every tool, in one place</h3>
             </div>
             <p className="text-[11px] text-muted">Jump straight to any page or tool.</p>

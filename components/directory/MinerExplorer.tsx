@@ -2,8 +2,8 @@
 
 import { useMoney } from "@/lib/useMoney";
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import { ArrowDown, ArrowUp, ArrowUpDown, ChevronDown, Search, SlidersHorizontal, Star, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, ArrowUpDown, ArrowUpRight, ChevronDown, Search, SlidersHorizontal, Star, X } from "lucide-react";
 import { useWatchlist } from "@/lib/useWatchlist";
 import {
   COIN_COLORS,
@@ -86,7 +86,7 @@ function SortHeader({
       <button
         type="button"
         onClick={() => onSort(sortKey)}
-        className={`flex w-full items-center gap-1 uppercase tracking-[0.1em] transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+        className={`flex w-full items-center gap-1 whitespace-nowrap uppercase tracking-[0.1em] transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
           align === "right" ? "justify-end" : "justify-start"
         } ${active ? "text-ink" : ""}`}
       >
@@ -141,14 +141,29 @@ function pricePerUnit(price: number, value: number, unit: string) {
   return `$${per.toLocaleString("en-US", { maximumFractionDigits: digits })}/${label}`;
 }
 
+function pageList(total: number, current: number): (number | "…")[] {
+  if (total <= 7) return Array.from({ length: total }, (_, index) => index + 1);
+  const valid = [...new Set([1, total, current - 2, current - 1, current, current + 1, current + 2])]
+    .filter((page) => page >= 1 && page <= total)
+    .sort((a, b) => a - b);
+  const pages: (number | "…")[] = [];
+  valid.forEach((page, index) => {
+    if (index > 0 && page - valid[index - 1] > 1) pages.push("…");
+    pages.push(page);
+  });
+  return pages;
+}
+
 export default function MinerExplorer({
   rows,
   manufacturers,
   algorithms,
+  paginate = false,
 }: {
   rows: MinerRow[];
   manufacturers: string[];
   algorithms: Algorithm[];
+  paginate?: boolean;
 }) {
   const [settings] = useMiningSettings();
   const money = useMoney();
@@ -161,8 +176,13 @@ export default function MinerExplorer({
   const [coin, setCoin] = useState<string[]>([]);
   const [watchOnly, setWatchOnly] = useState(false);
   const [watchlist, toggleWatch] = useWatchlist();
-  const [limit, setLimit] = useState(50);
+  const limit = 20;
+  const [page, setPage] = useState(0);
   const [filtersOpen, setFiltersOpen] = useState(false);
+
+  useEffect(() => {
+    setPage(0);
+  }, [query, algorithm, maker, cooling, category, coin, watchOnly, sort]);
 
   function toggleIn<T>(list: T[], value: T) {
     return list.includes(value) ? list.filter((item) => item !== value) : [...list, value];
@@ -267,6 +287,12 @@ export default function MinerExplorer({
     });
     return sorted;
   }, [computed, query, algorithm, maker, cooling, category, coin, watchOnly, watchlist, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(visible.length / limit));
+  const safePage = Math.min(page, totalPages - 1);
+  const pageRows = paginate ? visible.slice(safePage * limit, (safePage + 1) * limit) : visible.slice(0, limit);
+  const showingFrom = paginate ? safePage * limit + 1 : 1;
+  const showingTo = Math.min(paginate ? (safePage + 1) * limit : limit, visible.length);
 
   const filtersActive = Boolean(query || algorithm.length || maker.length || cooling.length || category.length || coin.length || watchOnly);
   const activeFilterCount = [
@@ -427,7 +453,7 @@ export default function MinerExplorer({
 
       <div className="flex items-center justify-between px-1 text-xs text-muted">
         <span>
-          Showing <strong className="text-ink">{Math.min(limit, visible.length)}</strong> of {visible.length} matching ({rows.length} miners)
+          Showing <strong className="text-ink">{showingFrom}–{showingTo}</strong> of {visible.length} matching ({rows.length} miners)
         </span>
         {filtersActive ? (
           <button
@@ -455,17 +481,17 @@ export default function MinerExplorer({
               <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
                 <th className="w-10 py-3 pl-4" aria-label="Watchlist" />
                 <SortHeader label="Miner" sortKey="model" sort={sort} onSort={toggleSort} />
-                <SortHeader label="Release" sortKey="release" sort={sort} onSort={toggleSort} />
+                <SortHeader label="Profit / day" sortKey="profit" sort={sort} onSort={toggleSort} align="right" />
                 <SortHeader label="Hashrate" sortKey="hashrate" sort={sort} onSort={toggleSort} />
                 <SortHeader label="Power" sortKey="power" sort={sort} onSort={toggleSort} />
                 <SortHeader label="Top coin" sortKey="coin" sort={sort} onSort={toggleSort} />
                 <SortHeader label="Best price" sortKey="price" sort={sort} onSort={toggleSort} align="right" />
                 <SortHeader label="ROI" sortKey="roi" sort={sort} onSort={toggleSort} align="right" />
-                <SortHeader label="Profit / day" sortKey="profit" sort={sort} onSort={toggleSort} align="right" />
+                <SortHeader label="Release" sortKey="release" sort={sort} onSort={toggleSort} align="right" />
               </tr>
             </thead>
             <tbody>
-              {visible.slice(0, limit).map((row) => (
+              {pageRows.map((row) => (
                 <tr key={row.slug} className="group border-b border-line/60 transition-colors last:border-0 hover:bg-panel-soft">
                   <td className="py-3 pl-4">
                     <button
@@ -491,7 +517,11 @@ export default function MinerExplorer({
                       </span>
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-xs tabular-nums text-muted">{row.release ?? "—"}</td>
+                  <td className="px-4 py-3 text-right">
+                    <span className={`text-sm font-bold tabular-nums ${row.profit >= 0 ? "text-accent" : "text-red-400"}`}>
+                      {money(row.profit)}
+                    </span>
+                  </td>
                   <td className="px-4 py-3 text-xs font-semibold tabular-nums text-ink">{formatHashrate(row.hashrate, row.unit)}</td>
                   <td className="px-4 py-3 text-xs tabular-nums text-muted">
                     {row.powerW.toLocaleString("en-US")} W
@@ -526,11 +556,7 @@ export default function MinerExplorer({
                   <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">
                     {row.roi ? `${row.roi.toLocaleString("en-US")} d` : "Never"}
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className={`text-sm font-bold tabular-nums ${row.profit >= 0 ? "text-accent" : "text-red-400"}`}>
-                      {money(row.profit)}
-                    </span>
-                  </td>
+                  <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{row.release ?? "—"}</td>
                 </tr>
               ))}
               {visible.length === 0 ? (
@@ -544,11 +570,54 @@ export default function MinerExplorer({
           </table>
         </div>
       </div>
-      {visible.length > limit ? (
+      {paginate ? (
+        totalPages > 1 ? (
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              disabled={safePage === 0}
+              onClick={() => setPage(Math.max(0, safePage - 1))}
+              className="btn-ghost px-3 py-2 text-xs disabled:opacity-40"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" /> Previous
+            </button>
+            {pageList(totalPages, safePage + 1).map((entry, index) =>
+              entry === "…" ? (
+                <span key={`gap-${index}`} className="px-1 text-xs text-muted">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={entry}
+                  type="button"
+                  onClick={() => setPage(entry - 1)}
+                  className={`grid h-8 min-w-[2rem] place-items-center rounded-lg border px-2 text-xs transition-colors ${
+                    entry - 1 === safePage
+                      ? "border-accent/40 bg-accent/15 text-accent"
+                      : "border-line bg-panel-soft text-muted hover:text-ink"
+                  }`}
+                  aria-current={entry - 1 === safePage ? "page" : undefined}
+                >
+                  {entry}
+                </button>
+              )
+            )}
+            <button
+              type="button"
+              disabled={safePage >= totalPages - 1}
+              onClick={() => setPage(Math.min(totalPages - 1, safePage + 1))}
+              className="btn-ghost px-3 py-2 text-xs disabled:opacity-40"
+            >
+              Next <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : null
+      ) : visible.length > limit ? (
         <div className="flex justify-center">
-          <button type="button" onClick={() => setLimit((value) => value + 50)} className="btn-ghost px-6 py-2.5 text-sm">
-            Show 50 more ({visible.length - limit} left)
-          </button>
+          <Link href="/miners" className="btn-ghost px-6 py-2.5 text-sm">
+            View all {rows.length} miners
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
         </div>
       ) : null}
     </div>

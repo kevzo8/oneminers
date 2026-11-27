@@ -1,10 +1,10 @@
 # Competitive parity: ASIC miner directories
 
-Benchmark of the public pages of MiningNow, ASICMinerValue, WhatToMine and Hashrate.no against NowMining. Reviewed 26 November 2026. This is a presentation and feature comparison, not a scrape or a copy of their code, data or assets.
+Benchmark of the public pages of MiningNow, ASICMinerValue, WhatToMine and Hashrate.no against MinerPicks. Reviewed 26 November 2026. This is a presentation and feature comparison, not a scrape or a copy of their code, data or assets.
 
 ## Feature matrix
 
-| Feature | MiningNow | ASICMinerValue | WhatToMine | Hashrate.no | NowMining |
+| Feature | MiningNow | ASICMinerValue | WhatToMine | Hashrate.no | MinerPicks |
 | --- | --- | --- | --- | --- | --- |
 | ASIC miner table | Yes | Yes | Partial (ASIC tab) | Yes | Yes |
 | Live profit / day | Yes | Yes | Yes | Yes | Yes |
@@ -60,8 +60,8 @@ Coin icon coverage: 41 of 53 unique tags. Fallback monograms: AUR, BTCII, KRG, M
 
 1. **Product photos.** The biggest remaining visual gap versus MiningNow and ASICMinerValue. Brand icons are now present for 33 curated manufacturers; product photography still needs licensed assets.
 2. **News, pools and mining software.** Common on Hashrate.no and MiningNow. These need maintained data and sources. A future version could use official pool/software links with no invented fees or specs.
-3. **GPU / CPU / FPGA coverage.** WhatToMine and Hashrate.no cover these; NowMining is intentionally ASIC-only.
-4. **Public API and accounts.** WhatToMine offers both; NowMining has a seller portal but no public miner API or buyer accounts.
+3. **GPU / CPU / FPGA coverage.** WhatToMine and Hashrate.no cover these; MinerPicks is intentionally ASIC-only.
+4. **Public API and accounts.** WhatToMine offers both; MinerPicks has a seller portal but no public miner API or buyer accounts.
 5. **Long-tail logos.** 27 of 60 manufacturers still use generated monograms because no trustworthy favicon was available; many are defunct or have no favicon.
 
 ## Guardrails

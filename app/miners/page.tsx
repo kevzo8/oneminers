@@ -60,7 +60,7 @@ export default async function MinersPage() {
 
         <SettingsBar />
 
-        <MinerExplorer rows={rows} manufacturers={manufacturersOf(dir)} algorithms={algorithmsOf(dir)} />
+        <MinerExplorer rows={rows} manufacturers={manufacturersOf(dir)} algorithms={algorithmsOf(dir)} paginate />
 
         <p className="text-[11px] leading-relaxed text-muted/70">
           Network data {market.source === "live" ? <>from <a href="https://backpow.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">BackPoW</a></> : "from a saved snapshot (live feed unavailable)"}

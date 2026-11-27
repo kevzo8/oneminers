@@ -2,9 +2,9 @@
 // Temporary name until the final brand is decided.
 
 export const BRAND = {
-  name: "NowMining",
+  name: "MinerPicks",
   /** Logo text, split so the second part gets the accent colour. */
-  logo: ["NOW", "MINING"] as const,
+  logo: ["MINER", "PICKS"] as const,
   tagline: "ASIC miner profitability, prices and hosting",
   description:
     "Live profitability for every major ASIC miner, prices from sellers, and hosting rates. Compare miners, find the best price and see what each one earns.",

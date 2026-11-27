@@ -57,6 +57,32 @@ export const loadDirectory = cache(async (): Promise<Directory> => {
   }
 });
 
+export type VendorPreview = {
+  slug: string;
+  name: string;
+  country: string;
+  countryCode: string;
+  website: string;
+  about: string;
+  status: "pending" | "approved" | "rejected";
+  tier: "Free" | "Bronze" | "Silver" | "Gold";
+  verified: boolean;
+  sample: boolean;
+  partnerLinkStatus: "found" | "missing" | "error" | null;
+  since: number;
+};
+
+export const loadVendorPreview = cache(async (slug: string): Promise<VendorPreview | null> => {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+  if (!url) return null;
+  try {
+    const [{ ConvexHttpClient }, { api }] = await Promise.all([import("convex/browser"), import("@/convex/_generated/api")]);
+    return await new ConvexHttpClient(url).query(api.directory.vendorPreview, { slug });
+  } catch {
+    return null;
+  }
+});
+
 export type NetworkPoint = { t: number; btcUsd: number; btcHashrateEh: number; hashpricePerPh: number };
 
 /** Bitcoin network history from our own hourly snapshots: price, hashrate and hashprice ($/PH/day). */

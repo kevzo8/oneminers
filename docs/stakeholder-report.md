@@ -1,4 +1,4 @@
-# NowMining — data, pricing and quality report
+# MinerPicks — data, pricing and quality report
 
 **Prepared for:** stakeholders
 **Date:** 26 November 2026
@@ -8,7 +8,7 @@
 
 ## 1. Executive summary
 
-NowMining is an ASIC-miner directory: a searchable catalog, per-miner profitability, market price references, seller offers, and our own recorded network history. Every factual value shown on a miner page comes from a named third-party source or is computed from those values. Unknown values are hidden — they are never shown as `0` and never estimated from a similar model.
+MinerPicks is an ASIC-miner directory: a searchable catalog, per-miner profitability, market price references, seller offers, and our own recorded network history. Every factual value shown on a miner page comes from a named third-party source or is computed from those values. Unknown values are hidden — they are never shown as `0` and never estimated from a similar model.
 
 **Verified state of the live development database (queried 26 Nov 2026):**
 

@@ -114,3 +114,26 @@ export const marketHistory = query({
       .map((row) => ({ takenAt: row.takenAt, btcUsd: row.btcUsd, coins: row.coins }));
   },
 });
+
+/** Minimal public-facing preview for a vendor that is not yet in the directory. */
+export const vendorPreview = query({
+  args: { slug: v.string() },
+  handler: async (ctx, { slug }) => {
+    const vendor = await ctx.db.query("vendors").withIndex("by_slug", (q) => q.eq("slug", slug)).unique();
+    if (!vendor) return null;
+    return {
+      slug: vendor.slug,
+      name: vendor.name,
+      country: vendor.country,
+      countryCode: vendor.countryCode,
+      website: vendor.website,
+      about: vendor.about,
+      status: vendor.status,
+      tier: vendor.tier,
+      verified: vendor.verified,
+      sample: vendor.sample,
+      partnerLinkStatus: vendor.partnerLinkStatus ?? null,
+      since: vendor.since,
+    };
+  },
+});

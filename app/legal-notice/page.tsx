@@ -4,7 +4,7 @@ import { HOSTING_PROVIDER } from "@/lib/hosting";
 
 export const metadata: Metadata = {
   title: "Legal notice",
-  description: "Publisher information, data licences, trademarks and partner disclosure for NowMining.",
+  description: "Publisher information, data licences, trademarks and partner disclosure for MinerPicks.",
   alternates: { canonical: "/legal-notice" },
 };
 
@@ -12,18 +12,18 @@ export default function LegalNoticePage() {
   return (
     <LegalPage
       title="Legal notice"
-      intro="Publisher information, content licences and disclosures for NowMining."
+      intro="Publisher information, content licences and disclosures for MinerPicks."
       sections={[
         {
           heading: "Publisher",
           paragraphs: [
-            "This site is published as NowMining, an independent ASIC mining directory and analysis tool. For questions, corrections or legal notices, use the report form. Registered publisher details will be added before commercial launch.",
+            "This site is published as MinerPicks, an independent ASIC mining directory and analysis tool. For questions, corrections or legal notices, use the report form. Registered publisher details will be added before commercial launch.",
           ],
         },
         {
           heading: "Copyright",
           paragraphs: [
-            "© 2026 NowMining. All rights reserved. Site design, copy and generated tooling belong to NowMining. Third-party logos, product images and trademarks remain the property of their owners and are used here for identification only.",
+            "© 2026 MinerPicks. All rights reserved. Site design, copy and generated tooling belong to MinerPicks. Third-party logos, product images and trademarks remain the property of their owners and are used here for identification only.",
           ],
         },
         {
@@ -44,7 +44,7 @@ export default function LegalNoticePage() {
         {
           heading: "No affiliation",
           paragraphs: [
-            "NowMining is not affiliated with ASIC Miner Value, WhatToMine, Hashrate.no or the manufacturers whose hardware appears here. References to those sites are for comparison only and no data is taken from them.",
+            "MinerPicks is not affiliated with ASIC Miner Value, WhatToMine, Hashrate.no or the manufacturers whose hardware appears here. References to those sites are for comparison only and no data is taken from them.",
           ],
         },
         {

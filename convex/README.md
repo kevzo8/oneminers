@@ -1,6 +1,6 @@
 # Convex backend
 
-Database, auth, scheduled jobs and seller flows for NowMining. The frontend reads through `lib/directory.ts`, which uses Convex when `NEXT_PUBLIC_CONVEX_URL` is set and falls back to the bundled catalog otherwise.
+Database, auth, scheduled jobs and seller flows for MinerPicks. The frontend reads through `lib/directory.ts`, which uses Convex when `NEXT_PUBLIC_CONVEX_URL` is set and falls back to the bundled catalog otherwise.
 
 ## Tables (`schema.ts`)
 

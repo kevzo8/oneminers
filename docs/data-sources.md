@@ -1,6 +1,6 @@
 # Data sources and data-quality playbook
 
-Last verified: **25 November 2026**. Owner: NowMining.
+Last verified: **25 November 2026**. Owner: MinerPicks.
 
 This is the operating document for every piece of third-party data the site shows. It records what
 each source actually returns, what we are allowed to do with it, how we validate it, and what we

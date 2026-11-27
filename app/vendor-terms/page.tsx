@@ -3,7 +3,7 @@ import LegalPage from "@/components/directory/LegalPage";
 
 export const metadata: Metadata = {
   title: "Vendor terms",
-  description: "Terms for businesses listing miners and hosting on NowMining.",
+  description: "Terms for businesses listing miners and hosting on MinerPicks.",
   alternates: { canonical: "/vendor-terms" },
 };
 
@@ -11,7 +11,7 @@ export default function VendorTermsPage() {
   return (
     <LegalPage
       title="Vendor terms"
-      intro="These terms govern the relationship between NowMining and businesses that list miners or hosting through the seller portal."
+      intro="These terms govern the relationship between MinerPicks and businesses that list miners or hosting through the seller portal."
       sections={[
         {
           heading: "Who can list",
@@ -22,7 +22,7 @@ export default function VendorTermsPage() {
         {
           heading: "Our role",
           paragraphs: [
-            "NowMining operates a directory and technical interface. We do not sell the hardware, handle payments, issue invoices, deliver goods or provide hosting. The sale or hosting contract is made directly between you and the buyer. We cannot bind either party or guarantee payment, performance or delivery.",
+            "MinerPicks operates a directory and technical interface. We do not sell the hardware, handle payments, issue invoices, deliver goods or provide hosting. The sale or hosting contract is made directly between you and the buyer. We cannot bind either party or guarantee payment, performance or delivery.",
           ],
         },
         {
@@ -55,7 +55,7 @@ export default function VendorTermsPage() {
         {
           heading: "Liability",
           paragraphs: [
-            "You are liable for your offers and your transactions. To the extent permitted by law, NowMining's liability is limited to direct loss and capped at $1,000.",
+            "You are liable for your offers and your transactions. To the extent permitted by law, MinerPicks's liability is limited to direct loss and capped at $1,000.",
           ],
         },
         {
