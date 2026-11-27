@@ -343,6 +343,98 @@ select.input {
   animation: float 6s ease-in-out infinite;
 }
 
+@keyframes hero-float-a {
+  0% {
+    transform: translate3d(0, 8px, 0) rotate(-4deg);
+  }
+  50% {
+    transform: translate3d(10px, -10px, 0) rotate(3deg);
+  }
+  100% {
+    transform: translate3d(0, 8px, 0) rotate(-4deg);
+  }
+}
+
+@keyframes hero-float-b {
+  0% {
+    transform: translate3d(6px, -6px, 0) rotate(5deg);
+  }
+  50% {
+    transform: translate3d(-10px, 10px, 0) rotate(-4deg);
+  }
+  100% {
+    transform: translate3d(6px, -6px, 0) rotate(5deg);
+  }
+}
+
+@keyframes hero-drift-x {
+  0% {
+    transform: translateX(-12px);
+  }
+  50% {
+    transform: translateX(14px);
+  }
+  100% {
+    transform: translateX(-12px);
+  }
+}
+
+@keyframes hero-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.hero-backdrop {
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.35) 28%, black 65%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.35) 28%, black 65%);
+}
+
+.hero-backdrop-left {
+  mask-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, black 0%, rgba(0, 0, 0, 0.55) 55%, transparent 100%);
+}
+
+.hero-icon-1 {
+  animation: hero-float-a 18s ease-in-out infinite;
+}
+
+.hero-icon-2 {
+  animation: hero-float-b 24s ease-in-out infinite;
+  animation-delay: -6s;
+}
+
+.hero-icon-3 {
+  animation: hero-drift-x 16s ease-in-out infinite;
+}
+
+.hero-icon-4 {
+  animation: hero-float-a 21s ease-in-out infinite;
+  animation-delay: -11s;
+}
+
+.hero-icon-5 {
+  animation: hero-spin 32s linear infinite;
+}
+
+.hero-icon-6 {
+  animation: hero-float-b 19s ease-in-out infinite;
+  animation-delay: -9s;
+}
+
+.hero-icon-7 {
+  animation: hero-float-b 22s ease-in-out infinite;
+}
+
+.hero-icon-8 {
+  animation: hero-drift-x 19s ease-in-out infinite;
+  animation-delay: -8s;
+}
+
+.hero-icon-9 {
+  animation: hero-spin 38s linear infinite reverse;
+}
+
 @keyframes pulse-ring {
   0% {
     transform: scale(0.9);
@@ -440,6 +532,15 @@ select.input {
   }
   .marquee-track,
   .anim-float,
+  .hero-icon-1,
+  .hero-icon-2,
+  .hero-icon-3,
+  .hero-icon-4,
+  .hero-icon-5,
+  .hero-icon-6,
+  .hero-icon-7,
+  .hero-icon-8,
+  .hero-icon-9,
   .pulse-ring::after,
   .anim-fade-up,
   .anim-fade-up-1,

@@ -48,20 +48,23 @@ function palette(light: boolean): Palette {
       };
 }
 
-function project(lat: number, lon: number, rotation: number): Point {
+function project(lat: number, lon: number, rotation: number, tilt: number): Point {
   const phi = lat * RAD;
   const lambda = (lon + rotation) * RAD;
   const x = Math.cos(phi) * Math.sin(lambda);
-  const y = Math.sin(phi);
-  const z = Math.cos(phi) * Math.cos(lambda);
+  const baseY = Math.sin(phi);
+  const baseZ = Math.cos(phi) * Math.cos(lambda);
+  const tiltRad = tilt * RAD;
+  const y = baseY * Math.cos(tiltRad) - baseZ * Math.sin(tiltRad);
+  const z = baseY * Math.sin(tiltRad) + baseZ * Math.cos(tiltRad);
   return { x: CX + x * R, y: CY - y * R, z };
 }
 
-function linePath(coords: [number, number][], rotation: number) {
+function linePath(coords: [number, number][], rotation: number, tilt: number) {
   let path = "";
   let drawing = false;
   for (const [lat, lon] of coords) {
-    const point = project(lat, lon, rotation);
+    const point = project(lat, lon, rotation, tilt);
     if (point.z > 0) {
       path += `${drawing ? "L" : "M"}${point.x.toFixed(1)},${point.y.toFixed(1)} `;
       drawing = true;
@@ -82,9 +85,12 @@ const MERIDIAN_PATHS: [number, number][][] = MERIDIANS.map((lon) =>
 export default function HostingGlobe() {
   const uid = useId().replace(/:/g, "");
   const rotationRef = useRef(24);
+  const tiltRef = useRef(12);
   const dragging = useRef(false);
   const lastX = useRef(0);
+  const lastY = useRef(0);
   const [rotation, setRotation] = useState(24);
+  const [tilt, setTilt] = useState(12);
   const [pulse, setPulse] = useState(0);
   const [light, setLight] = useState(false);
 
@@ -122,10 +128,10 @@ export default function HostingGlobe() {
   const markers = HOSTING_SITES.map((site: HostingSite, index: number) => ({
     site,
     index,
-    point: project(site.lat, site.lon, rotation),
+    point: project(site.lat, site.lon, rotation, tilt),
   })).filter((marker) => marker.point.z > 0.02);
 
-  const landDots = WORLD_DOTS.map(([lon, lat]) => project(lat, lon, rotation)).filter((point) => point.z > 0);
+  const landDots = WORLD_DOTS.map(([lon, lat]) => project(lat, lon, rotation, tilt)).filter((point) => point.z > 0);
 
   const arcs: { path: string; opacity: number }[] = [];
   for (let i = 0; i < markers.length; i += 1) {
@@ -145,16 +151,17 @@ export default function HostingGlobe() {
     }
   }
 
-  const labels: { x: number; y: number; text: string; color: string; opacity: number }[] = [];
+  const labels: { id: string; x: number; y: number; text: string; color: string; opacity: number }[] = [];
   for (const marker of markers.slice().sort((a, b) => b.point.z - a.point.z)) {
     if (marker.point.z < 0.45) continue;
     const x = marker.point.x + 10;
     const y = marker.point.y - 8 + (marker.index % 2) * 16;
     if (labels.some((label) => Math.hypot(label.x - x, label.y - y) < 38)) continue;
     labels.push({
+      id: marker.site.id,
       x,
       y,
-      text: marker.site.countryCode,
+      text: marker.site.globeCode,
       color: marker.index === 0 ? p.accent : p.aqua,
       opacity: Math.min(1, marker.point.z * 1.4),
     });
@@ -167,13 +174,17 @@ export default function HostingGlobe() {
         onPointerDown={(event) => {
           dragging.current = true;
           lastX.current = event.clientX;
+          lastY.current = event.clientY;
           event.currentTarget.setPointerCapture(event.pointerId);
         }}
         onPointerMove={(event) => {
           if (!dragging.current) return;
           rotationRef.current = (rotationRef.current + (event.clientX - lastX.current) * 0.45 + 360) % 360;
+          tiltRef.current = Math.min(75, Math.max(-75, tiltRef.current - (event.clientY - lastY.current) * 0.35));
           lastX.current = event.clientX;
+          lastY.current = event.clientY;
           setRotation(rotationRef.current);
+          setTilt(tiltRef.current);
         }}
         onPointerUp={(event) => {
           dragging.current = false;
@@ -183,7 +194,7 @@ export default function HostingGlobe() {
           dragging.current = false;
         }}
       >
-        <svg viewBox="0 0 560 400" className="mx-auto w-full max-w-[620px]" role="img" aria-label="Rotating globe showing OneMiners hosting locations">
+        <svg viewBox="0 0 560 400" className="mx-auto w-full max-w-[620px]" role="img" aria-label="Rotating, draggable globe showing OneMiners hosting locations">
           <defs>
             <radialGradient id={`sphere-${uid}`} cx="34%" cy="28%">
               <stop offset="0%" stopColor={p.sphereLight} />
@@ -199,7 +210,7 @@ export default function HostingGlobe() {
           {[...PARALLEL_PATHS, ...MERIDIAN_PATHS].map((coords, index) => (
             <path
               key={index}
-              d={linePath(coords, rotation)}
+              d={linePath(coords, rotation, tilt)}
               fill="none"
               stroke={p.grid}
               strokeWidth={index < PARALLELS.length ? 0.9 : 0.7}
@@ -236,7 +247,7 @@ export default function HostingGlobe() {
               );
             })}
           {labels.map((label) => (
-            <g key={label.text}>
+            <g key={label.id}>
               <circle cx={label.x - 3} cy={label.y - 9} r={11} fill={p.sphereDark} opacity={label.opacity * 0.75} />
               <text x={label.x} y={label.y} fill={label.color} fontSize={10} fontWeight={800} opacity={label.opacity}>
                 {label.text}
@@ -245,7 +256,7 @@ export default function HostingGlobe() {
           ))}
         </svg>
         <div className="mt-1 flex items-center justify-center gap-1.5 text-[10px] text-muted">
-          <Move className="h-3 w-3" /> Drag to spin the globe
+          <Move className="h-3 w-3" /> Drag to spin and tilt the globe
         </div>
       </div>
 
