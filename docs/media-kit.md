@@ -127,9 +127,9 @@ These are the visual building blocks. Reuse them instead of restyling raw HTML.
 Source: `public/icon.svg` and `public/apple-touch-icon.svg` (identical). Viewbox `0 0 64 64`.
 
 - Rounded square background: `#070A0E`, `rx=14`
-- Hexagonal outline: `#B9FF66`, `stroke-width=2.5`
-- Stylised “6” path: `#4DE1FF`, `stroke-width=3`, rounded caps
-- Small dot: `#B9FF66`
+- Recoloured pickaxe artwork adapted from SVG Repo (`pick-miner-svgrepo-com.svg`): lime pick head `#B9FF66`, aqua tips/handle accents `#4DE1FF`, muted handle `#93A1AD`.
+- Header uses the same paths with CSS variables so light mode switches to the darker palette.
+- No hexagon frame; the pickaxe sits directly on the dark rounded tile.
 
 Use the symbol for favicons, social avatars and app icons. Export PNG/WebP from the SVG at required sizes rather than redrawing it.
 

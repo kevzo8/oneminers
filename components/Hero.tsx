@@ -1,4 +1,4 @@
-import { Activity, ArrowDown } from "lucide-react";
+import { Activity, ArrowUpRight } from "lucide-react";
 import HeroBackdrop from "./HeroBackdrop";
 
 /** Slim intro: the miner directory below is the main event. */
@@ -28,8 +28,8 @@ export default function Hero() {
               electricity cost and the table updates.
             </p>
           </div>
-          <a href="#miners" className="btn-ghost hidden shrink-0 px-3 py-2 text-xs sm:inline-flex">
-            Browse miners <ArrowDown className="h-3.5 w-3.5" />
+          <a href="/miners" className="btn-ghost hidden shrink-0 px-3 py-2 text-xs sm:inline-flex">
+            Browse miners <ArrowUpRight className="h-3.5 w-3.5" />
           </a>
         </div>
       </div>

@@ -16,6 +16,17 @@ import {
   Trophy,
 } from "lucide-react";
 
+type Tone = "accent" | "amber" | "violet" | "aqua" | "indigo" | "rose";
+
+const tones: Record<Tone, { icon: string; tile: string }> = {
+  accent: { icon: "text-accent", tile: "border-accent/20 bg-accent/10" },
+  amber: { icon: "text-amber", tile: "border-amber/20 bg-amber/10" },
+  violet: { icon: "text-violet", tile: "border-violet/20 bg-violet/10" },
+  aqua: { icon: "text-aqua", tile: "border-aqua/20 bg-aqua/10" },
+  indigo: { icon: "text-indigo", tile: "border-indigo/20 bg-indigo/10" },
+  rose: { icon: "text-rose", tile: "border-rose/20 bg-rose/10" },
+};
+
 const steps = [
   {
     icon: BarChart3,
@@ -40,19 +51,19 @@ const steps = [
   },
 ];
 
-const features = [
-  { icon: Cpu, title: "ASIC directory", body: "All 624 miners, sortable by profit, price and efficiency.", href: "/miners" },
-  { icon: Coins, title: "Coins", body: "Price, network hashrate and rewards for every mineable coin.", href: "/coins" },
-  { icon: Trophy, title: "Rankings", body: "Live, transparent scores across every algorithm and brand.", href: "/rankings" },
-  { icon: Server, title: "Hosting", body: "Compare miner profit at every hosting site, from 3.6¢/kWh.", href: "/hosting" },
-  { icon: Database, title: "Data sources", body: "Where every number comes from and how it is checked.", href: "/data" },
-  { icon: Calculator, title: "Calculators", body: "Hashrate conversion and power-cost modelling.", href: "#calculator" },
-  { icon: BookOpen, title: "Glossary", body: "Plain-English definitions of mining terms.", href: "/glossary" },
-  { icon: Bot, title: "AI assistant", body: "Ask in plain words and get answers from live data.", href: "#assistant" },
-  { icon: Store, title: "Seller portal", body: "Manage your listings, prices and company profile.", href: "/vendor-portal" },
-  { icon: LayoutGrid, title: "Widgets", body: "Embed live miner data on your own site.", href: "/widgets" },
-  { icon: FileText, title: "Quality report", body: "Data provenance, coverage and known limitations.", href: "/report" },
-  { icon: ShoppingCart, title: "Sell miners", body: "List your stock and reach buyers directly.", href: "/sell" },
+const features: { icon: typeof Cpu; title: string; body: string; href: string; tone: Tone }[] = [
+  { icon: Cpu, title: "ASIC directory", body: "All 624 miners, sortable by profit, price and efficiency.", href: "/miners", tone: "accent" },
+  { icon: Coins, title: "Coins", body: "Price, network hashrate and rewards for every mineable coin.", href: "/coins", tone: "amber" },
+  { icon: Trophy, title: "Rankings", body: "Live, transparent scores across every algorithm and brand.", href: "/rankings", tone: "violet" },
+  { icon: Server, title: "Hosting", body: "Compare miner profit at every hosting site, from 3.6¢/kWh.", href: "/hosting", tone: "aqua" },
+  { icon: Database, title: "Data sources", body: "Where every number comes from and how it is checked.", href: "/data", tone: "indigo" },
+  { icon: Calculator, title: "Calculators", body: "Hashrate conversion and power-cost modelling.", href: "#calculator", tone: "amber" },
+  { icon: BookOpen, title: "Glossary", body: "Plain-English definitions of mining terms.", href: "/glossary", tone: "rose" },
+  { icon: Bot, title: "AI assistant", body: "Ask in plain words and get answers from live data.", href: "#assistant", tone: "violet" },
+  { icon: Store, title: "Seller portal", body: "Manage your listings, prices and company profile.", href: "/vendor-portal", tone: "accent" },
+  { icon: LayoutGrid, title: "Widgets", body: "Embed live miner data on your own site.", href: "/widgets", tone: "aqua" },
+  { icon: FileText, title: "Quality report", body: "Data provenance, coverage and known limitations.", href: "/report", tone: "indigo" },
+  { icon: ShoppingCart, title: "Sell miners", body: "List your stock and reach buyers directly.", href: "/sell", tone: "rose" },
 ];
 
 export default function HowItWorks() {
@@ -115,11 +126,12 @@ export default function HowItWorks() {
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {features.map((feature) => {
               const Icon = feature.icon;
+              const tone = tones[feature.tone];
               return (
                 <Link key={feature.title} href={feature.href} className="surface card-lift group rounded-2xl p-4">
                   <div className="flex items-start justify-between gap-2">
-                    <span className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-panel-soft">
-                      <Icon className="h-4 w-4 text-aqua" />
+                    <span className={`grid h-9 w-9 place-items-center rounded-xl border ${tone.tile}`}>
+                      <Icon className={`h-4 w-4 ${tone.icon}`} />
                     </span>
                     <ArrowUpRight className="h-3.5 w-3.5 text-muted transition-colors group-hover:text-accent" />
                   </div>

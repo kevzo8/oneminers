@@ -12,7 +12,7 @@ export default function SettingsBar({ compact = false }: { compact?: boolean }) 
     : "";
 
   return (
-    <div className="surface flex flex-wrap items-center gap-2 rounded-2xl p-3">
+    <div className="surface mx-auto flex w-full max-w-[1100px] flex-wrap items-center gap-2 rounded-2xl p-3 sm:p-4">
       <div className="flex flex-wrap items-center gap-2">
         <label className="flex min-w-0 items-center gap-1.5 rounded-xl border border-line bg-panel-soft px-2.5 py-1.5 sm:gap-2 sm:px-3 sm:py-2">
           <Zap className="h-3.5 w-3.5 shrink-0 text-amber sm:h-4 sm:w-4" aria-hidden="true" />

@@ -7,6 +7,8 @@
   --color-aqua: #4de1ff;
   --color-violet: #8b5cf6;
   --color-amber: #ffb340;
+  --color-indigo: var(--indigo);
+  --color-rose: var(--rose);
   --color-line: rgba(255, 255, 255, 0.09);
   --color-bg: var(--bg);
   --color-panel-soft: var(--panel-soft);
@@ -22,6 +24,8 @@
   --panel-soft: rgba(255, 255, 255, 0.04);
   --surface-solid: #0b1016;
   --on-accent: #08120a;
+  --indigo: #818cf8;
+  --rose: #fb7185;
   --line: rgba(255, 255, 255, 0.09);
   color-scheme: dark;
 }
@@ -40,6 +44,8 @@
   --panel-soft: rgba(17, 24, 39, 0.04);
   --surface-solid: #ffffff;
   --on-accent: #ffffff;
+  --indigo: #4338ca;
+  --rose: #be123c;
   --line: rgba(17, 24, 39, 0.12);
   color-scheme: light;
 }

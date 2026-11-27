@@ -80,7 +80,7 @@ function SortHeader({
   const Icon = active ? (sort.dir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
   return (
     <th
-      className={`px-4 py-3 font-semibold ${align === "right" ? "text-right" : "text-left"}`}
+      className={`px-5 py-3.5 font-semibold ${align === "right" ? "text-right" : "text-left"}`}
       aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : undefined}
     >
       <button
@@ -305,8 +305,8 @@ export default function MinerExplorer({
   ].filter(Boolean).length;
 
   return (
-    <div className="space-y-2.5">
-      <div className="surface rounded-2xl p-2.5 sm:p-3">
+    <div className="mx-auto w-full max-w-[1100px] space-y-2.5">
+      <div className="surface mx-auto w-full max-w-[1100px] rounded-2xl p-3 sm:p-4">
         <div className="flex items-center gap-1.5">
           <label className="relative flex-1 lg:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
@@ -451,7 +451,7 @@ export default function MinerExplorer({
         </div>
       </div>
 
-      <div className="flex items-center justify-between px-1 text-xs text-muted">
+      <div className="mx-auto flex w-full max-w-[1100px] items-center justify-between px-1 text-sm text-muted">
         <span>
           Showing <strong className="text-ink">{showingFrom}–{showingTo}</strong> of {visible.length} matching ({rows.length} miners)
         </span>
@@ -474,12 +474,11 @@ export default function MinerExplorer({
         ) : null}
       </div>
 
-      <div className="surface overflow-hidden rounded-2xl">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[920px] border-collapse text-left">
+      <div className="surface mx-auto w-full max-w-[1100px] overflow-x-auto rounded-2xl">
+        <table className="w-full min-w-[960px] border-collapse text-left">
             <thead>
-              <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
-                <th className="w-10 py-3 pl-4" aria-label="Watchlist" />
+              <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
+                <th className="w-10 py-3.5 pl-5" aria-label="Watchlist" />
                 <SortHeader label="Miner" sortKey="model" sort={sort} onSort={toggleSort} />
                 <SortHeader label="Profit / day" sortKey="profit" sort={sort} onSort={toggleSort} align="right" />
                 <SortHeader label="Hashrate" sortKey="hashrate" sort={sort} onSort={toggleSort} />
@@ -487,13 +486,12 @@ export default function MinerExplorer({
                 <SortHeader label="Top coin" sortKey="coin" sort={sort} onSort={toggleSort} />
                 <SortHeader label="Best price" sortKey="price" sort={sort} onSort={toggleSort} align="right" />
                 <SortHeader label="ROI" sortKey="roi" sort={sort} onSort={toggleSort} align="right" />
-                <SortHeader label="Release" sortKey="release" sort={sort} onSort={toggleSort} align="right" />
               </tr>
             </thead>
             <tbody>
               {pageRows.map((row) => (
                 <tr key={row.slug} className="group border-b border-line/60 transition-colors last:border-0 hover:bg-panel-soft">
-                  <td className="py-3 pl-4">
+                  <td className="py-3.5 pl-5">
                     <button
                       type="button"
                       onClick={() => toggleWatch(row.slug)}
@@ -503,38 +501,38 @@ export default function MinerExplorer({
                       <Star className={`h-4 w-4 ${watchlist.includes(row.slug) ? "fill-current" : ""}`} />
                     </button>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-3.5">
                     <Link href={`/miners/${row.slug}`} className="flex items-center gap-3">
                       <MakerMark manufacturer={row.manufacturer} size="sm" />
                       <span>
-                        <span className="block text-sm font-semibold text-ink transition-colors group-hover:text-accent">
+                        <span className="block text-base font-semibold text-ink transition-colors group-hover:text-accent">
                           {row.model}
                         </span>
-                        <span className="block text-[11px] text-muted">
+                        <span className="block text-xs text-muted">
                           {row.manufacturer} · {row.cooling}
                           {row.category === "Home" ? " · Home" : ""}
                         </span>
                       </span>
                     </Link>
                   </td>
-                  <td className="px-4 py-3 text-right">
-                    <span className={`text-sm font-bold tabular-nums ${row.profit >= 0 ? "text-accent" : "text-red-400"}`}>
+                  <td className="px-5 py-3.5 text-right">
+                    <span className={`text-base font-bold tabular-nums ${row.profit >= 0 ? "text-accent" : "text-red-400"}`}>
                       {money(row.profit)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-xs font-semibold tabular-nums text-ink">{formatHashrate(row.hashrate, row.unit)}</td>
-                  <td className="px-4 py-3 text-xs tabular-nums text-muted">
+                  <td className="px-5 py-3.5 text-sm font-semibold tabular-nums text-ink">{formatHashrate(row.hashrate, row.unit)}</td>
+                  <td className="px-5 py-3.5 text-sm tabular-nums text-muted">
                     {row.powerW.toLocaleString("en-US")} W
-                    <span className="block text-[10px] text-muted/70">{formatEfficiency(row.powerW, row.hashrate, row.unit)}</span>
+                    <span className="block text-xs text-muted/70">{formatEfficiency(row.powerW, row.hashrate, row.unit)}</span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-5 py-3.5">
                     {row.topCoin ? (
                       <div className="flex flex-wrap items-center gap-1.5">
                         <CoinStack tags={row.coinTags.length ? row.coinTags : [row.topCoin.tag]} max={2} />
-                        <span className="text-[10px] font-bold text-ink">{row.topCoin.tag}</span>
+                        <span className="text-xs font-bold text-ink">{row.topCoin.tag}</span>
                         {row.topCoin.caution ? (
                           <span
-                            className="rounded border border-amber/30 bg-amber/10 px-1 py-px text-[9px] font-bold uppercase text-amber"
+                            className="rounded border border-amber/30 bg-amber/10 px-1 py-px text-[10px] font-bold uppercase text-amber"
                             title={row.topCoin.caution === "dominant" ? "This miner would be more than 5% of the coin's network, so this income isn't realistic." : "This coin trades under $100k a day, so mined coins may be hard to sell at this price."}
                           >
                             {row.topCoin.caution === "dominant" ? "Network too small" : "Low liquidity"}
@@ -542,37 +540,35 @@ export default function MinerExplorer({
                         ) : null}
                       </div>
                     ) : (
-                      <span className="text-xs text-muted">—</span>
+                      <span className="text-sm text-muted">—</span>
                     )}
-                    <span className="mt-1 block text-[10px] text-muted/70">{row.algorithm}</span>
+                    <span className="mt-1 block text-xs text-muted/70">{row.algorithm}</span>
                   </td>
-                  <td className="px-4 py-3 text-right text-xs tabular-nums text-ink">
+                  <td className="px-5 py-3.5 text-right text-sm tabular-nums text-ink">
                     {row.bestPrice ? money(row.bestPrice, 0) : "—"}
-                    <span className="block text-[10px] text-muted/70">
+                    <span className="block text-xs text-muted/70">
                       {row.offerCount} offer{row.offerCount === 1 ? "" : "s"}
                       {row.unitPrice ? ` · ${row.unitPrice}` : ""}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">
+                  <td className="px-5 py-3.5 text-right text-sm tabular-nums text-muted">
                     {row.roi ? `${row.roi.toLocaleString("en-US")} d` : "Never"}
                   </td>
-                  <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{row.release ?? "—"}</td>
                 </tr>
               ))}
               {visible.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-12 text-center text-sm text-muted">
+                  <td colSpan={8} className="px-5 py-12 text-center text-sm text-muted">
                     {watchOnly && watchlist.length === 0 ? "Your watchlist is empty. Tap the star next to a miner to add it." : "No miners match these filters."}
                   </td>
                 </tr>
               ) : null}
             </tbody>
           </table>
-        </div>
       </div>
       {paginate ? (
         totalPages > 1 ? (
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="mx-auto flex w-full max-w-[1100px] flex-wrap items-center justify-center gap-2">
             <button
               type="button"
               disabled={safePage === 0}
@@ -613,7 +609,7 @@ export default function MinerExplorer({
           </div>
         ) : null
       ) : visible.length > limit ? (
-        <div className="flex justify-center">
+        <div className="mx-auto flex w-full max-w-[1100px] justify-center">
           <Link href="/miners" className="btn-ghost px-6 py-2.5 text-sm">
             View all {rows.length} miners
             <ArrowUpRight className="h-4 w-4" />

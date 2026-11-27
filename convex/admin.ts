@@ -114,6 +114,21 @@ export const grantAdmin = internalMutation({
   },
 });
 
+export const attachVendorOwner = internalMutation({
+  args: { slug: v.string(), userId: v.id("users") },
+  handler: async (ctx, { slug, userId }) => {
+    const vendor = await ctx.db.query("vendors").withIndex("by_slug", (q) => q.eq("slug", slug)).unique();
+    if (!vendor) throw new ConvexError("Vendor not found.");
+    if (!(await ctx.db.get(userId))) throw new ConvexError("User not found.");
+    await ctx.db.patch(vendor._id, {
+      ownerId: userId,
+      status: "approved",
+      partnerLinkStatus: "found",
+      partnerLinkUrl: "https://oneminers.com",
+    });
+  },
+});
+
 function vendorRow(vendor: (typeof VENDORS)[number]) {
   return {
     slug: vendor.slug,
