@@ -38,7 +38,7 @@ export default function WidgetBuilder({ miners }: { miners: Option[] }) {
     <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
       <div className="surface space-y-4 rounded-2xl p-5">
         <div className="block">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Miner</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Miner</span>
           <SearchSelect
             value={slug}
             options={miners.map((m) => ({ value: m.slug, label: m.label }))}
@@ -48,11 +48,11 @@ export default function WidgetBuilder({ miners }: { miners: Option[] }) {
           />
         </div>
         <label className="block">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Default electricity ($/kWh)</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Default electricity ($/kWh)</span>
           <input type="number" min={0} step={0.005} value={electricity} onChange={(event) => setElectricity(Math.max(0, Number(event.target.value) || 0))} className="input mt-1.5" />
         </label>
         <div>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Size</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Size</span>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {SIZES.map((s) => (
               <button key={s.key} type="button" onClick={() => setSize(s.key)} className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${size === s.key ? "border-accent/40 bg-accent/15 text-accent" : "border-line text-muted hover:text-ink"}`}>
@@ -62,7 +62,7 @@ export default function WidgetBuilder({ miners }: { miners: Option[] }) {
           </div>
         </div>
         <div>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Theme</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Theme</span>
           <div className="mt-1.5 flex gap-1.5">
             {(["dark", "light"] as const).map((t) => (
               <button key={t} type="button" onClick={() => setTheme(t)} className={`rounded-full border px-3 py-1.5 text-xs font-semibold capitalize ${theme === t ? "border-accent/40 bg-accent/15 text-accent" : "border-line text-muted hover:text-ink"}`}>
@@ -72,8 +72,8 @@ export default function WidgetBuilder({ miners }: { miners: Option[] }) {
           </div>
         </div>
         <div>
-          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Embed code</span>
-          <pre className="mt-1.5 overflow-x-auto whitespace-pre-wrap break-all rounded-xl border border-line bg-black/30 p-3 font-mono text-[11px] text-aqua">{code}</pre>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Embed code</span>
+          <pre className="mt-1.5 overflow-x-auto whitespace-pre-wrap break-all rounded-xl border border-line bg-black/30 p-3 font-mono text-sm text-aqua">{code}</pre>
           <div className="mt-2 flex gap-2">
             <button type="button" onClick={() => copy(code, "code")} className="btn-primary px-4 py-2 text-xs">
               {copied === "code" ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />} Copy embed code
@@ -83,10 +83,10 @@ export default function WidgetBuilder({ miners }: { miners: Option[] }) {
             </button>
           </div>
         </div>
-        <p className="text-[11px] text-muted/70">Visitors can change the electricity price and number of units inside the widget. Please keep the credit link visible.</p>
+        <p className="text-sm text-muted/70">Visitors can change the electricity price and number of units inside the widget. Please keep the credit link visible.</p>
       </div>
       <div className="surface overflow-hidden rounded-2xl p-4">
-        <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Live preview</div>
+        <div className="mb-3 text-xs font-semibold uppercase tracking-[0.1em] text-muted">Live preview</div>
         {origin ? (
           <iframe key={src + size} src={src} width={chosen.width} height={chosen.height} style={{ border: 0, maxWidth: "100%" }} title={`${label} profitability preview`} />
         ) : null}

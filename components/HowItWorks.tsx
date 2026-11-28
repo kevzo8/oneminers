@@ -84,12 +84,12 @@ export default function HowItWorks() {
                 <Store className="h-5 w-5 text-accent" />
               </span>
               <div className="flex-1">
-                <div className="text-xs font-bold text-ink">Sell mining hardware?</div>
-                <p className="mt-0.5 text-[11px] leading-relaxed text-muted">
+                <div className="text-base font-bold text-ink">Sell mining hardware?</div>
+                <p className="mt-1 text-sm leading-relaxed text-muted">
                   List your stock free for 6 months, then $100/month. No commission.
                 </p>
               </div>
-              <ArrowUpRight className="h-4 w-4 text-muted" />
+              <ArrowUpRight className="h-5 w-5 text-muted" />
             </Link>
           </div>
 
@@ -99,16 +99,16 @@ export default function HowItWorks() {
               return (
                 <Link key={step.step} href={step.href} className="surface card-lift group rounded-2xl p-5">
                   <div className="flex items-center justify-between">
-                    <span className="grid h-9 w-9 place-items-center rounded-xl border border-line bg-panel-soft">
-                      <Icon className="h-4 w-4 text-accent" />
+                    <span className="grid h-11 w-11 place-items-center rounded-xl border border-line bg-panel-soft">
+                      <Icon className="h-5 w-5 text-accent" />
                     </span>
-                    <span className="flex items-center gap-1.5 font-mono text-[11px] font-semibold text-muted/70">
+                    <span className="flex items-center gap-1.5 font-mono text-sm font-semibold text-muted/80">
                       {step.step}
-                      <ArrowUpRight className="h-3.5 w-3.5 transition-colors group-hover:text-accent" />
+                      <ArrowUpRight className="h-4 w-4 transition-colors group-hover:text-accent" />
                     </span>
                   </div>
-                  <h3 className="mt-4 text-sm font-bold text-ink">{step.title}</h3>
-                  <p className="mt-1.5 text-[11px] leading-relaxed text-muted">{step.body}</p>
+                  <h3 className="mt-4 text-base font-bold text-ink">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">{step.body}</p>
                 </Link>
               );
             })}
@@ -121,7 +121,7 @@ export default function HowItWorks() {
               <div className="chip text-aqua">Explore MinerPicks</div>
               <h3 className="mt-2 text-xl font-bold tracking-tight text-ink sm:text-2xl">Every tool, in one place</h3>
             </div>
-            <p className="text-[11px] text-muted">Jump straight to any page or tool.</p>
+            <p className="text-sm text-muted">Jump straight to any page or tool.</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {features.map((feature) => {
@@ -130,13 +130,13 @@ export default function HowItWorks() {
               return (
                 <Link key={feature.title} href={feature.href} className="surface card-lift group rounded-2xl p-4">
                   <div className="flex items-start justify-between gap-2">
-                    <span className={`grid h-9 w-9 place-items-center rounded-xl border ${tone.tile}`}>
-                      <Icon className={`h-4 w-4 ${tone.icon}`} />
+                    <span className={`grid h-11 w-11 place-items-center rounded-xl border ${tone.tile}`}>
+                      <Icon className={`h-5 w-5 ${tone.icon}`} />
                     </span>
-                    <ArrowUpRight className="h-3.5 w-3.5 text-muted transition-colors group-hover:text-accent" />
+                    <ArrowUpRight className="h-4 w-4 text-muted transition-colors group-hover:text-accent" />
                   </div>
-                  <h4 className="mt-3 text-sm font-bold text-ink">{feature.title}</h4>
-                  <p className="mt-1 text-[11px] leading-relaxed text-muted">{feature.body}</p>
+                  <h4 className="mt-3 text-base font-bold text-ink">{feature.title}</h4>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">{feature.body}</p>
                 </Link>
               );
             })}

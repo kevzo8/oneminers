@@ -79,7 +79,7 @@ export default function OffersTable({
               key={value}
               type="button"
               onClick={() => setMode(value)}
-              className={`rounded-full px-3 py-1 text-[11px] font-semibold transition-colors ${
+              className={`rounded-full px-3 py-1 text-sm font-semibold transition-colors ${
                 mode === value ? "bg-white/10 text-ink" : "text-muted hover:text-ink"
               }`}
             >
@@ -125,7 +125,7 @@ export default function OffersTable({
         <div className="overflow-x-auto">
           <table className="w-full min-w-[860px] text-left">
             <thead>
-              <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
+              <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
                 <th className="px-4 py-3 font-semibold">Vendor</th>
                 <th className="px-4 py-3 font-semibold">Ships from</th>
                 <th className="px-4 py-3 font-semibold">Condition</th>
@@ -148,9 +148,9 @@ export default function OffersTable({
                           {row.vendor.name}
                         </Link>
                         <TierBadge tier={row.vendor.tier} />
-                        {row.vendor.sample ? <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
+                        {row.vendor.sample ? <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-xs font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
                       </div>
-                      <div className="mt-1 flex flex-wrap items-center gap-2 text-[10px] text-muted">
+                      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted">
                         <VerifiedBadge verified={row.vendor.verified} partner={row.vendor.partner} />
                         {row.vendor.reviews > 0 ? (
                           <span className="inline-flex items-center gap-0.5">
@@ -171,7 +171,7 @@ export default function OffersTable({
                     </td>
                     <td className="px-4 py-3 text-xs text-muted">
                       {row.condition}
-                      <span className="block text-[10px] text-muted/70">
+                      <span className="block text-xs text-muted/70">
                         {row.psuIncluded ? "PSU incl." : "No PSU"} · {row.warrantyMonths >= 12 ? `${Math.round(row.warrantyMonths / 12)}y` : `${row.warrantyMonths}m`} warranty
                       </span>
                     </td>
@@ -187,13 +187,13 @@ export default function OffersTable({
                       >
                         {row.availability}
                       </span>
-                      <span className="block text-[10px] text-muted/70">
+                      <span className="block text-xs text-muted/70">
                         updated {updatedLabel(row.updatedAt)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <span className="text-sm font-bold tabular-nums text-ink">{money(total, 0)}</span>
-                      <span className="block text-[10px] text-muted/70">
+                      <span className="block text-xs text-muted/70">
                         {row.shipping ? `incl. ${money(row.shipping, 0)} shipping` : "free shipping"}
                       </span>
                     </td>
@@ -226,7 +226,7 @@ export default function OffersTable({
           </table>
         </div>
       </div>
-      <p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-muted/70">
+      <p className="flex items-start gap-1.5 text-sm leading-relaxed text-muted/70">
         <Info className="mt-0.5 h-3 w-3 shrink-0" />
         &ldquo;Recommended&rdquo; shows paid plans first (Gold, then Silver, then Bronze). A paid plan changes position only, never
         the price or data shown. Buyers pay sellers directly.{offers.some((offer) => offer.vendor.sample) ? " Listings marked Sample are placeholders until sellers join." : ""}

@@ -125,7 +125,7 @@ export default function CoinsTable({
     <div className="surface overflow-x-auto rounded-2xl">
       <table className="w-full min-w-[1100px] text-left">
         <thead>
-          <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
+          <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
             <SortHeader label="Coin" sortKey="coin" sort={sort} onSort={toggleSort} />
             <SortHeader label="Algorithm" sortKey="algorithm" sort={sort} onSort={toggleSort} />
             <SortHeader label="Price" sortKey="price" sort={sort} onSort={toggleSort} align="right" />
@@ -166,7 +166,7 @@ export default function CoinsTable({
               </td>
               <td className="px-4 py-3 text-right text-xs tabular-nums text-ink">
                 {formatCoins(perDay)} {coin.tag}
-                <span className="block text-[10px] text-muted">${Math.round(minedUsd).toLocaleString("en-US")}</span>
+                <span className="block text-xs text-muted">${Math.round(minedUsd).toLocaleString("en-US")}</span>
               </td>
               <td className="px-4 py-3 text-right text-xs tabular-nums text-ink">{miners}</td>
             </tr>

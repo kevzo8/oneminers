@@ -158,7 +158,7 @@ export default async function MinerPage({ params }: Params) {
                 <div key={item.label} className="rounded-xl border border-line bg-panel-soft p-3">
                   <item.icon className="h-4 w-4 text-aqua" />
                   <div className="mt-2 text-sm font-bold tabular-nums text-ink">{item.value}</div>
-                  <div className="text-[10px] uppercase tracking-[0.1em] text-muted">{item.label}</div>
+                  <div className="text-xs uppercase tracking-[0.1em] text-muted">{item.label}</div>
                 </div>
               ))}
             </div>
@@ -183,12 +183,12 @@ export default async function MinerPage({ params }: Params) {
                     },
                   ].map((item) => (
                     <div key={item.label} className="rounded-xl border border-line bg-panel-soft p-3">
-                      <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">{item.label}</dt>
+                      <dt className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">{item.label}</dt>
                       <dd className="mt-1 text-sm font-bold tabular-nums text-ink">{item.value}</dd>
                     </div>
                   ))}
                 </dl>
-                <p className="mt-3 text-[11px] leading-relaxed text-muted/70">
+                <p className="mt-3 text-sm leading-relaxed text-muted/70">
                   At ${DEFAULT_SETTINGS.electricity.toFixed(2)}/kWh. Adjust your power price in the settings bar beside this card;
                   hosting plans start at 3.6¢/kWh.
                 </p>
@@ -200,7 +200,7 @@ export default async function MinerPage({ params }: Params) {
             <div className="surface rounded-3xl p-6">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Best price</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Best price</div>
                   <div className="mt-1 text-3xl font-bold tabular-nums text-ink">{best ? formatUsd(best, 0) : "—"}</div>
                   <div className="mt-1 text-xs text-muted">
                     {offers.length} offer{offers.length === 1 ? "" : "s"} from {new Set(offers.map((o) => o.vendorSlug)).size} vendor{new Set(offers.map((o) => o.vendorSlug)).size === 1 ? "" : "s"}
@@ -212,14 +212,14 @@ export default async function MinerPage({ params }: Params) {
                 </a>
               </div>
               <div className="mt-5 grid gap-2 sm:grid-cols-3">
-                <a href="/#contact" className="btn-ghost w-full min-h-11 px-2.5 py-2.5 text-[11px] leading-tight">
+                <a href="/#contact" className="btn-ghost w-full min-h-11 px-2.5 py-2.5 text-sm leading-tight">
                   <MessageSquareQuote className="h-4 w-4 shrink-0" />
                   <span className="text-center">Request a bulk quote</span>
                 </a>
-                <Link href={`/compare?m=${miner.slug}`} className="btn-ghost w-full min-h-11 px-2.5 py-2.5 text-[11px] leading-tight">
+                <Link href={`/compare?m=${miner.slug}`} className="btn-ghost w-full min-h-11 px-2.5 py-2.5 text-sm leading-tight">
                   <span className="text-center">Compare with other miners</span>
                 </Link>
-                <a href={miner.category === "Industrial" ? `/hosting?miner=${miner.slug}` : "/hosting"} className="btn-ghost w-full min-h-11 px-2.5 py-2.5 text-[11px] leading-tight">
+                <a href={miner.category === "Industrial" ? `/hosting?miner=${miner.slug}` : "/hosting"} className="btn-ghost w-full min-h-11 px-2.5 py-2.5 text-sm leading-tight">
                   <Server className="h-4 w-4 shrink-0" />
                   <span className="text-center">Host it from 3.6¢/kWh</span>
                 </a>
@@ -296,7 +296,7 @@ export default async function MinerPage({ params }: Params) {
                   <MakerMark manufacturer={other.manufacturer} size="sm" />
                   <span className="flex-1">
                     <span className="block text-sm font-semibold text-ink">{other.model}</span>
-                    <span className="block text-[11px] text-muted">
+                    <span className="block text-sm text-muted">
                       {other.manufacturer} · {formatHashrate(other.hashrate, other.unit)} · {other.powerW.toLocaleString("en-US")} W
                     </span>
                   </span>

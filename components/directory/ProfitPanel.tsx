@@ -62,7 +62,7 @@ export default function ProfitPanel({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-bold text-ink">Profitability</h2>
         <div className="flex items-center gap-2">
-          <span className="text-[11px] text-muted">Qty</span>
+          <span className="text-sm text-muted">Qty</span>
           <div className="flex items-center rounded-full border border-line bg-panel-soft">
             <button
               type="button"
@@ -100,7 +100,7 @@ export default function ProfitPanel({
               key={row.tag}
               type="button"
               onClick={() => setCoinTag(row.tag)}
-              className={`rounded-full border px-3 py-1 text-[11px] font-semibold transition-colors ${
+              className={`rounded-full border px-3 py-1 text-sm font-semibold transition-colors ${
                 row.tag === revenue?.tag ? "border-accent/40 bg-accent/15 text-accent" : "border-line text-muted hover:text-ink"
               }`}
             >
@@ -113,7 +113,7 @@ export default function ProfitPanel({
       <div className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[420px] text-sm">
           <thead>
-            <tr className="text-[10px] uppercase tracking-[0.1em] text-muted">
+            <tr className="text-xs uppercase tracking-[0.1em] text-muted">
               <th className="py-2 text-left font-semibold" />
               {PERIODS.map((period) => (
                 <th key={period.label} className="py-2 text-right font-semibold">
@@ -153,23 +153,23 @@ export default function ProfitPanel({
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-xl border border-line bg-panel-soft p-3">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Mined / day</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Mined / day</div>
           <div className="mt-1 text-sm font-bold tabular-nums text-ink">
             {formatCoins((revenue?.coinsPerDay ?? 0) * quantity)} {revenue?.merged ? "LTC + DOGE" : revenue?.tag}
           </div>
         </div>
         <div className="rounded-xl border border-line bg-panel-soft p-3">
-          <div className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">
+          <div className="flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.1em] text-muted">
             <Zap className="h-3 w-3 text-amber" /> Break-even power
           </div>
           <div className="mt-1 text-sm font-bold tabular-nums text-ink">${breakEven.toFixed(3)}/kWh</div>
         </div>
         <div className="rounded-xl border border-line bg-panel-soft p-3">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">ROI at best price</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">ROI at best price</div>
           <div className="mt-1 text-sm font-bold tabular-nums text-ink">{roi ? `${roi.toLocaleString("en-US")} days` : "Not profitable"}</div>
         </div>
       </div>
-      <p className="mt-3 text-[11px] leading-relaxed text-muted/70">
+      <p className="mt-3 text-sm leading-relaxed text-muted/70">
         At ${settings.electricity.toFixed(3)}/kWh and {settings.poolFee}% pool fee. Assumes today&apos;s difficulty and
         price stay constant, which they won&apos;t.
       </p>
@@ -184,7 +184,7 @@ export function MineableCoins({ powerW, revenues }: { powerW: number; revenues: 
     <div className="surface overflow-hidden rounded-2xl">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
+          <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
             <th className="px-4 py-3 text-left font-semibold">Coin</th>
             <th className="px-4 py-3 text-right font-semibold">Mined / day</th>
             <th className="px-4 py-3 text-right font-semibold">Income / day</th>
@@ -201,7 +201,7 @@ export function MineableCoins({ powerW, revenues }: { powerW: number; revenues: 
                     <CoinChip tag={row.tag} />
                     <span className="text-xs text-muted">{row.name}</span>
                     {row.caution ? (
-                      <span className="rounded border border-amber/30 bg-amber/10 px-1 py-px text-[9px] font-bold uppercase text-amber">
+                      <span className="rounded border border-amber/30 bg-amber/10 px-1 py-px text-xs font-bold uppercase text-amber">
                         {row.caution === "dominant" ? "Network too small" : "Low liquidity"}
                       </span>
                     ) : null}

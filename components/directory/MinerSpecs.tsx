@@ -77,14 +77,14 @@ export function HeroSpecs({ miner, specs }: { miner: MinerModel; specs?: MinerSp
         <dl className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {shown.map((item) => (
             <div key={item.label} className="min-w-0 rounded-xl border border-line/60 bg-black/20 px-3 py-2">
-              <dt className="text-[9px] font-semibold uppercase tracking-[0.1em] text-muted">{item.label}</dt>
+              <dt className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">{item.label}</dt>
               <dd className="mt-0.5 text-xs font-bold tabular-nums text-ink">{item.value}</dd>
-              {item.hint ? <div className="mt-0.5 text-[9px] leading-snug text-muted/70">{item.hint}</div> : null}
+              {item.hint ? <div className="mt-0.5 text-xs leading-snug text-muted/70">{item.hint}</div> : null}
             </div>
           ))}
         </dl>
       </div>
-      <p className="mt-2 text-[10px] leading-relaxed text-muted/70">
+      <p className="mt-2 text-xs leading-relaxed text-muted/70">
         Specs: manufacturer datasheets via{" "}
         <a href={SPEC_SOURCES.dcentral.url} target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">
           D-Central

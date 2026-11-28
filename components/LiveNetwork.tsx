@@ -34,11 +34,11 @@ function StatRow({ icon, label, value, trend, trendUp }: { icon: React.ReactNode
     <div className="flex items-center justify-between py-1.5 border-b border-line/40 last:border-0">
       <div className="flex items-center gap-2">
         <span className="h-4 w-4 text-muted">{icon}</span>
-        <span className="text-[11px] font-medium text-muted">{label}</span>
+        <span className="text-sm font-medium text-muted">{label}</span>
       </div>
       <div className="flex items-center gap-1.5 text-right">
         <span className="text-sm font-semibold text-ink tabular-nums">{value}</span>
-        {trend && <span className={`text-[10px] font-semibold ${trendUp === true ? "text-accent" : trendUp === false ? "text-red-400" : "text-muted"}`}>{trendUp ? "+" : ""}{trend}</span>}
+        {trend && <span className={`text-xs font-semibold ${trendUp === true ? "text-accent" : trendUp === false ? "text-red-400" : "text-muted"}`}>{trendUp ? "+" : ""}{trend}</span>}
       </div>
     </div>
   );
@@ -46,7 +46,7 @@ function StatRow({ icon, label, value, trend, trendUp }: { icon: React.ReactNode
 
 function FeePill({ label, value, isFastest }: { label: string; value: number; isFastest?: boolean }) {
   return (
-    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${isFastest ? "border-accent/30 bg-accent/10 text-accent" : "border-line bg-panel-soft text-muted"}`}>
+    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${isFastest ? "border-accent/30 bg-accent/10 text-accent" : "border-line bg-panel-soft text-muted"}`}>
       {label} {value}
     </span>
   );
@@ -119,7 +119,7 @@ export default function LiveNetwork() {
           <span className="h-3 w-3 rounded-full bg-accent/20 animate-pulse" />
           <span className="text-xs font-semibold uppercase tracking-[0.06em] text-muted">Live Network</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[9px] text-muted/60">
+        <div className="flex items-center gap-1.5 text-sm text-muted/80">
           <span>mempool.space · CoinGecko · Alternative.me</span>
         </div>
       </div>
@@ -138,16 +138,16 @@ export default function LiveNetwork() {
 
       <div className="rounded-xl border border-line bg-panel-soft p-2">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[9px] font-semibold uppercase tracking-[0.06em] text-muted">Mempool</span>
-          <span className="text-[9px] text-muted/60">{data.mempoolSize ? `${(data.mempoolSize / 1e6).toFixed(1)}M vB` : "—"}</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.06em] text-muted">Mempool</span>
+          <span className="text-sm text-muted/80">{data.mempoolSize ? `${(data.mempoolSize / 1e6).toFixed(1)}M vB` : "—"}</span>
         </div>
         <div className="flex flex-wrap gap-1">
           {data.fees && (
             <>
-              <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-[10px] font-medium text-accent">⚡ {data.fees.fastestFee}</span>
-              <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[10px] text-muted">30m {data.fees.halfHourFee}</span>
-              <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[10px] text-muted">1h {data.fees.hourFee}</span>
-              <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[10px] text-muted">eco {data.fees.economyFee}</span>
+              <span className="rounded-full border border-accent/30 bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent">⚡ {data.fees.fastestFee}</span>
+              <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-sm text-muted">30m {data.fees.halfHourFee}</span>
+              <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-sm text-muted">1h {data.fees.hourFee}</span>
+              <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-sm text-muted">eco {data.fees.economyFee}</span>
             </>
           )}
         </div>
@@ -155,7 +155,7 @@ export default function LiveNetwork() {
 
       {data.nextDifficultyAdjustment && (
         <div className="mt-2 rounded-xl border border-line bg-panel-soft p-2">
-          <div className="flex items-center justify-between text-[9px] text-muted">
+          <div className="flex items-center justify-between text-sm text-muted">
             <span>Next difficulty adjustment</span>
             <span>{data.nextDifficultyAdjustment.blocksRemaining} blocks · ~{data.nextDifficultyAdjustment.estimatedDate}</span>
           </div>

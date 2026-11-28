@@ -5,17 +5,25 @@ export function CoinIcon({
   tag,
   size = 14,
   className = "",
+  label,
 }: {
   tag: string;
   size?: number;
   className?: string;
+  label?: string;
 }) {
+  const name = label ?? tag;
   const parts = tag.split("+").filter(Boolean);
   if (parts.length > 1) {
     return (
-      <span className={`inline-flex shrink-0 items-center -space-x-1 ${className}`} aria-hidden="true">
+      <span
+        title={name}
+        aria-label={name}
+        role="img"
+        className={`inline-flex shrink-0 items-center -space-x-1 ${className}`}
+      >
         {parts.map((part) => (
-          <CoinIcon key={part} tag={part} size={size} className="ring-1 ring-[#0b1016]" />
+          <CoinIcon key={part} tag={part} size={size} className="ring-1 ring-[var(--surface-solid)]" />
         ))}
       </span>
     );
@@ -27,6 +35,8 @@ export function CoinIcon({
       <img
         src={icon}
         alt=""
+        title={name}
+        aria-label={name}
         width={size}
         height={size}
         loading="lazy"
@@ -40,7 +50,9 @@ export function CoinIcon({
   const letters = size >= 22 ? tag.slice(0, 3) : tag.slice(0, 2);
   return (
     <span
-      aria-hidden="true"
+      title={name}
+      aria-label={name}
+      role="img"
       className={`inline-grid shrink-0 place-items-center rounded-full border font-black leading-none ${className}`}
       style={{
         width: size,
@@ -48,7 +60,7 @@ export function CoinIcon({
         borderColor: `${color}66`,
         background: `${color}1f`,
         color,
-        fontSize: Math.max(6, Math.round(size * 0.4)),
+        fontSize: Math.max(8, Math.round(size * 0.4)),
       }}
     >
       {letters.toUpperCase()}
@@ -60,10 +72,11 @@ export function CoinIcon({
 export function CoinStack({ tags, size = 18, max = 3 }: { tags: string[]; size?: number; max?: number }) {
   const unique = Array.from(new Set(tags)).slice(0, max);
   if (!unique.length) return null;
+  const name = unique.join(" + ");
   return (
-    <span className="inline-flex shrink-0 items-center -space-x-1.5">
+    <span title={name} aria-label={name} role="img" className="inline-flex shrink-0 items-center -space-x-1.5">
       {unique.map((tag) => (
-        <span key={tag} className="inline-flex rounded-full ring-2 ring-[#0b1016]">
+        <span key={tag} className="inline-flex rounded-full ring-2 ring-[var(--surface-solid)]">
           <CoinIcon tag={tag} size={size} />
         </span>
       ))}

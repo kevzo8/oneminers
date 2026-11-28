@@ -46,7 +46,7 @@ export default function AiDesk({ example }: { example: AiExample }) {
                   </span>
                   <div>
                     <div className="text-xs font-bold text-ink">{feature.title}</div>
-                    <p className="mt-0.5 text-[11px] leading-relaxed text-muted">{feature.body}</p>
+                    <p className="mt-0.5 text-sm leading-relaxed text-muted">{feature.body}</p>
                   </div>
                 </div>
               );
@@ -73,7 +73,7 @@ export default function AiDesk({ example }: { example: AiExample }) {
               </span>
               {BRAND.name} assistant
             </div>
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-accent">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent">
               <span className="h-1.5 w-1.5 rounded-full bg-accent" />
               Live data
             </span>
@@ -105,12 +105,12 @@ export default function AiDesk({ example }: { example: AiExample }) {
             onClick={() => window.dispatchEvent(new Event("oneminers:open-chat"))}
             className="mt-4 flex w-full items-center gap-2 rounded-xl border border-line bg-panel-soft px-3 py-2.5 text-left hover:border-accent/30"
           >
-            <span className="text-[11px] text-muted/70">Ask about miners, prices, hosting…</span>
+            <span className="text-sm text-muted/70">Ask about miners, prices, hosting…</span>
             <span className="ml-auto grid h-6 w-6 place-items-center rounded-md bg-accent/90">
               <ArrowUpRight className="h-3.5 w-3.5 text-on-accent" />
             </span>
           </button>
-          <p className="mt-3 text-center text-[9px] text-muted/60">Example built from today&apos;s live numbers · not investment advice</p>
+          <p className="mt-3 text-center text-xs text-muted/60">Example built from today&apos;s live numbers · not investment advice</p>
         </div>
       </div>
     </section>

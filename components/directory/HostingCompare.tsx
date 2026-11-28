@@ -35,7 +35,7 @@ export default function HostingCompare({ miners, fixedSlug }: { miners: Hostable
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         {fixedSlug ? null : (
           <div className="block sm:w-96">
-            <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Miner</span>
+            <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Miner</span>
             <SearchSelect
               value={slug}
               options={miners.map((item) => ({ value: item.slug, label: item.label }))}
@@ -57,7 +57,7 @@ export default function HostingCompare({ miners, fixedSlug }: { miners: Hostable
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left">
             <thead>
-              <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
+              <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
                 <th className="px-4 py-3 font-semibold">Location</th>
                 <th className="px-4 py-3 text-right font-semibold">Power</th>
                 <th className="px-4 py-3 text-right font-semibold">Capacity</th>
@@ -93,7 +93,7 @@ export default function HostingCompare({ miners, fixedSlug }: { miners: Hostable
                   <div className="flex items-center gap-2 text-sm font-semibold text-muted">
                     <Home className="h-4 w-4" /> Your own power
                   </div>
-                  <span className="text-[10px] text-muted/70">set in the power control</span>
+                  <span className="text-xs text-muted/70">set in the power control</span>
                 </td>
                 <td className="px-4 py-3 text-right text-xs tabular-nums text-muted">{(settings.electricity * 100).toFixed(1)}¢/kWh</td>
                 <td className="px-4 py-3 text-right text-xs text-muted">—</td>
@@ -106,7 +106,7 @@ export default function HostingCompare({ miners, fixedSlug }: { miners: Hostable
           </table>
         </div>
       </div>
-      <p className="text-[11px] leading-relaxed text-muted/70">
+      <p className="text-sm leading-relaxed text-muted/70">
         Live income at today&apos;s difficulty and prices, {settings.poolFee}% pool fee. {HOSTING_SOURCE} Model availability per site varies,
         especially for hydro and immersion units.
       </p>

@@ -110,7 +110,7 @@ export function MinerGlyph({
         )}
       </svg>
       {size === "sm" ? null : (
-        <span className="absolute bottom-2 right-3 font-mono text-[9px] font-bold tracking-[0.2em] text-muted/80">
+        <span className="absolute bottom-2 right-3 font-mono text-xs font-bold tracking-[0.2em] text-muted/80">
           {ALGO_SHORT[algorithm]}
         </span>
       )}
@@ -128,7 +128,7 @@ const TIER_STYLES: Record<VendorTier, string> = {
 export function TierBadge({ tier }: { tier: VendorTier }) {
   if (tier === "Free") return null;
   return (
-    <span className={`rounded-full border px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] ${TIER_STYLES[tier]}`}>
+    <span className={`rounded-full border px-2 py-0.5 text-xs font-bold uppercase tracking-[0.12em] ${TIER_STYLES[tier]}`}>
       {tier}
     </span>
   );
@@ -138,15 +138,15 @@ export function VerifiedBadge({ verified, partner }: { verified: boolean; partne
   return (
     <span className="inline-flex items-center gap-1.5">
       {verified ? (
-        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-accent" title="Company registration checked">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent" title="Company registration checked">
           <BadgeCheck className="h-3.5 w-3.5" />
           Verified
         </span>
       ) : (
-        <span className="text-[10px] font-medium text-muted">Unverified</span>
+        <span className="text-xs font-medium text-muted">Unverified</span>
       )}
       {partner ? (
-        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-aqua" title="Verified partner link">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-aqua" title="Verified partner link">
           <Handshake className="h-3.5 w-3.5" />
           Partner
         </span>
@@ -159,7 +159,7 @@ export function VerifiedBadge({ verified, partner }: { verified: boolean; partne
 export function Flag({ code, label }: { code: string; label?: string }) {
   return (
     <span className="inline-flex items-center gap-1.5 text-xs text-muted" title={COUNTRY_NAMES[code] ?? code}>
-      <span className="rounded border border-line bg-panel-soft px-1 py-px font-mono text-[9px] font-bold tracking-wider text-ink">
+      <span className="rounded border border-line bg-panel-soft px-1 py-px font-mono text-xs font-bold tracking-wider text-ink">
         {code}
       </span>
       {label && label !== code ? label : null}
@@ -168,5 +168,5 @@ export function Flag({ code, label }: { code: string; label?: string }) {
 }
 
 export function SampleNote({ children }: { children: React.ReactNode }) {
-  return <p className="text-[11px] leading-relaxed text-muted/70">{children}</p>;
+  return <p className="text-sm leading-relaxed text-muted/70">{children}</p>;
 }

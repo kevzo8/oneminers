@@ -58,11 +58,11 @@ function VendorPreviewPage({ preview }: { preview: VendorPreview }) {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-3xl font-bold tracking-tight text-ink">{preview.name}</h1>
-                <span className="rounded-full border border-amber/30 bg-amber/10 px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-amber">
+                <span className="rounded-full border border-amber/30 bg-amber/10 px-2 py-0.5 text-xs font-bold uppercase tracking-[0.12em] text-amber">
                   {preview.status}
                 </span>
                 {preview.sample ? (
-                  <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">
+                  <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-xs font-bold uppercase tracking-[0.12em] text-muted">
                     Sample
                   </span>
                 ) : null}
@@ -95,7 +95,7 @@ function VendorPreviewPage({ preview }: { preview: VendorPreview }) {
             ) : null}
           </div>
 
-          <p className="mt-5 text-[11px] text-muted/70">
+          <p className="mt-5 text-sm text-muted/70">
             If you own this company, manage the listing in the <Link href="/vendor-portal" className="underline hover:text-ink">Seller Portal</Link>.
           </p>
         </div>
@@ -148,7 +148,7 @@ export default async function VendorPage({ params }: Params) {
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-3xl font-bold tracking-tight text-ink">{vendor.name}</h1>
                   <TierBadge tier={vendor.tier} />
-                  {vendor.sample ? <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
+                  {vendor.sample ? <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-xs font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <Flag code={vendor.countryCode} label={vendor.country} />
@@ -180,7 +180,7 @@ export default async function VendorPage({ params }: Params) {
               <div key={fact.label} className="rounded-xl border border-line bg-panel-soft p-3">
                 <fact.icon className="h-4 w-4 text-aqua" />
                 <div className="mt-2 text-sm font-semibold text-ink">{fact.value}</div>
-                <div className="text-[10px] uppercase tracking-[0.1em] text-muted">{fact.label}</div>
+                <div className="text-xs uppercase tracking-[0.1em] text-muted">{fact.label}</div>
               </div>
             ))}
           </div>
@@ -197,7 +197,7 @@ export default async function VendorPage({ params }: Params) {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-left">
                 <thead>
-                  <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
+                  <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
                     <th className="px-4 py-3 font-semibold">Miner</th>
                     <th className="px-4 py-3 font-semibold">Algorithm</th>
                     <th className="px-4 py-3 font-semibold">Condition</th>
@@ -214,7 +214,7 @@ export default async function VendorPage({ params }: Params) {
                           <MinerGlyph manufacturer={miner.manufacturer} algorithm={miner.algorithm} cooling={miner.cooling} size="sm" />
                           <span>
                             <span className="block text-sm font-semibold text-ink hover:text-accent">{miner.model}</span>
-                            <span className="block text-[11px] text-muted">
+                            <span className="block text-sm text-muted">
                               {miner.manufacturer} · {formatHashrate(miner.hashrate, miner.unit)}
                             </span>
                           </span>
@@ -247,9 +247,9 @@ export default async function VendorPage({ params }: Params) {
             </div>
           </div>
           {vendor.sample ? (
-            <p className="mt-2 text-[11px] text-muted/70">This is a sample listing shown until real sellers join. Its prices are placeholders.</p>
+            <p className="mt-2 text-sm text-muted/70">This is a sample listing shown until real sellers join. Its prices are placeholders.</p>
           ) : (
-            <p className="mt-2 text-[11px] text-muted/70">Prices are provided by the seller. Confirm the current price and stock on the seller&apos;s site.</p>
+            <p className="mt-2 text-sm text-muted/70">Prices are provided by the seller. Confirm the current price and stock on the seller&apos;s site.</p>
           )}
         </section>
       </div>

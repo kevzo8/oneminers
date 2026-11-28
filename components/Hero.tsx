@@ -15,21 +15,21 @@ export default function Hero() {
       />
 
       <div className="relative z-10 mx-auto flex w-full max-w-7xl flex-col gap-2 px-5 sm:px-8">
-        <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-accent/25 bg-accent/[0.07] px-2 py-0.5 text-[9px] font-semibold text-accent sm:px-2.5 sm:py-1 sm:text-[10px]">
-          <Activity className="h-3 w-3" /> Live ASIC directory · updated hourly
+        <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-accent/25 bg-accent/[0.07] px-2.5 py-1 text-sm font-semibold text-accent">
+          <Activity className="h-4 w-4" /> Live ASIC directory · updated hourly
         </div>
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
-            <h1 className="text-xl font-bold leading-tight tracking-[-0.03em] text-ink sm:text-3xl">
+            <h1 className="text-2xl font-bold leading-tight tracking-[-0.03em] text-ink sm:text-4xl">
               ASIC miner profitability, <span className="text-gradient">live.</span>
             </h1>
-            <p className="mt-1 hidden max-w-3xl text-xs leading-relaxed text-muted sm:block sm:text-sm">
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted sm:text-base">
               Every major ASIC ranked by daily profit after power and pool fees, with efficiency, best seller price and ROI. Set your
               electricity cost and the table updates.
             </p>
           </div>
-          <a href="/miners" className="btn-ghost hidden shrink-0 px-3 py-2 text-xs sm:inline-flex">
-            Browse miners <ArrowUpRight className="h-3.5 w-3.5" />
+          <a href="/miners" className="btn-ghost shrink-0 px-4 py-2.5 text-sm">
+            Browse miners <ArrowUpRight className="h-4 w-4" />
           </a>
         </div>
       </div>

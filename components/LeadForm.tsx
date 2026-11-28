@@ -55,7 +55,7 @@ export default function LeadForm() {
                     <Clock className="h-4 w-4 text-violet-300" />
                   </span>
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Response</div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Response</div>
                     <div className="text-sm font-semibold text-ink">Usually within one business day</div>
                   </div>
                 </div>
@@ -64,7 +64,7 @@ export default function LeadForm() {
                     <Mail className="h-4 w-4 text-accent" />
                   </span>
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Selling miners?</div>
+                    <div className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Selling miners?</div>
                     <div className="text-sm font-semibold text-ink">List your company free during the launch promo</div>
                   </div>
                 </a>
@@ -95,7 +95,7 @@ export default function LeadForm() {
               <form onSubmit={submit} className="grid gap-3">
                 <div className="grid gap-3 sm:grid-cols-2">
                   <label className="grid gap-1.5">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Name</span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Name</span>
                     <input
                       required
                       minLength={2}
@@ -107,7 +107,7 @@ export default function LeadForm() {
                     />
                   </label>
                   <label className="grid gap-1.5">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Email</span>
+                    <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Email</span>
                     <input
                       required
                       type="email"
@@ -121,7 +121,7 @@ export default function LeadForm() {
                 </div>
 
                 <label className="grid gap-1.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Interested in</span>
+                  <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Interested in</span>
                   <SearchSelect<string>
                     value={form.interest}
                     options={["Buying miners", "Hosting", "Buying and hosting", "Selling on the directory", "Something else"]}
@@ -132,7 +132,7 @@ export default function LeadForm() {
                 </label>
 
                 <label className="grid gap-1.5">
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">
+                  <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">
                     Models, quantity and notes
                   </span>
                   <textarea
@@ -150,7 +150,7 @@ export default function LeadForm() {
                   {state === "sending" ? "Sending..." : "Send request"}
                   <Send className="h-4 w-4" />
                 </button>
-                <p className="text-[10px] leading-relaxed text-muted/70">
+                <p className="text-xs leading-relaxed text-muted/70">
                   We use your details only to answer your request. We never sell your data.
                 </p>
               </form>

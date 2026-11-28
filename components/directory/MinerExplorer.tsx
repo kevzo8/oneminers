@@ -91,7 +91,7 @@ function SortHeader({
         } ${active ? "text-ink" : ""}`}
       >
         {label}
-        <Icon className={`h-3 w-3 shrink-0 ${active ? "text-accent" : "opacity-40"}`} aria-hidden="true" />
+        <Icon className={`h-4 w-4 shrink-0 ${active ? "text-accent" : "opacity-40"}`} aria-hidden="true" />
       </button>
     </th>
   );
@@ -110,7 +110,7 @@ function Pill({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition-colors ${
+      className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition-colors ${
         active ? "border-aqua/40 bg-aqua/15 text-aqua" : "border-line bg-panel-soft text-muted hover:border-white/20 hover:text-ink"
       }`}
     >
@@ -123,11 +123,11 @@ export function CoinChip({ tag }: { tag: string }) {
   const color = COIN_COLORS[tag] ?? coinColor(tag);
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-bold tracking-wide"
-      style={{ borderColor: `${color}55`, background: `${color}1a`, color }}
+      className="inline-flex items-center rounded-full border p-1"
+      style={{ borderColor: `${color}55`, background: `${color}1a` }}
     >
-      <CoinIcon tag={tag} size={12} />
-      {tag}
+      <CoinIcon tag={tag} size={18} label={tag} />
+      <span className="sr-only">{tag}</span>
     </span>
   );
 }
@@ -305,8 +305,8 @@ export default function MinerExplorer({
   ].filter(Boolean).length;
 
   return (
-    <div className="mx-auto w-full max-w-[1100px] space-y-2.5">
-      <div className="surface mx-auto w-full max-w-[1100px] rounded-2xl p-3 sm:p-4">
+    <div className="mx-auto w-full max-w-[1200px] space-y-2.5">
+      <div className="surface mx-auto w-full max-w-[1200px] rounded-2xl p-3 sm:p-4">
         <div className="flex items-center gap-1.5">
           <label className="relative flex-1 lg:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
@@ -325,9 +325,9 @@ export default function MinerExplorer({
             className={`btn-ghost shrink-0 px-2.5 py-1.5 text-xs ${activeFilterCount ? "border-accent/40 text-accent" : ""}`}
             aria-expanded={filtersOpen}
           >
-            <SlidersHorizontal className="h-3.5 w-3.5" />
+            <SlidersHorizontal className="h-4 w-4" />
             Filters{activeFilterCount ? ` (${activeFilterCount})` : ""}
-            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`h-4 w-4 transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
           </button>
         </div>
 
@@ -388,19 +388,19 @@ export default function MinerExplorer({
               onClick={() => setWatchOnly((value) => !value)}
               className={`btn-ghost w-full py-1.5 text-xs ${watchOnly ? "border-accent/40 text-accent" : ""}`}
             >
-              <Star className={`h-3 w-3 ${watchOnly ? "fill-current" : ""}`} /> Watchlist ({watchlist.length})
+              <Star className={`h-4 w-4 ${watchOnly ? "fill-current" : ""}`} /> Watchlist ({watchlist.length})
             </button>
           </div>
 
           <div className="hidden flex-wrap items-center gap-1 sm:flex">
-            <span className="mr-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Coin</span>
+            <span className="mr-1 text-xs font-bold uppercase tracking-[0.12em] text-muted">Coin</span>
             <Pill active={coin.length === 0} onClick={() => setCoin([])}>
               All
             </Pill>
             {coinTags.map((tag) => (
               <Pill key={tag} active={coin.includes(tag)} onClick={() => setCoin((current) => toggleIn(current, tag))}>
                 <span className="inline-flex items-center gap-1">
-                  <CoinIcon tag={tag} size={12} />
+                  <CoinIcon tag={tag} size={18} label={tag} />
                   {tag} <span className="text-muted/70">({counts.coins.get(tag) ?? 0})</span>
                 </span>
               </Pill>
@@ -408,7 +408,7 @@ export default function MinerExplorer({
             <span className="mx-1 h-4 w-px bg-line" aria-hidden="true" />
             <Pill active={watchOnly} onClick={() => setWatchOnly((value) => !value)}>
               <span className="inline-flex items-center gap-1">
-                <Star className={`h-3 w-3 ${watchOnly ? "fill-current" : ""}`} /> Watchlist ({watchlist.length})
+                <Star className={`h-4 w-4 ${watchOnly ? "fill-current" : ""}`} /> Watchlist ({watchlist.length})
               </span>
             </Pill>
           </div>
@@ -429,7 +429,7 @@ export default function MinerExplorer({
               allLabel="All makers"
               className="w-36"
             />
-            <span className="ml-3 mr-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Cooling</span>
+            <span className="ml-3 mr-1 text-xs font-bold uppercase tracking-[0.12em] text-muted">Cooling</span>
             <Pill active={cooling.length === 0} onClick={() => setCooling([])}>
               All
             </Pill>
@@ -438,7 +438,7 @@ export default function MinerExplorer({
                 {value} <span className="text-muted/70">({counts.cool.get(value) ?? 0})</span>
               </Pill>
             ))}
-            <span className="ml-3 mr-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Type</span>
+            <span className="ml-3 mr-1 text-xs font-bold uppercase tracking-[0.12em] text-muted">Type</span>
             <Pill active={category.length === 0} onClick={() => setCategory([])}>
               All
             </Pill>
@@ -451,7 +451,7 @@ export default function MinerExplorer({
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[1100px] items-center justify-between px-1 text-sm text-muted">
+      <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-1 text-sm text-muted">
         <span>
           Showing <strong className="text-ink">{showingFrom}–{showingTo}</strong> of {visible.length} matching ({rows.length} miners)
         </span>
@@ -469,15 +469,15 @@ export default function MinerExplorer({
             }}
             className="inline-flex items-center gap-1 font-semibold text-ink hover:text-accent"
           >
-            <X className="h-3.5 w-3.5" /> Clear filters
+            <X className="h-4 w-4" /> Clear filters
           </button>
         ) : null}
       </div>
 
-      <div className="surface mx-auto w-full max-w-[1100px] overflow-x-auto rounded-2xl">
-        <table className="w-full min-w-[960px] border-collapse text-left">
+      <div className="surface mx-auto w-full max-w-[1200px] overflow-x-auto rounded-2xl">
+        <table className="w-full min-w-[1080px] border-collapse text-left">
             <thead>
-              <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
+              <tr className="border-b border-line text-sm uppercase tracking-[0.1em] text-muted">
                 <th className="w-10 py-3.5 pl-5" aria-label="Watchlist" />
                 <SortHeader label="Miner" sortKey="model" sort={sort} onSort={toggleSort} />
                 <SortHeader label="Profit / day" sortKey="profit" sort={sort} onSort={toggleSort} align="right" />
@@ -495,20 +495,20 @@ export default function MinerExplorer({
                     <button
                       type="button"
                       onClick={() => toggleWatch(row.slug)}
-                      className={`grid h-7 w-7 place-items-center rounded-full transition-colors ${watchlist.includes(row.slug) ? "text-amber" : "text-muted/50 hover:text-amber"}`}
+                      className={`grid h-9 w-9 place-items-center rounded-full transition-colors ${watchlist.includes(row.slug) ? "text-amber" : "text-muted/70 hover:text-amber"}`}
                       aria-label={watchlist.includes(row.slug) ? `Remove ${row.model} from watchlist` : `Add ${row.model} to watchlist`}
                     >
-                      <Star className={`h-4 w-4 ${watchlist.includes(row.slug) ? "fill-current" : ""}`} />
+                      <Star className={`h-5 w-5 ${watchlist.includes(row.slug) ? "fill-current" : ""}`} />
                     </button>
                   </td>
                   <td className="px-5 py-3.5">
                     <Link href={`/miners/${row.slug}`} className="flex items-center gap-3">
                       <MakerMark manufacturer={row.manufacturer} size="sm" />
                       <span>
-                        <span className="block text-base font-semibold text-ink transition-colors group-hover:text-accent">
+                        <span className="block text-lg font-semibold text-ink transition-colors group-hover:text-accent">
                           {row.model}
                         </span>
-                        <span className="block text-xs text-muted">
+                        <span className="block text-sm text-muted">
                           {row.manufacturer} · {row.cooling}
                           {row.category === "Home" ? " · Home" : ""}
                         </span>
@@ -516,23 +516,23 @@ export default function MinerExplorer({
                     </Link>
                   </td>
                   <td className="px-5 py-3.5 text-right">
-                    <span className={`text-base font-bold tabular-nums ${row.profit >= 0 ? "text-accent" : "text-red-400"}`}>
+                    <span className={`text-xl font-bold tabular-nums ${row.profit >= 0 ? "text-accent" : "text-red-400"}`}>
                       {money(row.profit)}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5 text-sm font-semibold tabular-nums text-ink">{formatHashrate(row.hashrate, row.unit)}</td>
-                  <td className="px-5 py-3.5 text-sm tabular-nums text-muted">
+                  <td className="px-5 py-3.5 text-base font-semibold tabular-nums text-ink">{formatHashrate(row.hashrate, row.unit)}</td>
+                  <td className="px-5 py-3.5 text-base tabular-nums text-muted">
                     {row.powerW.toLocaleString("en-US")} W
-                    <span className="block text-xs text-muted/70">{formatEfficiency(row.powerW, row.hashrate, row.unit)}</span>
+                    <span className="block text-sm text-muted/80">{formatEfficiency(row.powerW, row.hashrate, row.unit)}</span>
                   </td>
                   <td className="px-5 py-3.5">
                     {row.topCoin ? (
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <CoinStack tags={row.coinTags.length ? row.coinTags : [row.topCoin.tag]} max={2} />
-                        <span className="text-xs font-bold text-ink">{row.topCoin.tag}</span>
+                        <CoinStack tags={row.coinTags.length ? row.coinTags : [row.topCoin.tag]} size={22} max={2} />
+                        <span className="sr-only">{row.topCoin.tag}</span>
                         {row.topCoin.caution ? (
                           <span
-                            className="rounded border border-amber/30 bg-amber/10 px-1 py-px text-[10px] font-bold uppercase text-amber"
+                            className="rounded border border-amber/30 bg-amber/10 px-1.5 py-0.5 text-xs font-bold uppercase text-amber"
                             title={row.topCoin.caution === "dominant" ? "This miner would be more than 5% of the coin's network, so this income isn't realistic." : "This coin trades under $100k a day, so mined coins may be hard to sell at this price."}
                           >
                             {row.topCoin.caution === "dominant" ? "Network too small" : "Low liquidity"}
@@ -542,16 +542,16 @@ export default function MinerExplorer({
                     ) : (
                       <span className="text-sm text-muted">—</span>
                     )}
-                    <span className="mt-1 block text-xs text-muted/70">{row.algorithm}</span>
+                    <span className="mt-1 block text-sm text-muted/80">{row.algorithm}</span>
                   </td>
-                  <td className="px-5 py-3.5 text-right text-sm tabular-nums text-ink">
+                  <td className="px-5 py-3.5 text-right text-base tabular-nums text-ink">
                     {row.bestPrice ? money(row.bestPrice, 0) : "—"}
-                    <span className="block text-xs text-muted/70">
+                    <span className="block text-sm text-muted/80">
                       {row.offerCount} offer{row.offerCount === 1 ? "" : "s"}
                       {row.unitPrice ? ` · ${row.unitPrice}` : ""}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5 text-right text-sm tabular-nums text-muted">
+                  <td className="px-5 py-3.5 text-right text-base tabular-nums text-muted">
                     {row.roi ? `${row.roi.toLocaleString("en-US")} d` : "Never"}
                   </td>
                 </tr>
@@ -568,14 +568,14 @@ export default function MinerExplorer({
       </div>
       {paginate ? (
         totalPages > 1 ? (
-          <div className="mx-auto flex w-full max-w-[1100px] flex-wrap items-center justify-center gap-2">
+          <div className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center justify-center gap-2">
             <button
               type="button"
               disabled={safePage === 0}
               onClick={() => setPage(Math.max(0, safePage - 1))}
               className="btn-ghost px-3 py-2 text-xs disabled:opacity-40"
             >
-              <ArrowLeft className="h-3.5 w-3.5" /> Previous
+              <ArrowLeft className="h-4 w-4" /> Previous
             </button>
             {pageList(totalPages, safePage + 1).map((entry, index) =>
               entry === "…" ? (
@@ -604,12 +604,12 @@ export default function MinerExplorer({
               onClick={() => setPage(Math.min(totalPages - 1, safePage + 1))}
               className="btn-ghost px-3 py-2 text-xs disabled:opacity-40"
             >
-              Next <ArrowRight className="h-3.5 w-3.5" />
+              Next <ArrowRight className="h-4 w-4" />
             </button>
           </div>
         ) : null
       ) : visible.length > limit ? (
-        <div className="mx-auto flex w-full max-w-[1100px] justify-center">
+        <div className="mx-auto flex w-full max-w-[1200px] justify-center">
           <Link href="/miners" className="btn-ghost px-6 py-2.5 text-sm">
             View all {rows.length} miners
             <ArrowUpRight className="h-4 w-4" />

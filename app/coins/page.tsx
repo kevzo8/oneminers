@@ -36,7 +36,7 @@ export default async function CoinsPage() {
           </p>
         </div>
         <CoinsTable coins={market.coins} minerCounts={minerCounts} markets={markets} />
-        <p className="text-[11px] text-muted/70">
+        <p className="text-sm text-muted/70">
           Network data{" "}
           {market.source === "live" ? (
             <>

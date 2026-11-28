@@ -19,7 +19,7 @@ export default function LegalPage({
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">{title}</h1>
           <p className="mt-3 text-sm leading-relaxed text-muted">{intro}</p>
-          <p className="mt-2 text-[11px] text-muted/70">Last updated: {updated}</p>
+          <p className="mt-2 text-sm text-muted/70">Last updated: {updated}</p>
         </div>
         <div className="surface space-y-8 rounded-3xl p-6 sm:p-8">
           {sections.map((section) => (
@@ -40,7 +40,7 @@ export default function LegalPage({
             </section>
           ))}
         </div>
-        <p className="text-[11px] leading-relaxed text-muted/70">
+        <p className="text-sm leading-relaxed text-muted/70">
           Questions? Use the <Link href="/report" className="underline hover:text-ink">report form</Link>. See also our{" "}
           <Link href="/data" className="underline hover:text-ink">data sources</Link> and <Link href="/privacy" className="underline hover:text-ink">privacy policy</Link>.
         </p>

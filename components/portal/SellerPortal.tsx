@@ -143,7 +143,7 @@ function SignedIn({ miners }: { miners: PortalMiner[] }) {
             <CompanyForm />
           </div>
         </div>
-        {me ? <p className="text-center text-[10px] text-muted/50">Account ID {me._id}</p> : null}
+        {me ? <p className="text-center text-xs text-muted/50">Account ID {me._id}</p> : null}
       </div>
     );
   }
@@ -152,7 +152,7 @@ function SignedIn({ miners }: { miners: PortalMiner[] }) {
     <div className="space-y-6">
       {header}
       <Dashboard vendor={data.vendor} offers={data.offers} miners={miners} />
-      {me ? <p className="text-center text-[10px] text-muted/50">Account ID {me._id}</p> : null}
+      {me ? <p className="text-center text-xs text-muted/50">Account ID {me._id}</p> : null}
     </div>
   );
 }
@@ -202,7 +202,7 @@ function CompanyForm({ vendor, onDone }: { vendor?: Doc<"vendors">; onDone?: () 
 
   const input = (key: "name" | "website" | "contactEmail" | "payments" | "warrantyMonths", label: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
     <label className="block">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">{label}</span>
       <input {...props} value={form[key]} onChange={(event) => setForm({ ...form, [key]: event.target.value })} className="input mt-1.5" />
     </label>
   );
@@ -213,7 +213,7 @@ function CompanyForm({ vendor, onDone }: { vendor?: Doc<"vendors">; onDone?: () 
         {input("name", "Company name", { required: true, placeholder: "Acme Mining Supply Ltd." })}
         {input("website", "Website", { required: true, type: "url", placeholder: "https://" })}
         <div className="block">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Country</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Country</span>
           <SearchSelect
             value={form.countryCode}
             options={[
@@ -230,7 +230,7 @@ function CompanyForm({ vendor, onDone }: { vendor?: Doc<"vendors">; onDone?: () 
         {input("warrantyMonths", "Warranty (months)", { type: "number", min: 0, max: 120 })}
       </div>
       <label className="block">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">About your company</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">About your company</span>
         <textarea
           value={form.about}
           onChange={(event) => setForm({ ...form, about: event.target.value })}
@@ -287,13 +287,13 @@ function Dashboard({ vendor, offers, miners }: { vendor: Doc<"vendors">; offers:
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-bold tracking-tight text-ink">{vendor.name}</h1>
             <span
-              className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] ${
+              className={`rounded-full border px-2.5 py-0.5 text-xs font-bold uppercase tracking-[0.1em] ${
                 live ? "border-accent/30 bg-accent/10 text-accent" : "border-amber/30 bg-amber/10 text-amber"
               }`}
             >
               {live ? "Live" : vendor.status === "rejected" ? "Rejected" : "Hidden: partner link missing"}
             </span>
-            {vendor.verified ? <span className="text-[11px] font-semibold text-accent">✓ Verified</span> : null}
+            {vendor.verified ? <span className="text-sm font-semibold text-accent">✓ Verified</span> : null}
           </div>
           <p className="text-xs text-muted">
             {vendor.country} · {vendor.website}
@@ -343,7 +343,7 @@ function Dashboard({ vendor, offers, miners }: { vendor: Doc<"vendors">; offers:
         ].map((kpi) => (
           <div key={kpi.label} className="surface rounded-2xl p-4">
             <div className="text-2xl font-bold tabular-nums text-ink">{kpi.value}</div>
-            <div className="text-[10px] uppercase tracking-[0.1em] text-muted">{kpi.label}</div>
+            <div className="text-xs uppercase tracking-[0.1em] text-muted">{kpi.label}</div>
           </div>
         ))}
       </div>
@@ -369,11 +369,11 @@ function PlanCard({ vendor, daysLeft }: { vendor: Doc<"vendors">; daysLeft: numb
     <div className="surface rounded-2xl p-5">
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Plan</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Plan</div>
           <div className="mt-1 text-xl font-bold text-ink">{daysLeft > 0 ? "Launch promo · 6 months free" : vendor.canceled ? "Canceled" : "Contact us to continue"}</div>
         </div>
         <span
-          className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] ${
+          className={`rounded-full border px-2.5 py-1 text-xs font-bold uppercase tracking-[0.1em] ${
             vendor.canceled ? "border-red-400/30 bg-red-400/10 text-red-300" : "border-accent/30 bg-accent/10 text-accent"
           }`}
         >
@@ -425,7 +425,7 @@ function PartnerLinkCard({ vendor }: { vendor: Doc<"vendors"> }) {
       <div className="surface rounded-2xl p-5">
         <div className="flex items-center gap-2">
           <Link2 className="h-4 w-4 text-aqua" />
-        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Partner link</div>
+        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Partner link</div>
       </div>
       <p className="mt-2 text-sm text-muted">
         Add a link to <code className="text-aqua">https://oneminers.com</code> on your site (e.g. a partners page), then check it here.
@@ -467,7 +467,7 @@ function PartnerLinkCard({ vendor }: { vendor: Doc<"vendors"> }) {
           <p className="text-muted">Not checked yet. We re-check every week and pause listings if the link disappears.</p>
         )}
         {vendor.partnerLinkCheckedAt ? (
-          <p className="mt-1 text-[10px] text-muted/70">Last checked {new Date(vendor.partnerLinkCheckedAt).toLocaleString("en-US")}</p>
+          <p className="mt-1 text-xs text-muted/70">Last checked {new Date(vendor.partnerLinkCheckedAt).toLocaleString("en-US")}</p>
         ) : null}
       </div>
       </div>
@@ -653,7 +653,7 @@ ${csvExample[1]?.slug},${csvExample[1] ? suggestedPrice(csvExample[1]) : ""},Pre
       <div className="overflow-x-auto">
         <table className="w-full min-w-[980px] text-left">
           <thead>
-            <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
+            <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
               <th className="px-4 py-3 font-semibold">Model</th>
               <th className="px-4 py-3 font-semibold">Price $</th>
               <th className="px-4 py-3 font-semibold">Shipping $</th>
@@ -683,7 +683,7 @@ ${csvExample[1]?.slug},${csvExample[1] ? suggestedPrice(csvExample[1]) : ""},Pre
                     {minerMap.get(draft.minerSlug) ? (
                       <ModelSpecs miner={minerMap.get(draft.minerSlug)!} price={draft.price} onUsePrice={(price) => edit(draft.key, { price: String(price) })} />
                     ) : null}
-                    {rowError[draft.key] ? <p className="mt-1 text-[11px] text-red-300">{rowError[draft.key]}</p> : null}
+                    {rowError[draft.key] ? <p className="mt-1 text-sm text-red-300">{rowError[draft.key]}</p> : null}
                   </td>
                   <td className="px-4 py-2.5">
                     <input type="number" min={1} value={draft.price} onChange={(event) => edit(draft.key, { price: event.target.value })} className="input w-24 py-2 text-xs tabular-nums" aria-label="Price" />

@@ -105,7 +105,7 @@ export default function SearchSelect<T extends string>({
                 {value === option.value ? <Check className="h-3.5 w-3.5 shrink-0 text-accent" /> : null}
               </button>
             ))}
-            {matches.length === 0 ? <p className="px-2.5 py-2 text-[11px] text-muted">No matches</p> : null}
+            {matches.length === 0 ? <p className="px-2.5 py-2 text-sm text-muted">No matches</p> : null}
           </div>
         </div>
       ) : null}

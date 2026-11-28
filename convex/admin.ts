@@ -3,6 +3,7 @@ import { internalMutation, mutation, query, type MutationCtx } from "./_generate
 import { requireAdmin } from "./users";
 import { vAlgorithm, vCategory, vCooling, vTier, vUnit } from "./schema";
 import type { Doc } from "./_generated/dataModel";
+import { notifyVendorStatus } from "./email";
 import { MINERS, OFFERS, VENDORS } from "../lib/catalog";
 
 /** Everything the admin screen needs. */
@@ -35,8 +36,12 @@ export const setVendorReview = mutation({
   },
   handler: async (ctx, { vendorId, ...patch }) => {
     await requireAdmin(ctx);
-    if (!(await ctx.db.get(vendorId))) throw new ConvexError("Vendor not found.");
+    const vendor = await ctx.db.get(vendorId);
+    if (!vendor) throw new ConvexError("Vendor not found.");
     await ctx.db.patch(vendorId, patch);
+    if (vendor.status !== patch.status) {
+      await notifyVendorStatus(ctx, { name: vendor.name, contactEmail: vendor.contactEmail, status: patch.status });
+    }
   },
 });
 

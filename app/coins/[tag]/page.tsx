@@ -72,13 +72,13 @@ export default async function CoinPage({ params }: Params) {
           {stats.map((stat) => (
             <div key={stat.label} className="surface rounded-2xl px-4 py-3">
               <div className="text-lg font-bold tabular-nums text-ink">{stat.value}</div>
-              <div className="text-[10px] uppercase tracking-[0.1em] text-muted">{stat.label}</div>
+              <div className="text-xs uppercase tracking-[0.1em] text-muted">{stat.label}</div>
             </div>
           ))}
         </div>
         <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
           <div className="surface rounded-2xl p-5">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Price history</div>
+            <div className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Price history</div>
             <div className="mt-3">
               <Sparkline values={markets[coin.tag]?.sparkline ?? coin.history.map((point) => point.priceUsd)} width={560} height={120} />
             </div>

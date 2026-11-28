@@ -42,7 +42,7 @@ export default function NewsletterForm() {
           {state === "sending" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Subscribe"}
         </button>
       </div>
-      {state === "error" ? <p className="text-[11px] text-red-300">{error}</p> : <p className="text-[10px] text-muted/70">New miners, price drops and profitability changes. No spam.</p>}
+      {state === "error" ? <p className="text-sm text-red-300">{error}</p> : <p className="text-xs text-muted/70">New miners, price drops and profitability changes. No spam.</p>}
     </form>
   );
 }

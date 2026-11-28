@@ -91,7 +91,7 @@ export default function MultiSelect<T extends string>({
               aria-label={`Search ${label}`}
             />
           </div>
-          <div className="mb-1 flex items-center justify-between border-b border-line/60 px-1 pb-1.5 text-[10px] font-semibold">
+          <div className="mb-1 flex items-center justify-between border-b border-line/60 px-1 pb-1.5 text-xs font-semibold">
             <button
               type="button"
               onClick={() => onChange([])}
@@ -126,11 +126,11 @@ export default function MultiSelect<T extends string>({
                     {checked ? <Check className="h-2.5 w-2.5 text-on-accent" /> : null}
                   </span>
                   <span className="flex-1 truncate">{option.label}</span>
-                  {option.count != null ? <span className="shrink-0 text-[10px] tabular-nums text-muted/70">{option.count}</span> : null}
+                  {option.count != null ? <span className="shrink-0 text-xs tabular-nums text-muted/70">{option.count}</span> : null}
                 </button>
               );
             })}
-            {matches.length === 0 ? <p className="px-2 py-2 text-[11px] text-muted">No matches</p> : null}
+            {matches.length === 0 ? <p className="px-2 py-2 text-sm text-muted">No matches</p> : null}
           </div>
         </div>
       ) : null}

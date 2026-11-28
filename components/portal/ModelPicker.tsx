@@ -150,11 +150,11 @@ export default function ModelPicker({
               >
                 <div className="flex items-baseline justify-between gap-3">
                   <span className={`truncate text-xs font-semibold ${miner.slug === value ? "text-accent" : "text-ink"}`}>{miner.name}</span>
-                  <span className="shrink-0 text-[11px] tabular-nums text-muted">
+                  <span className="shrink-0 text-sm tabular-nums text-muted">
                     {miner.market ? `~$${miner.market.median.toLocaleString("en-US")}` : ""}
                   </span>
                 </div>
-                <div className="truncate text-[11px] text-muted">
+                <div className="truncate text-sm text-muted">
                   {miner.hashrate} · {miner.powerW.toLocaleString("en-US")} W · {miner.efficiency} · {miner.algorithm}
                   {miner.coins.length ? ` · ${miner.coins.join(", ")}` : ""}
                 </div>
@@ -163,7 +163,7 @@ export default function ModelPicker({
             {results.total === 0 ? <li className="px-3 py-6 text-center text-xs text-muted">No model matches “{query}”.</li> : null}
           </ul>
           {results.total > MAX_RESULTS ? (
-            <div className="border-t border-line px-3 py-1.5 text-[10px] text-muted">
+            <div className="border-t border-line px-3 py-1.5 text-xs text-muted">
               Showing {MAX_RESULTS} of {results.total}. Keep typing to narrow it down.
             </div>
           ) : null}
@@ -177,7 +177,7 @@ export default function ModelPicker({
 export function ModelSpecs({ miner, price, onUsePrice }: { miner: PortalMiner; price: string; onUsePrice: (price: number) => void }) {
   const median = miner.market?.median;
   return (
-    <div className="mt-1.5 w-72 space-y-1 rounded-lg border border-line/70 bg-panel-soft px-2.5 py-2 text-[11px] text-muted">
+    <div className="mt-1.5 w-72 space-y-1 rounded-lg border border-line/70 bg-panel-soft px-2.5 py-2 text-sm text-muted">
       <div>
         <span className="font-semibold text-ink">{miner.hashrate}</span> · {miner.powerW.toLocaleString("en-US")} W · {miner.efficiency}
       </div>

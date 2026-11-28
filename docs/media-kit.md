@@ -77,10 +77,12 @@ The toggle lives in the header settings (desktop and mobile menu) and the footer
 | Weights in use | 400 body copy, 500–600 UI labels/buttons, 700 headings and emphasis, 800 display marks and numeric KPIs |
 | Headline tracking | `-0.025em` for `h1/h2/h3/.font-display`; hero uses `-0.03em` |
 | Numbers | `tabular-nums` on prices, hashrates, power, profit and stats |
-| Micro labels | `text-[10px]` uppercase, `tracking-[0.1em]`–`[0.14em]`, muted |
+| Micro labels | `text-xs` 12px uppercase, `tracking-[0.1em]`–`[0.14em]`, muted; body copy never below `text-sm` (14px) |
 | Common scale | `text-xs` 12px · `text-sm` 14px · `text-base` 16px · `text-lg` 18px · `text-xl` 20px · `text-2xl` 24px · `text-3xl` 30px · `text-4xl` 36px · `text-5xl` 48px |
 
 There is no separate display font. Keep all type in Inter; do not introduce a second family without updating the tokens and this guide.
+
+**Accessibility baseline:** the audience includes people aged 50+, so table models are 18px, table numbers 16–20px, feature descriptions 14px, footer notes 14px, and coin/manufacturer icons 18–24px. Coin logos use `title`/`aria-label` tooltips instead of tiny ticker text where the name is redundant.
 
 ## 4. Layout and elevation
 

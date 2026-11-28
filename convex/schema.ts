@@ -141,6 +141,11 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_email", ["email"]),
 
+  unsubscribes: defineTable({
+    email: v.string(),
+    createdAt: v.number(),
+  }).index("by_email", ["email"]),
+
   // Assistant conversations, one session per browser.
   chatMessages: defineTable({
     sessionId: v.string(),

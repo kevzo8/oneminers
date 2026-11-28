@@ -40,7 +40,7 @@ export default function ProfitHistory({ points, powerW }: { points: Point[]; pow
             key={range.label}
             type="button"
             onClick={() => setDays(range.days)}
-            className={`rounded-full px-3 py-1 text-[11px] font-semibold ${days === range.days ? "bg-white/10 text-ink" : "text-muted hover:text-ink"}`}
+            className={`rounded-full px-3 py-1 text-sm font-semibold ${days === range.days ? "bg-white/10 text-ink" : "text-muted hover:text-ink"}`}
           >
             {range.label}
           </button>
@@ -121,7 +121,7 @@ export default function ProfitHistory({ points, powerW }: { points: Point[]; pow
         <path d={path} fill="none" stroke="#b9ff66" strokeWidth="2" strokeLinejoin="round" />
         {hover !== null ? <circle cx={x(series[hover].t)} cy={y(series[hover].profit)} r="4" fill="#4de1ff" /> : null}
       </svg>
-      <p className="mt-2 text-[11px] text-muted/70">
+      <p className="mt-2 text-sm text-muted/70">
         Recorded hourly from live network data, recalculated at your ${settings.electricity.toFixed(3)}/kWh and {settings.poolFee}% pool fee.
       </p>
     </div>

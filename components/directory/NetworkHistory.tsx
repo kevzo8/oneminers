@@ -41,7 +41,7 @@ export default function NetworkHistory({ points }: { points: NetworkPoint[] }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="inline-flex rounded-full border border-line bg-panel-soft p-1">
           {METRICS.map((m) => (
-            <button key={m.key} type="button" onClick={() => setMetric(m)} className={`rounded-full px-3 py-1 text-[11px] font-semibold ${metric.key === m.key ? "bg-white/10 text-ink" : "text-muted hover:text-ink"}`}>
+            <button key={m.key} type="button" onClick={() => setMetric(m)} className={`rounded-full px-3 py-1 text-sm font-semibold ${metric.key === m.key ? "bg-white/10 text-ink" : "text-muted hover:text-ink"}`}>
               {m.label}
             </button>
           ))}
@@ -57,7 +57,7 @@ export default function NetworkHistory({ points }: { points: NetworkPoint[] }) {
       <svg viewBox={`0 0 ${w} ${h}`} className="mt-3 h-52 w-full" role="img" aria-label={`${metric.label} over time`}>
         <path d={path} fill="none" stroke="#4de1ff" strokeWidth="2" strokeLinejoin="round" />
       </svg>
-      <div className="flex justify-between text-[10px] text-muted">
+      <div className="flex justify-between text-xs text-muted">
         <span>{new Date(t0).toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
         <span>{new Date(t1).toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
       </div>

@@ -38,29 +38,29 @@ export default function EmbedCard({ miner, electricity, theme, siteUrl }: { mine
             </div>
           </div>
           <div className="text-right">
-            <div className={`text-[10px] uppercase tracking-wider ${muted}`}>Profit / day</div>
+            <div className={`text-xs uppercase tracking-wider ${muted}`}>Profit / day</div>
             <div className={`text-xl font-bold tabular-nums ${result.profit >= 0 ? "text-[#4caf50]" : "text-[#e5484d]"}`}>{usd(result.profit * units)}</div>
           </div>
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
           <label className={`rounded-lg border px-2.5 py-1.5 ${field}`}>
-            <span className={`block text-[10px] uppercase ${muted}`}>Power $/kWh</span>
+            <span className={`block text-xs uppercase ${muted}`}>Power $/kWh</span>
             <input type="number" min={0} step={0.005} value={rate} onChange={(e) => setRate(Math.max(0, Number(e.target.value) || 0))} className="w-full bg-transparent text-sm font-semibold outline-none" />
           </label>
           <label className={`rounded-lg border px-2.5 py-1.5 ${field}`}>
-            <span className={`block text-[10px] uppercase ${muted}`}>Units</span>
+            <span className={`block text-xs uppercase ${muted}`}>Units</span>
             <input type="number" min={1} value={units} onChange={(e) => setUnits(Math.max(1, Math.floor(Number(e.target.value) || 1)))} className="w-full bg-transparent text-sm font-semibold outline-none" />
           </label>
           <div className={`rounded-lg border px-2.5 py-1.5 ${field}`}>
-            <span className={`block text-[10px] uppercase ${muted}`}>Income / day</span>
+            <span className={`block text-xs uppercase ${muted}`}>Income / day</span>
             <span className="text-sm font-semibold tabular-nums">{usd(result.income * units)}</span>
           </div>
           <div className={`rounded-lg border px-2.5 py-1.5 ${field}`}>
-            <span className={`block text-[10px] uppercase ${muted}`}>Profit / month</span>
+            <span className={`block text-xs uppercase ${muted}`}>Profit / month</span>
             <span className="text-sm font-semibold tabular-nums">{usd(result.profit * units * 30, 0)}</span>
           </div>
         </div>
-        <div className={`mt-3 flex items-center justify-between text-[10px] ${muted}`}>
+        <div className={`mt-3 flex items-center justify-between text-xs ${muted}`}>
           <span>Live network data · 1% pool fee{miner.bestPrice ? ` · from ${usd(miner.bestPrice, 0)}` : ""}</span>
           <a href={`${siteUrl}/miners/${miner.slug}?ref=widget`} target="_blank" rel="noopener" className="font-semibold underline">
             Data by {BRAND.name}

@@ -11,6 +11,14 @@ export const createUser = internalMutation({
   },
 });
 
+export const createUserEmailMagicLink = internalMutation({
+  args: { method: v.object({ name: v.literal("emailMagicLink"), profile: v.object({}) }) },
+  returns: v.id("users"),
+  handler: async (ctx) => {
+    return await ctx.db.insert("users", { role: "seller", createdAt: Date.now() });
+  },
+});
+
 /** The signed-in user, or null. */
 export const me = query({
   args: {},

@@ -40,22 +40,22 @@ export default async function MarketPulse() {
             </div>
             <h2 className="mt-2 text-xl font-bold tracking-tight text-ink sm:text-2xl">The directory at a glance</h2>
           </div>
-          <p className="text-[11px] text-muted">Network data at {updated} UTC</p>
+          <p className="text-sm text-muted">Network data at {updated} UTC</p>
         </div>
 
         <div className="grid gap-3 lg:grid-cols-[1.35fr_0.65fr] lg:items-stretch">
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
             {stats.map((stat) => (
               <div key={stat.label} className="surface rounded-2xl px-4 py-3">
-                <div className="text-xl font-bold tabular-nums text-ink">{stat.value}</div>
-                <div className="mt-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-muted">{stat.label}</div>
+                <div className="text-2xl font-bold tabular-nums text-ink">{stat.value}</div>
+                <div className="mt-0.5 text-xs font-medium uppercase tracking-[0.08em] text-muted">{stat.label}</div>
               </div>
             ))}
           </div>
 
           {leader ? (
             <Link href={`/miners/${leader.miner.slug}`} className="surface-strong group block rounded-2xl p-4">
-              <div className="flex items-center justify-between text-[11px] font-semibold text-muted">
+              <div className="flex items-center justify-between text-sm font-semibold text-muted">
                 <span className="inline-flex items-center gap-1.5">
                   <Gauge className="h-3.5 w-3.5 text-accent" /> Most profitable today
                 </span>
@@ -67,21 +67,21 @@ export default async function MarketPulse() {
                   <div className="truncate text-base font-bold text-ink transition-colors group-hover:text-accent">
                     {leader.miner.manufacturer} {leader.miner.model}
                   </div>
-                  <div className="text-[11px] text-muted">
+                  <div className="text-sm text-muted">
                     {formatHashrate(leader.miner.hashrate, leader.miner.unit)} · {leader.miner.powerW.toLocaleString("en-US")} W
                   </div>
                 </div>
               </div>
               <div className="mt-3 flex items-end justify-between">
                 <div>
-                  <div className="text-[10px] uppercase tracking-[0.1em] text-muted">Profit / day</div>
+                  <div className="text-xs uppercase tracking-[0.1em] text-muted">Profit / day</div>
                   <div className="text-2xl font-bold tabular-nums text-accent">{formatUsd(leader.profit)}</div>
                 </div>
                 <span className="inline-flex items-center gap-1 text-xs font-semibold text-aqua">
                   Details <ArrowUpRight className="h-3.5 w-3.5" />
                 </span>
               </div>
-              <div className="mt-2 text-[10px] text-muted/80">
+              <div className="mt-2 text-sm text-muted/80">
                 at ${DEFAULT_SETTINGS.electricity}/kWh, {DEFAULT_SETTINGS.poolFee}% pool fee
               </div>
             </Link>

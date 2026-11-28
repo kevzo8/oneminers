@@ -67,13 +67,15 @@ npm start
 
 | Route | Purpose |
 |---|---|
-| `/` | Profitability table, network stats, hosting, calculator, assistant |
+| `/` | Profitability table, network stats, hosting teaser, calculator, assistant |
 | `/miners`, `/miners/[slug]` | Full miner directory and miner detail |
 | `/rankings` | Published-formula rankings by algorithm and brand |
 | `/compare` | Side-by-side miner comparison (`?m=slug,slug`) |
 | `/coins`, `/coins/[tag]` | Coin market/network data and mineable miners |
 | `/vendors`, `/vendors/[slug]` | Seller directory and vendor profiles |
-| `/sell`, `/vendor-portal` | Listing pitch and seller portal (Convex Auth) |
+| `/sell`, `/vendor-portal` | Listing pitch and seller portal (username/password or Resend email link) |
+| `/sign-in-with-link` | Landing page for the emailed magic link |
+| `/unsubscribe` | Opt out of enquiry emails |
 | `/data` | Hourly network history and ASIC release history |
 | `/glossary` | Mining glossary |
 | `/widgets`, `/embed/miner/[slug]` | Widget builder and embeddable card |
@@ -86,7 +88,7 @@ npm start
 | Data | Source | Used by |
 |---|---|---|
 | Bitcoin network (difficulty, hashrate, height, fees, price, mempool) | mempool.space + CoinGecko | `/api/network`, LiveNetwork |
-| Coin prices, network hashrate, block reward/time | WhatToMine (cached snapshot fallback) | `lib/market.ts`, profitability |
+| Coin prices, network hashrate, block reward/time | BackPoW (cached snapshot fallback) | `lib/market.ts`, profitability |
 | Market cap, 24h/7d change, 7-day sparkline | CoinGecko `/coins/markets` | `/coins`, coin pages |
 | Fiat exchange rates | CoinGecko `/simple/price` via `/api/fx` | Currency selector, converter |
 | Hourly network snapshots | Our own Convex `marketSnapshots` (cron) | `/data`, profit history |
@@ -116,6 +118,21 @@ OPENAI_MODEL=gpt-4o-mini
 ```
 
 Any OpenAI-compatible endpoint works (OpenAI, OpenRouter, Groq, local vLLM, LM Studio). The route is `app/api/chat/route.ts`; it falls back to the local knowledge base on any model error.
+
+## Email authentication and sending
+
+Email is handled by the official `@convex-dev/resend` component and Convex Auth. Configure these on the **Convex deployment**, not in `.env.local`:
+
+```powershell
+npx convex env set RESEND_API_KEY re_your_key
+npx convex env set SENDER_EMAIL no-reply@your-verified-domain.com
+npx convex env set SENDER_NAME MinerPicks
+npx convex env set NOTIFY_EMAIL you@your-domain.com
+npx convex env set SITE_URL https://your-site.example
+npx convex env set RESEND_TEST_MODE false
+```
+
+You need a Resend account, a verified sending domain with its DNS records, and an API key. Until `RESEND_TEST_MODE=false`, delivery is restricted to Resend test addresses. The sign-in panel offers **Email link** alongside username/password; links work once for 10 minutes in the browser that requested them, and land on `/sign-in-with-link`. Leads notify `NOTIFY_EMAIL`, acknowledge to the sender with an unsubscribe link, and vendor review changes email the vendor when a contact address exists. Admins can view/export/delete leads in `/admin`.
 
 ## Leads, reports and newsletter
 

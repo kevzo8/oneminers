@@ -48,13 +48,15 @@ async function getPrices(): Promise<{ coins: Coin[]; source: string }> {
 function CoinRow({ symbol, price, change }: Coin) {
   const up = (change ?? 0) >= 0;
   return (
-    <div className="flex shrink-0 items-center gap-2.5 border-r border-line/60 px-5 py-3">
-      <CoinIcon tag={symbol} size={16} />
-      <span className="text-xs font-bold tracking-wide text-ink">{symbol}</span>
-      <span className="text-xs tabular-nums text-muted">{formatCoinPrice(price)}</span>
+    <div
+      className="flex shrink-0 items-center gap-3 border-r border-line/60 px-5 py-3"
+      aria-label={`${symbol} price`}
+    >
+      <CoinIcon tag={symbol} size={24} />
+      <span className="text-base tabular-nums text-ink">{formatCoinPrice(price)}</span>
       {change === null ? null : (
-        <span className={`inline-flex items-center gap-0.5 text-[11px] font-semibold ${up ? "text-accent" : "text-red-400"}`}>
-          {up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+        <span className={`inline-flex items-center gap-1 text-sm font-semibold ${up ? "text-accent" : "text-red-400"}`}>
+          {up ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
           {up ? "+" : ""}
           {change.toFixed(1)}%
         </span>
@@ -70,9 +72,9 @@ export default async function Ticker() {
   return (
     <section className="border-y border-line bg-white/[0.015]" aria-label="Market prices">
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-5 sm:px-8">
-        <div className="flex items-center justify-between gap-2 px-2 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-muted">
+        <div className="flex items-center justify-between gap-2 px-2 py-1.5 text-sm font-bold uppercase tracking-[0.14em] text-muted">
           <span>Market prices · live</span>
-          <span className="font-medium normal-case tracking-normal text-muted/70">via {source}, 24h change</span>
+          <span className="font-medium normal-case tracking-normal text-muted/80">via {source}, 24h change</span>
         </div>
         <div className="overflow-hidden border-y border-line bg-white/[0.015]">
           <div className="marquee-track">

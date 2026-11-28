@@ -52,7 +52,7 @@ export default async function MinersPage() {
               <div key={stat.label} className="surface rounded-2xl px-4 py-3">
                 <stat.icon className="mx-auto h-4 w-4 text-accent" />
                 <div className="mt-1 text-xl font-bold tabular-nums text-ink">{stat.value}</div>
-                <div className="text-[10px] uppercase tracking-[0.12em] text-muted">{stat.label}</div>
+                <div className="text-xs uppercase tracking-[0.12em] text-muted">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -62,7 +62,7 @@ export default async function MinersPage() {
 
         <MinerExplorer rows={rows} manufacturers={manufacturersOf(dir)} algorithms={algorithmsOf(dir)} paginate />
 
-        <p className="text-[11px] leading-relaxed text-muted/70">
+        <p className="text-sm leading-relaxed text-muted/70">
           Network data {market.source === "live" ? <>from <a href="https://backpow.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">BackPoW</a></> : "from a saved snapshot (live feed unavailable)"}
           , updated {updated} UTC. BTC ${market.btcUsd.toLocaleString("en-US", { maximumFractionDigits: 0 })}. Income
           assumes today&apos;s difficulty and prices. Seller prices come from each seller; market ranges from BackPoW.

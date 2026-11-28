@@ -122,8 +122,92 @@ function Admin() {
 
       <VendorsSection vendors={data.vendors} />
 
+      <LeadsSection />
+
       <MinersSection miners={data.miners} />
     </div>
+  );
+}
+
+function LeadsSection() {
+  const leads = useQuery(api.leads.listForAdmin);
+  const removeLead = useMutation(api.leads.removeForAdmin);
+  const [query, setQuery] = useState("");
+  if (leads === undefined) return <Spinner />;
+
+  const rows = leads
+    .filter((lead) => {
+      const q = query.trim().toLowerCase();
+      return !q || [lead.name, lead.email, lead.interest, lead.message ?? ""].join(" ").toLowerCase().includes(q);
+    })
+    .sort((a, b) => b.createdAt - a.createdAt);
+
+  function exportLeads() {
+    const columns = ["name", "email", "interest", "message", "source", "createdAt"];
+    downloadCsv(`minerpicks-leads-${new Date().toISOString().slice(0, 10)}.csv`, toCsv(rows as unknown as Record<string, unknown>[], columns));
+  }
+
+  return (
+    <section className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-bold text-ink">Email leads</h2>
+          <p className="text-sm text-muted">{rows.length} of {leads.length} messages</p>
+        </div>
+        <button type="button" onClick={exportLeads} className="btn-ghost px-3 py-1.5 text-xs">
+          <Download className="h-3.5 w-3.5" /> Export CSV
+        </button>
+      </div>
+      <div className="surface rounded-2xl p-3">
+        <label className="relative block max-w-md">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
+          <input
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search name, email, interest or message…"
+            className="input"
+            style={{ paddingLeft: "2.25rem" }}
+            aria-label="Search leads"
+          />
+        </label>
+      </div>
+      <div className="surface overflow-x-auto rounded-2xl">
+        <table className="w-full min-w-[760px] text-left">
+          <thead>
+            <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
+              <th className="px-4 py-3 font-semibold">Name</th>
+              <th className="px-4 py-3 font-semibold">Email</th>
+              <th className="px-4 py-3 font-semibold">Interest</th>
+              <th className="px-4 py-3 font-semibold">Message</th>
+              <th className="px-4 py-3 font-semibold">Received</th>
+              <th className="px-4 py-3" />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((lead) => (
+              <tr key={lead._id} className="border-b border-line/60 last:border-0">
+                <td className="px-4 py-3 text-sm text-ink">{lead.name}</td>
+                <td className="px-4 py-3 text-xs text-muted">{lead.email}</td>
+                <td className="px-4 py-3 text-xs text-muted">{lead.interest}</td>
+                <td className="max-w-xs truncate px-4 py-3 text-xs text-muted">{lead.message ?? "—"}</td>
+                <td className="px-4 py-3 text-xs text-muted">{new Date(lead.createdAt).toLocaleString("en-US")}</td>
+                <td className="px-4 py-3 text-right">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (window.confirm(`Delete the lead from ${lead.email}?`)) await removeLead({ id: lead._id });
+                    }}
+                    className="text-xs font-semibold text-red-300 hover:text-red-200"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
   );
 }
 
@@ -181,7 +265,7 @@ function VendorsSection({ vendors }: { vendors: VendorRowData[] }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-bold text-ink">Vendors</h2>
         <div className="flex items-center gap-3">
-          <span className="text-[11px] text-muted">
+          <span className="text-sm text-muted">
             {rows.length} of {vendors.length}
           </span>
           <button type="button" onClick={exportVendors} className="btn-ghost px-3 py-1.5 text-xs">
@@ -241,7 +325,7 @@ function VendorsSection({ vendors }: { vendors: VendorRowData[] }) {
       <div className="surface overflow-x-auto rounded-2xl">
         <table className="w-full min-w-[1000px] text-left">
           <thead>
-            <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
+            <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
               <SortHeader label="Vendor" active={sort.key === "name"} dir={sort.dir} onClick={() => toggleSort("name")} />
               <th className="px-4 py-3 font-semibold">Contact</th>
               <th className="px-4 py-3 font-semibold">Partner link</th>
@@ -275,9 +359,9 @@ function VendorRow({ vendor }: { vendor: VendorRowData }) {
     <tr className="border-b border-line/60 align-top last:border-0">
       <td className="px-4 py-3">
         <div className="text-sm font-semibold text-ink">
-          {vendor.name} {vendor.sample ? <span className="ml-1 text-[10px] font-bold text-muted">SAMPLE</span> : null}
+          {vendor.name} {vendor.sample ? <span className="ml-1 text-xs font-bold text-muted">SAMPLE</span> : null}
         </div>
-        <div className="text-[11px] text-muted">
+        <div className="text-sm text-muted">
           {vendor.countryCode} ·{" "}
           {vendor.website.startsWith("http") ? (
             <a href={vendor.website} target="_blank" rel="noopener noreferrer" className="underline hover:text-ink">
@@ -287,7 +371,7 @@ function VendorRow({ vendor }: { vendor: VendorRowData }) {
             "no website"
           )}
         </div>
-        {vendor.about ? <div className="mt-1 max-w-xs text-[11px] text-muted/80">{vendor.about}</div> : null}
+        {vendor.about ? <div className="mt-1 max-w-xs text-sm text-muted/80">{vendor.about}</div> : null}
       </td>
       <td className="px-4 py-3 text-xs text-muted">{vendor.contactEmail ?? (vendor.ownerId ? "—" : "team")}</td>
       <td className="px-4 py-3 text-xs">
@@ -424,7 +508,7 @@ function MinersSection({ miners }: { miners: Doc<"miners">[] }) {
 
   const select = (key: keyof typeof EMPTY_MINER, label: string, options: string[]) => (
     <div className="block">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">{label}</span>
       <SearchSelect<string>
         value={String(form[key])}
         options={options}
@@ -436,7 +520,7 @@ function MinersSection({ miners }: { miners: Doc<"miners">[] }) {
   );
   const text = (key: keyof typeof EMPTY_MINER, label: string, type = "text") => (
     <label className="block">
-      <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">{label}</span>
+      <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">{label}</span>
       <input type={type} required={key !== "slug" && key !== "refPrice"} value={String(form[key])} onChange={(event) => setForm({ ...form, [key]: event.target.value })} className="input mt-1 py-2 text-sm" />
     </label>
   );
@@ -621,14 +705,14 @@ function MinersSection({ miners }: { miners: Doc<"miners">[] }) {
           label="Listing status"
           className="w-32"
         />
-        <span className="ml-auto text-[11px] text-muted">
+        <span className="ml-auto text-sm text-muted">
           {rows.length} of {miners.length}
         </span>
       </div>
       <div className="surface overflow-x-auto rounded-2xl">
         <table className="w-full min-w-[760px] text-left">
           <thead>
-            <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
+            <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
               <SortHeader label="Miner" active={sort.key === "name"} dir={sort.dir} onClick={() => toggleSort("name")} />
               <SortHeader label="Algorithm" active={sort.key === "algorithm"} dir={sort.dir} onClick={() => toggleSort("algorithm")} />
               <SortHeader label="Hashrate" active={sort.key === "hashrate"} dir={sort.dir} onClick={() => toggleSort("hashrate")} />

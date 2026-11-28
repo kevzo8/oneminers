@@ -14,6 +14,7 @@ import type * as backpow from "../backpow.js";
 import type * as chat from "../chat.js";
 import type * as crons from "../crons.js";
 import type * as directory from "../directory.js";
+import type * as email from "../email.js";
 import type * as leads from "../leads.js";
 import type * as market from "../market.js";
 import type * as partnerLink from "../partnerLink.js";
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   chat: typeof chat;
   crons: typeof crons;
   directory: typeof directory;
+  email: typeof email;
   leads: typeof leads;
   market: typeof market;
   partnerLink: typeof partnerLink;
@@ -70,4 +72,6 @@ export declare const components: {
   auth: import("@convex-dev/auth/_generated/component.js").ComponentApi<"auth">;
   authPassword: import("@convex-dev/auth/components/password/_generated/component.js").ComponentApi<"authPassword">;
   authUsername: import("@convex-dev/auth/components/username/_generated/component.js").ComponentApi<"authUsername">;
+  authEmail: import("@convex-dev/auth/components/email/_generated/component.js").ComponentApi<"authEmail">;
+  resend: import("@convex-dev/resend/_generated/component.js").ComponentApi<"resend">;
 };

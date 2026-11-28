@@ -138,7 +138,7 @@ export default function MinerCompare({ rows, initial }: { rows: MinerRow[]; init
                         <MinerGlyph manufacturer={row.manufacturer} algorithm={row.algorithm} cooling={row.cooling} size="sm" />
                         <span>
                           <span className="block text-sm font-semibold text-ink hover:text-accent">{row.model}</span>
-                          <span className="block text-[11px] font-normal text-muted">{row.manufacturer}</span>
+                          <span className="block text-sm font-normal text-muted">{row.manufacturer}</span>
                         </span>
                       </Link>
                       <button type="button" onClick={() => update(selected.filter((slug) => slug !== row.slug))} className="text-muted hover:text-red-300" aria-label={`Remove ${row.model}`}>
@@ -169,7 +169,7 @@ export default function MinerCompare({ rows, initial }: { rows: MinerRow[]; init
           </table>
         </div>
       )}
-      <p className="text-[11px] text-muted/70">
+      <p className="text-sm text-muted/70">
         At ${settings.electricity.toFixed(3)}/kWh and {settings.poolFee}% pool fee. The best value in each row is highlighted. Efficiency is only
         compared between miners of the same algorithm.
       </p>

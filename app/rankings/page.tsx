@@ -28,7 +28,7 @@ function TopList({ title, rows }: { title: string; rows: RankedMiner[] }) {
               <MakerMark manufacturer={row.miner.manufacturer} size="sm" />
               <span className="flex-1">
                 <span className="block text-sm font-semibold text-ink">{row.miner.model}</span>
-                <span className="block text-[11px] text-muted">
+                <span className="block text-sm text-muted">
                   {row.miner.manufacturer} · {formatUsd(row.profit)}/day
                 </span>
               </span>
@@ -77,12 +77,12 @@ export default async function RankingsPage() {
                   <span className="w-11 shrink-0 text-right text-sm font-bold tabular-nums text-accent">{Math.round(factor.weight * 100)}%</span>
                   <span>
                     <span className="block text-sm font-semibold text-ink">{factor.label}</span>
-                    <span className="block text-[11px] text-muted">{factor.explain}</span>
+                    <span className="block text-sm text-muted">{factor.explain}</span>
                   </span>
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-[11px] text-muted/70">
+            <p className="mt-3 text-sm text-muted/70">
               Each factor is scaled from the worst (0) to the best (1) miner of the same algorithm. Score = weighted sum × 100.
               Miners with no seller yet score 0 on availability.
             </p>
@@ -112,7 +112,7 @@ export default async function RankingsPage() {
           <div className="surface overflow-x-auto rounded-2xl">
             <table className="w-full min-w-[900px] text-left">
               <thead>
-                <tr className="border-b border-line text-[10px] uppercase tracking-[0.1em] text-muted">
+                <tr className="border-b border-line text-xs uppercase tracking-[0.1em] text-muted">
                   <th className="px-4 py-3 font-semibold">#</th>
                   <th className="px-4 py-3 font-semibold">Miner</th>
                   <th className="px-4 py-3 font-semibold">Coin</th>
@@ -138,7 +138,7 @@ export default async function RankingsPage() {
                           <Link href={`/miners/${row.miner.slug}`} className="text-sm font-semibold text-ink hover:text-accent">
                             {row.miner.model}
                           </Link>
-                          <span className="block text-[11px] text-muted">{row.miner.manufacturer}</span>
+                          <span className="block text-sm text-muted">{row.miner.manufacturer}</span>
                         </div>
                       </div>
                     </td>

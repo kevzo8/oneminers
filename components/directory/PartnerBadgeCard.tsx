@@ -12,9 +12,9 @@ export function PartnerBadge({ className = "" }: { className?: string }) {
       href={PARTNER.url}
       target="_blank"
       rel="noopener"
-      className={`inline-flex items-center gap-2 rounded-full border border-line bg-surface-solid px-3.5 py-2 text-[13px] font-semibold text-ink no-underline ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full border border-line bg-surface-solid px-3.5 py-2 text-sm font-semibold text-ink no-underline ${className}`}
     >
-      <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-accent text-[11px] font-black text-on-accent">✓</span>
+      <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-accent text-sm font-black text-on-accent">✓</span>
       Trusted partner of <strong className="text-accent">{PARTNER.name}</strong>
       <ExternalLink className="h-3.5 w-3.5 text-muted" aria-hidden="true" />
     </a>
@@ -29,7 +29,7 @@ export default function PartnerBadgeCard() {
       <div className="flex items-center gap-2">
         <span className="grid h-8 w-8 place-items-center rounded-xl bg-accent/10 text-accent">✓</span>
         <div>
-          <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Partner badge</div>
+          <div className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Partner badge</div>
           <h2 className="text-base font-bold text-ink">Show your {PARTNER.name} partnership</h2>
         </div>
       </div>
@@ -41,7 +41,7 @@ export default function PartnerBadgeCard() {
         <PartnerBadge />
       </div>
 
-      <pre className="mt-3 overflow-x-auto rounded-xl border border-line bg-bg p-3 text-[10px] leading-relaxed text-aqua">
+      <pre className="mt-3 overflow-x-auto rounded-xl border border-line bg-bg p-3 text-xs leading-relaxed text-aqua">
         {PARTNER_BADGE_HTML}
       </pre>
       <button

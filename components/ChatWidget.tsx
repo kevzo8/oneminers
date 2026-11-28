@@ -124,7 +124,7 @@ export default function ChatWidget() {
               </span>
               <div>
                 <div className="text-xs font-bold text-ink">{BRAND.name} assistant</div>
-                <div className="text-[10px] text-muted">Live miner data · remembers this chat</div>
+                <div className="text-xs text-muted">Live miner data · remembers this chat</div>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -176,11 +176,11 @@ export default function ChatWidget() {
               </div>
             ) : null}
 
-            {error ? <p className="text-[11px] text-red-300">{error}</p> : null}
+            {error ? <p className="text-sm text-red-300">{error}</p> : null}
 
             {messages.length === 1 && !busy ? (
               <div className="pt-1">
-                <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">
+                <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-muted">
                   <Sparkles className="h-3 w-3 text-accent" />
                   Try asking
                 </div>
@@ -190,7 +190,7 @@ export default function ChatWidget() {
                       key={suggestion}
                       type="button"
                       onClick={() => send(suggestion)}
-                      className="rounded-full border border-line bg-panel-soft px-2.5 py-1.5 text-[10px] font-medium text-muted transition-colors hover:border-accent/40 hover:text-accent"
+                      className="rounded-full border border-line bg-panel-soft px-2.5 py-1.5 text-xs font-medium text-muted transition-colors hover:border-accent/40 hover:text-accent"
                     >
                       {suggestion}
                     </button>
@@ -225,7 +225,7 @@ export default function ChatWidget() {
                 <ArrowUp className="h-4 w-4" />
               </button>
             </div>
-            <p className="mt-2 text-center text-[9px] text-muted/60">
+            <p className="mt-2 text-center text-xs text-muted/60">
               AI answers from live miner data · not investment advice
             </p>
           </form>

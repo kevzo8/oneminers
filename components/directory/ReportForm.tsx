@@ -54,7 +54,7 @@ export default function ReportForm({ miners, initialMiner }: { miners: { slug: s
   return (
     <form onSubmit={submit} className="surface space-y-4 rounded-3xl p-6">
       <label className="block">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Reason *</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Reason *</span>
         <SearchSelect<string>
           value={form.reason}
           options={[{ value: "", label: "Please select" }, ...REASONS]}
@@ -64,7 +64,7 @@ export default function ReportForm({ miners, initialMiner }: { miners: { slug: s
         />
       </label>
       <div className="block">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Miner (optional)</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Miner (optional)</span>
         <SearchSelect
           value={form.miner}
           options={[
@@ -77,11 +77,11 @@ export default function ReportForm({ miners, initialMiner }: { miners: { slug: s
         />
       </div>
       <label className="block">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Your email *</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Your email *</span>
         <input required type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className="input mt-1.5" />
       </label>
       <label className="block">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Details</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Details</span>
         <textarea rows={4} value={form.comments} onChange={(e) => setForm({ ...form, comments: e.target.value })} className="input mt-1.5 resize-none" placeholder="What's wrong, and where did you see the correct value?" />
       </label>
       {state === "error" ? <p className="text-xs text-red-300">{error}</p> : null}

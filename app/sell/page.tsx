@@ -71,12 +71,12 @@ export default function SellPage() {
             <div className="surface mt-8 rounded-3xl p-6">
               <div className="flex flex-wrap items-end gap-x-6 gap-y-2">
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-accent">Launch promo · first 6 months</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-accent">Launch promo · first 6 months</div>
                   <div className="text-4xl font-bold text-accent">Free</div>
                 </div>
                 <div className="pb-1 text-2xl text-muted">→</div>
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Then</div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Then</div>
                   <div className="text-4xl font-bold text-ink">
                     $100<span className="text-base font-medium text-muted">/month</span>
                   </div>
@@ -116,7 +116,7 @@ export default function SellPage() {
               <Link href="/vendor-portal?mode=signin" className="btn-ghost mt-2 w-full px-5 py-3 text-sm">
                 I already have an account
               </Link>
-              <p className="mt-4 text-center text-[11px] text-muted/70">No card needed during the promo. Cancel anytime.</p>
+              <p className="mt-4 text-center text-sm text-muted/70">No card needed during the promo. Cancel anytime.</p>
             </div>
           </div>
         </section>

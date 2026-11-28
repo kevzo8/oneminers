@@ -18,11 +18,11 @@ export default function HeaderSettings() {
         options={CURRENCIES}
         onChange={(currency) => update({ currency })}
         label="Currency"
-        className="w-20"
+        className="w-16"
       />
       <div className="flex items-center rounded-full border border-line bg-panel-soft pl-2.5">
-        <Zap className="h-3.5 w-3.5 text-amber" aria-hidden="true" />
-        <span className="ml-1 text-xs text-muted">$</span>
+          <Zap className="h-4 w-4 text-amber" aria-hidden="true" />
+          <span className="ml-1 text-sm text-muted">$</span>
         <input
           type="number"
           min={0}
@@ -32,10 +32,10 @@ export default function HeaderSettings() {
             const value = Number(event.target.value);
             if (Number.isFinite(value) && value >= 0) update({ electricity: value });
           }}
-          className="w-12 bg-transparent text-xs font-semibold tabular-nums text-ink outline-none"
+            className="w-14 bg-transparent text-sm font-semibold tabular-nums text-ink outline-none"
           aria-label="Electricity price in USD per kWh"
         />
-        <span className="text-[10px] text-muted">/kWh</span>
+        <span className="text-sm text-muted">/kWh</span>
         <button type="button" onClick={() => step(-0.005)} className="ml-1 grid h-7 w-6 place-items-center text-muted hover:text-ink" aria-label="Lower electricity price">
           <Minus className="h-3 w-3" />
         </button>

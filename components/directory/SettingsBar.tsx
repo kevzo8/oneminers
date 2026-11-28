@@ -12,11 +12,11 @@ export default function SettingsBar({ compact = false }: { compact?: boolean }) 
     : "";
 
   return (
-    <div className="surface mx-auto flex w-full max-w-[1100px] flex-wrap items-center gap-2 rounded-2xl p-3 sm:p-4">
+    <div className="surface mx-auto flex w-full max-w-[1200px] flex-wrap items-center gap-2 rounded-2xl p-3 sm:p-4">
       <div className="flex flex-wrap items-center gap-2">
         <label className="flex min-w-0 items-center gap-1.5 rounded-xl border border-line bg-panel-soft px-2.5 py-1.5 sm:gap-2 sm:px-3 sm:py-2">
           <Zap className="h-3.5 w-3.5 shrink-0 text-amber sm:h-4 sm:w-4" aria-hidden="true" />
-          <span className="hidden text-[11px] font-semibold uppercase tracking-[0.1em] text-muted sm:inline">Power</span>
+          <span className="hidden text-sm font-semibold uppercase tracking-[0.1em] text-muted sm:inline">Power</span>
           <span className="text-xs text-muted">$</span>
           <input
             type="number"
@@ -32,11 +32,11 @@ export default function SettingsBar({ compact = false }: { compact?: boolean }) 
             className="w-12 bg-transparent text-sm font-semibold tabular-nums text-ink outline-none sm:w-16"
             aria-label="Electricity price in USD per kWh"
           />
-          <span className="text-[11px] text-muted sm:text-xs">/kWh</span>
+          <span className="text-sm text-muted sm:text-xs">/kWh</span>
         </label>
         <label className="flex items-center gap-1.5 rounded-xl border border-line bg-panel-soft px-2.5 py-1.5 sm:gap-2 sm:px-3 sm:py-2">
           <Percent className="h-3.5 w-3.5 shrink-0 text-aqua sm:h-4 sm:w-4" aria-hidden="true" />
-          <span className="hidden text-[11px] font-semibold uppercase tracking-[0.1em] text-muted sm:inline">Pool fee</span>
+          <span className="hidden text-sm font-semibold uppercase tracking-[0.1em] text-muted sm:inline">Pool fee</span>
           <input
             type="number"
             inputMode="decimal"

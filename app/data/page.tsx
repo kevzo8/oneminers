@@ -41,7 +41,7 @@ export default async function DataPage() {
         <section className="surface rounded-2xl p-5">
           <h2 className="mb-3 text-lg font-bold text-ink">Bitcoin network history</h2>
           <NetworkHistory points={history} />
-          <p className="mt-2 text-[11px] text-muted/70">Hashprice is what 1 PH/s of SHA-256 hashrate earns per day in BTC at that hour, before electricity and pool fees.</p>
+          <p className="mt-2 text-sm text-muted/70">Hashprice is what 1 PH/s of SHA-256 hashrate earns per day in BTC at that hour, before electricity and pool fees.</p>
         </section>
 
         <section>
@@ -59,7 +59,7 @@ export default async function DataPage() {
                 </Link>
               </div>
             ))}
-            <p className="pt-2 text-[11px] text-muted/70">Most efficient air or hydro Bitcoin miner released each year in our catalog. Shorter bars use less energy per terahash.</p>
+            <p className="pt-2 text-sm text-muted/70">Most efficient air or hydro Bitcoin miner released each year in our catalog. Shorter bars use less energy per terahash.</p>
           </div>
         </section>
 
@@ -80,7 +80,7 @@ export default async function DataPage() {
                           <span className="block text-sm font-semibold text-ink">
                             {m.manufacturer} {m.model}
                           </span>
-                          <span className="block text-[11px] text-muted">
+                          <span className="block text-sm text-muted">
                             {m.algorithm} · {formatHashrate(m.hashrate, m.unit)} · {formatEfficiency(m.powerW, m.hashrate, m.unit)}
                           </span>
                         </span>

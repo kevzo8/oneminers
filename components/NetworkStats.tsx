@@ -47,7 +47,7 @@ export default function NetworkStats() {
   if (loading && !data.blockHeight) {
     return (
       <div className="anim-float absolute right-4 top-24 hidden rounded-2xl border border-line bg-[#0a1016]/90 p-3.5 shadow-2xl backdrop-blur-xl sm:block">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">Network</div>
+        <div className="text-xs font-semibold uppercase tracking-[0.12em] text-muted">Network</div>
         <div className="mt-1 text-xl font-bold text-ink animate-pulse">—</div>
         <div className="mt-2 h-1.5 w-28 overflow-hidden rounded-full bg-white/10">
           <div className="h-full w-[72%] rounded-full bg-gradient-to-r from-accent to-aqua animate-pulse" />
@@ -58,7 +58,7 @@ export default function NetworkStats() {
 
   return (
     <div className="anim-float absolute right-4 top-24 hidden rounded-2xl border border-line bg-[#0a1016]/90 p-3.5 shadow-2xl backdrop-blur-xl sm:block">
-      <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted">
+      <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-muted">
         <Activity className="h-3.5 w-3.5 text-accent animate-pulse" />
         Live network
       </div>
@@ -94,8 +94,8 @@ export default function NetworkStats() {
       </div>
       {data.fees && (
         <div className="mt-2 rounded-xl border border-line bg-panel-soft p-2">
-          <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Mempool fees (sat/vB)</div>
-          <div className="mt-1 flex gap-1 text-[10px]">
+          <div className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Mempool fees (sat/vB)</div>
+          <div className="mt-1 flex gap-1 text-xs">
             <span className="rounded-full border border-line bg-panel-soft px-1.5 py-0.5 text-muted">⚡ {data.fees.fastestFee}</span>
             <span className="rounded-full border border-line bg-panel-soft px-1.5 py-0.5 text-muted">30m {data.fees.halfHourFee}</span>
             <span className="rounded-full border border-line bg-panel-soft px-1.5 py-0.5 text-muted">1h {data.fees.hourFee}</span>

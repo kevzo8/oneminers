@@ -259,14 +259,14 @@ export default function HostingGlobe() {
             </g>
           ))}
         </svg>
-        <div className="mt-1 flex items-center justify-center gap-1.5 text-[10px] text-muted">
+        <div className="mt-1 flex items-center justify-center gap-1.5 text-xs text-muted">
           <Move className="h-3 w-3" /> Drag to spin and tilt the globe
         </div>
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
         {HOSTING_SITES.map((site, index) => (
-          <div key={site.id} className="flex items-center gap-1.5 rounded-lg border border-line bg-panel-soft px-2 py-1.5 text-[10px]">
+          <div key={site.id} className="flex items-center gap-1.5 rounded-lg border border-line bg-panel-soft px-2 py-1.5 text-xs">
             <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ background: index === 0 ? p.accent : p.aqua }} />
             <span className="truncate text-muted">{site.name}</span>
             <span className="ml-auto shrink-0 font-semibold tabular-nums text-ink">{(site.rate * 100).toFixed(1)}¢</span>

@@ -43,7 +43,7 @@ export default function CoinConverter({ tag, priceUsd }: { tag: string; priceUsd
             : new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: result < 1 ? 6 : 2 }).format(result)
           : "—"}
       </div>
-      <p className="mt-1 text-[11px] text-muted/70">Live price; exchange rates via CoinGecko.</p>
+      <p className="mt-1 text-sm text-muted/70">Live price; exchange rates via CoinGecko.</p>
     </div>
   );
 }

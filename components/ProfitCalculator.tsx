@@ -36,7 +36,7 @@ function NumberField({
 }) {
   return (
     <label className="surface rounded-xl px-4 py-3">
-      <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">
+      <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-muted">
         <Icon className="h-3 w-3" />
         {label}
       </span>
@@ -50,7 +50,7 @@ function NumberField({
           className="w-full bg-transparent text-lg font-bold text-ink outline-none"
           aria-label={label}
         />
-        <span className="shrink-0 text-[11px] font-semibold text-muted">{suffix}</span>
+        <span className="shrink-0 text-sm font-semibold text-muted">{suffix}</span>
       </div>
     </label>
   );
@@ -103,7 +103,7 @@ export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[]
             </p>
 
             <div className="mt-6 block">
-              <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">
+              <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.1em] text-muted">
                 <Cpu className="h-3 w-3" /> Miner
               </span>
               <SearchSelect
@@ -124,19 +124,19 @@ export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[]
             </div>
 
             <div className="mt-3 flex flex-wrap gap-1.5">
-              <span className="mr-1 self-center text-[10px] font-bold uppercase tracking-[0.12em] text-muted">Hosting rates</span>
+              <span className="mr-1 self-center text-xs font-bold uppercase tracking-[0.12em] text-muted">Hosting rates</span>
               {Array.from(new Map(HOSTING_SITES.map((site) => [site.rate, site])).values()).map((site) => (
                 <button
                   key={site.id}
                   type="button"
                   onClick={() => setCents(Number((site.rate * 100).toFixed(1)))}
-                  className="rounded-full border border-line bg-panel-soft px-3 py-1.5 text-[11px] font-semibold text-muted transition-colors hover:border-accent/40 hover:text-accent"
+                  className="rounded-full border border-line bg-panel-soft px-3 py-1.5 text-sm font-semibold text-muted transition-colors hover:border-accent/40 hover:text-accent"
                 >
                   {site.name} · {(site.rate * 100).toFixed(1)}¢
                 </button>
               ))}
             </div>
-            <p className="mt-3 text-[11px] leading-relaxed text-muted/80">
+            <p className="mt-3 text-sm leading-relaxed text-muted/80">
               Earnings use live network difficulty, block rewards and prices, mining {miner.coin}. They assume today&apos;s
               conditions stay the same.
             </p>
@@ -150,7 +150,7 @@ export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[]
                 Estimated result
               </div>
               <span
-                className={`rounded-full border px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.08em] ${
+                className={`rounded-full border px-2.5 py-1 text-xs font-bold uppercase tracking-[0.08em] ${
                   positive ? "border-accent/30 bg-accent/10 text-accent" : "border-red-400/30 bg-red-400/10 text-red-300"
                 }`}
               >
@@ -159,7 +159,7 @@ export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[]
             </div>
 
             <div className="mt-6">
-              <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">Net per day</div>
+              <div className="text-sm font-semibold uppercase tracking-[0.12em] text-muted">Net per day</div>
               <div className={`mt-1 text-5xl font-bold tracking-tight tabular-nums ${positive ? "text-ink" : "text-red-300"}`}>
                 {money(result.net)}
               </div>
@@ -168,7 +168,7 @@ export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[]
               </div>
             </div>
 
-            <div className="mt-7 space-y-3 text-[11px]">
+            <div className="mt-7 space-y-3 text-sm">
               {[
                 { label: "Income / day", value: result.revenue, width: 100, bar: "from-accent to-aqua" },
                 { label: "Electricity / day", value: -result.power, width: result.revenue > 0 ? (result.power / result.revenue) * 100 : 100, bar: "from-amber to-red-400" },
@@ -188,15 +188,15 @@ export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[]
 
             <div className="mt-7 grid grid-cols-3 gap-3 border-t border-line pt-5">
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Margin</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Margin</div>
                 <div className="mt-0.5 text-sm font-bold tabular-nums text-ink">{result.margin.toFixed(1)}%</div>
               </div>
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Break-even</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Break-even</div>
                 <div className="mt-0.5 text-sm font-bold tabular-nums text-ink">{(result.breakEven * 100).toFixed(1)}¢/kWh</div>
               </div>
               <div>
-                <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted">Energy / day</div>
+                <div className="text-xs font-semibold uppercase tracking-[0.1em] text-muted">Energy / day</div>
                 <div className="mt-0.5 text-sm font-bold tabular-nums text-ink">{result.kwh.toFixed(0)} kWh</div>
               </div>
             </div>
@@ -205,7 +205,7 @@ export default function ProfitCalculator({ miners }: { miners: CalculatorMiner[]
               See prices and hosting for this miner
               <ArrowUpRight className="h-4 w-4" />
             </Link>
-            <p className="mt-3 text-center text-[10px] text-muted/70">Estimates only. Mining income changes with difficulty and price.</p>
+            <p className="mt-3 text-center text-xs text-muted/70">Estimates only. Mining income changes with difficulty and price.</p>
           </div>
         </div>
       </div>

@@ -66,11 +66,11 @@ export default async function VendorsPage() {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <TierBadge tier={vendor.tier} />
-                    {vendor.sample ? <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
+                    {vendor.sample ? <span className="rounded-full border border-line bg-panel-soft px-2 py-0.5 text-xs font-bold uppercase tracking-[0.12em] text-muted">Sample</span> : null}
                   </div>
                 </div>
                 <p className="line-clamp-2 text-xs leading-relaxed text-muted">{vendor.about}</p>
-                <div className="flex flex-wrap items-center gap-3 text-[11px] text-muted">
+                <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
                   <VerifiedBadge verified={vendor.verified} partner={vendor.partner} />
                   {vendor.reviews > 0 ? (
                     <span className="inline-flex items-center gap-1">
@@ -100,7 +100,7 @@ export default async function VendorsPage() {
           })}
         </div>
 
-        <p className="text-[11px] leading-relaxed text-muted/70">
+        <p className="text-sm leading-relaxed text-muted/70">
           Sorted by plan, then by number of listings.
         </p>
       </div>

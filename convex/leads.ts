@@ -1,5 +1,7 @@
-import { internalMutation, internalQuery, mutation } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { acknowledgeLead, notifyNewLead } from "./email";
+import { requireAdmin } from "./users";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -21,6 +23,22 @@ export const remove = internalMutation({
   },
 });
 
+export const listForAdmin = query({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    return await ctx.db.query("leads").order("desc").take(500);
+  },
+});
+
+export const removeForAdmin = mutation({
+  args: { id: v.id("leads") },
+  handler: async (ctx, { id }) => {
+    await requireAdmin(ctx);
+    await ctx.db.delete(id);
+  },
+});
+
 export const create = mutation({
   args: {
     name: v.string(),
@@ -38,6 +56,12 @@ export const create = mutation({
     if (name.length < 2) throw new Error("Name is required.");
     if (!emailPattern.test(email)) throw new Error("Please enter a valid email address.");
 
+    const optedOut = await ctx.db
+      .query("unsubscribes")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .first();
+    if (optedOut) throw new Error("This email address has opted out of messages.");
+
     const recent = await ctx.db
       .query("leads")
       .withIndex("by_email", (q) => q.eq("email", email))
@@ -47,7 +71,7 @@ export const create = mutation({
       throw new Error("Please wait a moment before submitting again.");
     }
 
-    return await ctx.db.insert("leads", {
+    const leadId = await ctx.db.insert("leads", {
       name,
       email,
       interest,
@@ -55,5 +79,27 @@ export const create = mutation({
       source: "form",
       createdAt: Date.now(),
     });
+    await notifyNewLead(ctx, { name, email, interest, message });
+    await acknowledgeLead(ctx, { name, email, interest });
+    return leadId;
+  },
+});
+
+export const unsubscribe = mutation({
+  args: { email: v.string() },
+  handler: async (ctx, { email }) => {
+    const normalized = email.trim().toLowerCase().slice(0, 200);
+    if (!emailPattern.test(normalized)) throw new Error("Please enter a valid email address.");
+    const existing = await ctx.db
+      .query("unsubscribes")
+      .withIndex("by_email", (q) => q.eq("email", normalized))
+      .first();
+    if (!existing) await ctx.db.insert("unsubscribes", { email: normalized, createdAt: Date.now() });
+    const rows = await ctx.db
+      .query("leads")
+      .withIndex("by_email", (q) => q.eq("email", normalized))
+      .collect();
+    for (const row of rows) await ctx.db.delete(row._id);
+    return { removed: rows.length };
   },
 });
